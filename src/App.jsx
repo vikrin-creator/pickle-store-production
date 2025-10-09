@@ -16,6 +16,7 @@ function App() {
   const [cartCount, setCartCount] = useState(0);
   const [productsPageKey, setProductsPageKey] = useState(0);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [categoryFilter, setCategoryFilter] = useState('all');
 
   // Load cart count on component mount
   useEffect(() => {
@@ -116,7 +117,8 @@ function App() {
   }, []);
 
   // Make navigation functions available globally
-  window.navigateToProducts = () => {
+  window.navigateToProducts = (category = 'all') => {
+    setCategoryFilter(category);
     setProductsPageKey(prev => prev + 1); // Force re-render
     setCurrentPage('products');
   };
@@ -170,7 +172,7 @@ function App() {
   const renderPage = () => {
     switch(currentPage) {
       case 'products':
-        return <ProductsPage key={productsPageKey} onProductClick={handleProductClick} cartCount={cartCount} onNavigateToCart={handleNavigateToCart} onAddToCart={addToCart} onNavigateHome={handleBackToHome} />;
+        return <ProductsPage key={productsPageKey} onProductClick={handleProductClick} cartCount={cartCount} onNavigateToCart={handleNavigateToCart} onAddToCart={addToCart} onNavigateHome={handleBackToHome} categoryFilter={categoryFilter} />;
       case 'productDetail':
         return (
           <ProductDetail 

@@ -1,7 +1,24 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import authService from '../services/authService';
 
 const Homepage = ({ cartCount, onNavigateToCart }) => {
   const [email, setEmail] = useState('');
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState(null);
+
+  // Check authentication status on component mount
+  useEffect(() => {
+    setIsAuthenticated(authService.isAuthenticated());
+    setUser(authService.getCurrentUser());
+  }, []);
+
+  const handleLogout = () => {
+    authService.clearAuth();
+    setIsAuthenticated(false);
+    setUser(null);
+    // Refresh page or update UI as needed
+    window.location.reload();
+  };
 
   const handleNewsletterSubmit = (e) => {
     e.preventDefault();
@@ -11,49 +28,83 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-[#f8f7f6] text-[#221c10] font-sans">
+    <div className="min-h-screen w-full flex flex-col bg-[#f8f7f6] text-[#221c10] font-sans overflow-x-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700]/90 px-4 sm:px-10 py-4 backdrop-blur-sm animate-slide-down">
+      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700]/90 px-3 sm:px-6 md:px-10 py-3 md:py-4 backdrop-blur-sm animate-slide-down">
         {/* Logo */}
         <div className="flex items-center animate-fade-in">
           <img 
             src="/assets/logo.png" 
-            alt="Janiitra Logo" 
-            className="h-6 w-36 sm:h-8 sm:w-48 object-contain hover:scale-105 transition-transform duration-300"
+            alt="Janiitra - Authentic Indian Pickles Logo" 
+            className="h-5 w-28 sm:h-6 sm:w-36 md:h-8 md:w-48 object-contain hover:scale-105 transition-transform duration-300"
           />
         </div>
 
         {/* Navigation - Hidden on mobile, shown on larger screens */}
-        <nav className="hidden md:flex items-center gap-8 animate-fade-in-delay-1">
+        <nav className="hidden lg:flex items-center gap-4 xl:gap-8 animate-fade-in-delay-1" role="navigation" aria-label="Main navigation">
           <button 
             onClick={() => window.navigateToProducts && window.navigateToProducts()}
-            className="text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
+            aria-label="Shop for authentic Indian pickles"
           >
             Shop
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </button>
-          <a href="#" className="text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
+          <a href="#about" className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
             About
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </a>
-          <a href="#" className="text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
+          <a href="#recipes" className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
             Recipes
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </a>
-          <a href="#" className="text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
+          <a href="#contact" className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
             Contact
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </a>
         </nav>
 
+        {/* Mobile Menu Button - Only visible on mobile */}
+        <button 
+          className="lg:hidden text-white hover:text-[#ecab13] transition-colors duration-300"
+          aria-label="Open mobile menu"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+
         {/* Header Actions */}
-        <div className="flex items-center gap-2 animate-fade-in-delay-2">
+        <div className="hidden lg:flex items-center gap-2 animate-fade-in-delay-2">
           {/* Search Button */}
           <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-110 hover:rotate-12 group">
             <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
               <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
             </svg>
           </button>
+
+          {/* Account/Logout Button */}
+          {isAuthenticated ? (
+            <button 
+              onClick={handleLogout}
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-red-500/20 hover:scale-110 group"
+              title={`Logout ${user?.name || 'User'}`}
+            >
+              <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
+                <path d="M112,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h56a8,8,0,0,1,0,16H48V208h56A8,8,0,0,1,112,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L188.69,112H112a8,8,0,0,0,0,16h76.69l-18.35,18.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,221.66,122.34Z"></path>
+              </svg>
+            </button>
+          ) : (
+            <button 
+              onClick={() => {/* Handle login modal opening */}}
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-110 group"
+              title="Login"
+            >
+              <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
+                <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
+              </svg>
+            </button>
+          )}
 
           {/* Cart Button */}
           <button 
@@ -72,25 +123,29 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </div>
       </header>
 
-      <main>
+      <main role="main">
         {/* Hero Section */}
         <section 
-          className="flex items-center justify-center min-h-[60vh] bg-cover bg-center text-center text-[#e8e1e1] px-4 py-20 animate-fade-in"
+          className="flex items-center justify-center min-h-[50vh] sm:min-h-[60vh] lg:min-h-[70vh] bg-cover bg-center text-center text-[#e8e1e1] px-3 sm:px-6 py-12 sm:py-16 lg:py-20 animate-fade-in"
           style={{
             backgroundImage: "linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('/assets/PickleBackgroundjars.png')"
           }}
+          aria-label="Hero section showcasing authentic Indian pickles"
         >
-          <div className="animate-slide-up">
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-wider mb-4 animate-bounce-in">
+          <div className="animate-slide-up max-w-6xl mx-auto">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold uppercase tracking-wider mb-4 animate-bounce-in">
               Janiitra
             </h1>
-            <p className="mt-4 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed animate-fade-in-delay-1">
-              Authentic taste of tradition, crafted with love and care. Preserving age-old recipes of homemade pickles, 
-              made using organic ingredients, natural oils, and traditional methods – just like how they were prepared in our grandmothers' kitchens.
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold uppercase tracking-wide mb-4 text-[#ecab13] animate-fade-in-delay-1">
+              AUTHENTIC INDIAN PICKLES
+            </h2>
+            <p className="mt-4 text-base sm:text-lg md:text-xl max-w-2xl lg:max-w-4xl mx-auto leading-relaxed animate-fade-in-delay-2 px-4">
+              Handcrafted with love, bursting with traditional flavours that dance on your tongue.
             </p>
             <button 
-              className="mt-8 bg-[#ecab13] text-[#221c10] px-8 py-3 font-bold text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-2 transform hover:rotate-1"
+              className="mt-6 sm:mt-8 bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-bold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1"
               onClick={() => window.navigateToProducts && window.navigateToProducts()}
+              aria-label="Shop authentic Indian pickles now"
             >
               Shop Now
             </button>
@@ -98,12 +153,12 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </section>
 
         {/* Our Specialties Section */}
-        <section className="py-16 px-4 animate-fade-in-up">
-          <h2 className="text-center text-3xl sm:text-4xl font-bold mb-4 animate-slide-down">Today, we proudly specialize in:</h2>
-          <p className="text-center text-lg text-gray-600 mb-12 max-w-3xl mx-auto animate-fade-in-delay-1">
+        <section className="py-12 sm:py-16 px-3 sm:px-6 animate-fade-in-up" id="specialties" aria-labelledby="specialties-heading">
+          <h2 id="specialties-heading" className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-4 animate-slide-down">Today, we proudly specialize in:</h2>
+          <p className="text-center text-base sm:text-lg text-gray-600 mb-8 sm:mb-12 max-w-3xl mx-auto animate-fade-in-delay-1 px-4">
             Every product carries the richness of Indian kitchens straight to your plate
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
             {[
               {
                 title: "🥒 Pickles (Veg & Non-Veg)",
@@ -129,16 +184,16 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               <button 
                 key={index}
                 onClick={() => window.navigateToProducts && window.navigateToProducts()}
-                className={`rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
+                className={`rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger mx-2`}
                 style={{ animationDelay: `${index * 0.2}s` }}
               >
                 <div 
                   className="aspect-square bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
                   style={{ backgroundImage: `url('${item.image}')` }}
                 ></div>
-                <div className="p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300">
-                  <h3 className="text-xl font-bold">{item.title}</h3>
-                  <p className="mt-2 text-[#221c10]/70">{item.description}</p>
+                <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300">
+                  <h3 className="text-lg sm:text-xl font-bold">{item.title}</h3>
+                  <p className="mt-2 text-sm sm:text-base text-[#221c10]/70">{item.description}</p>
                 </div>
               </button>
             ))}
@@ -146,9 +201,9 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </section>
 
         {/* Our Promise Section */}
-        <section className="py-16 px-4 bg-[#ecab13]/10 text-center animate-fade-in-up">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-8 animate-bounce-in">🌱 Our Promise</h2>
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <section className="py-12 sm:py-16 px-3 sm:px-6 bg-[#ecab13]/10 text-center animate-fade-in-up">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 animate-bounce-in">🌱 Our Promise</h2>
+          <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {[
               { icon: "✔", title: "Authenticity First", desc: "Recipes rooted in tradition" },
               { icon: "✔", title: "100% Natural", desc: "No preservatives, no artificial flavors" },
@@ -157,25 +212,25 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             ].map((item, index) => (
               <div 
                 key={index}
-                className={`bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105 animate-fade-in-stagger group cursor-pointer`}
+                className={`bg-white rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105 animate-fade-in-stagger group cursor-pointer mx-2`}
                 style={{ animationDelay: `${index * 0.15}s` }}
               >
-                <div className="text-2xl mb-3 group-hover:scale-125 transition-transform duration-300 group-hover:text-[#ecab13]">{item.icon}</div>
-                <h3 className="font-bold text-lg mb-2 group-hover:text-[#ecab13] transition-colors duration-300">{item.title}</h3>
-                <p className="text-[#221c10]/80">{item.desc}</p>
+                <div className="text-xl sm:text-2xl mb-2 sm:mb-3 group-hover:scale-125 transition-transform duration-300 group-hover:text-[#ecab13]">{item.icon}</div>
+                <h3 className="font-bold text-base sm:text-lg mb-2 group-hover:text-[#ecab13] transition-colors duration-300">{item.title}</h3>
+                <p className="text-sm sm:text-base text-[#221c10]/80">{item.desc}</p>
               </div>
             ))}
           </div>
-          <p className="max-w-4xl mx-auto mt-8 text-lg text-[#221c10]/80 leading-7 italic animate-fade-in-delay-2">
+          <p className="max-w-4xl mx-auto mt-6 sm:mt-8 text-base sm:text-lg text-[#221c10]/80 leading-6 sm:leading-7 italic animate-fade-in-delay-2 px-4">
             At Janiitra, food isn't just a product – it's an emotion, a tradition, and a way of life. 
             Every jar of pickle, every pack of spice, and every podi mix carries the richness of Indian kitchens straight to your plate.
           </p>
         </section>
 
         {/* Traditional Favorites Section */}
-        <section className="py-16 px-4 animate-fade-in-up">
-          <h2 className="text-center text-3xl sm:text-4xl font-bold mb-12 animate-slide-down">Traditional Favorites</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <section className="py-12 sm:py-16 px-3 sm:px-6 animate-fade-in-up">
+          <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 animate-slide-down">Traditional Favorites</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
             {[
               {
                 title: "Mango Pickle",
@@ -195,16 +250,16 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             ].map((item, index) => (
               <div 
                 key={index} 
-                className={`relative bg-white rounded-xl shadow-sm p-4 text-center group hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger cursor-pointer`}
+                className={`relative bg-white rounded-xl shadow-sm p-3 sm:p-4 text-center group hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger cursor-pointer mx-2`}
                 style={{ animationDelay: `${index * 0.2}s` }}
               >
                 <div 
                   className="aspect-square w-full overflow-hidden rounded-xl bg-gray-200 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
                   style={{ backgroundImage: `url('${item.image}')` }}
                 ></div>
-                <div className="mt-4 group-hover:transform group-hover:translate-y-1 transition-transform duration-300">
-                  <div className="text-lg font-semibold group-hover:text-[#ecab13] transition-colors duration-300">{item.title}</div>
-                  <div className="mt-1 text-sm text-[#221c10]/70">{item.description}</div>
+                <div className="mt-3 sm:mt-4 group-hover:transform group-hover:translate-y-1 transition-transform duration-300">
+                  <div className="text-base sm:text-lg font-semibold group-hover:text-[#ecab13] transition-colors duration-300">{item.title}</div>
+                  <div className="mt-1 text-xs sm:text-sm text-[#221c10]/70 px-1">{item.description}</div>
                 </div>
               </div>
             ))}
@@ -212,26 +267,26 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </section>
 
         {/* Newsletter Section */}
-        <section className="bg-[#ecab13]/10 rounded-2xl py-16 px-4 text-center mx-4 animate-fade-in-up">
-          <h2 className="text-3xl sm:text-4xl font-bold animate-bounce-in">Stay Connected with Janiitra</h2>
-          <p className="mt-4 mx-auto max-w-2xl text-lg text-[#221c10]/80 animate-fade-in-delay-1">
+        <section className="bg-[#ecab13]/10 rounded-2xl py-12 sm:py-16 px-3 sm:px-6 text-center mx-3 sm:mx-6 animate-fade-in-up">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold animate-bounce-in">Stay Connected with Janiitra</h2>
+          <p className="mt-4 mx-auto max-w-2xl text-base sm:text-lg text-[#221c10]/80 animate-fade-in-delay-1 px-4">
             Get exclusive offers, traditional recipes, and authentic product updates straight from our kitchen to your inbox.
           </p>
           <form 
             onSubmit={handleNewsletterSubmit}
-            className="mt-8 mx-auto flex max-w-96 gap-2"
+            className="mt-6 sm:mt-8 mx-auto flex flex-col sm:flex-row max-w-96 gap-2 sm:gap-2 px-4"
           >
             <input 
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 rounded-lg border border-[#ecab13] bg-[#f8f7f6] px-4 py-2 text-[#221c10] text-base focus:border-[#ecab13] focus:outline-none"
+              className="flex-1 rounded-lg border border-[#ecab13] bg-[#f8f7f6] px-4 py-2.5 sm:py-2 text-[#221c10] text-sm sm:text-base focus:border-[#ecab13] focus:outline-none"
               required
             />
             <button 
               type="submit"
-              className="rounded-lg bg-[#ecab13] px-6 py-2 font-bold text-[#221c10] transition-transform duration-200 hover:scale-105"
+              className="rounded-lg bg-[#ecab13] px-6 py-2.5 sm:py-2 font-bold text-sm sm:text-base text-[#221c10] transition-transform duration-200 hover:scale-105"
             >
               Subscribe
             </button>
@@ -240,16 +295,16 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-[#ecab13]/20 bg-[#f8f7f6] pt-10 text-center">
+      <footer className="border-t border-[#ecab13]/20 bg-[#f8f7f6] pt-8 sm:pt-10 text-center px-3 sm:px-6">
         {/* Footer Links */}
-        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-[#221c10]/70">
+        <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-[#221c10]/70">
           <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Contact Us</a>
           <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Privacy Policy</a>
           <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Terms of Service</a>
         </div>
 
         {/* Social Links */}
-        <div className="mt-6 flex justify-center gap-6 text-[#221c10]/70">
+        <div className="mt-4 sm:mt-6 flex justify-center gap-4 sm:gap-6 text-[#221c10]/70">
           <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">
             <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
               <path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm40,152a40,40,0,0,1-40,40H80a40,40,0,0,1-40-40V80A40,40,0,0,1,80,40h96a40,40,0,0,1,40,40ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"></path>
@@ -268,7 +323,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </div>
 
         {/* Copyright */}
-        <div className="mt-6 pb-10 text-sm text-[#221c10]/60">
+        <div className="mt-4 sm:mt-6 pb-8 sm:pb-10 text-xs sm:text-sm text-[#221c10]/60">
           © 2024 Pickle Paradise. All rights reserved.
         </div>
       </footer>

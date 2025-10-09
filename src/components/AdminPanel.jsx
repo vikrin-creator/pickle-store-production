@@ -2,13 +2,16 @@ import { useState, useEffect } from 'react';
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState('products');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: 'Pickles',
+    category: 'Vegetarian',
+    productType: 'Pickles',
     featured: false,
     rating: 0,
     reviews: 0,
@@ -22,167 +25,29 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     { weight: '1kg', price: 520 }
   ]);
 
-  // Default products for initialization
-  const defaultProducts = [
-    {
-      id: 1,
-      name: "Mango Tango",
-      description: "Sweet and tangy mango pickle - Made with fresh mangoes and traditional spices",
-      price: 12.99,
-      category: "Vegetarian",
-      spiceLevel: "Medium",
-      region: "South Indian",
-      image: "/assets/MangoTango.png",
-      weightOptions: [
-        { weight: '250g', price: 12.99 },
-        { weight: '500g', price: 22.99 },
-        { weight: '1kg', price: 42.99 }
-      ]
-    },
-    {
-      id: 2,
-      name: "Lime Zest",
-      description: "Zesty lime pickle with a hint of spice - Fresh limes with aromatic spices",
-      price: 10.99,
-      category: "Vegetarian",
-      spiceLevel: "Mild",
-      region: "Gujarati",
-      image: "/assets/Limezest.png",
-      weightOptions: [
-        { weight: '200g', price: 10.99 },
-        { weight: '400g', price: 19.99 },
-        { weight: '800g', price: 37.99 }
-      ]
-    },
-    {
-      id: 3,
-      name: "Chili Kick",
-      description: "Fiery chili pickle for the brave - Extra hot and flavorful",
-      price: 14.99,
-      category: "Vegetarian",
-      spiceLevel: "Extra Hot",
-      region: "North Indian",
-      image: "/assets/Chillikick.png",
-      weightOptions: [
-        { weight: '150g', price: 14.99 },
-        { weight: '300g', price: 27.99 },
-        { weight: '600g', price: 52.99 }
-      ]
-    },
-    {
-      id: 4,
-      name: "Garlic Burst",
-      description: "Bold garlic pickle with a savory flavor - Rich and aromatic",
-      price: 11.99,
-      category: "Vegetarian",
-      spiceLevel: "Hot",
-      region: "Gujarati",
-      image: "/assets/Garlic.png",
-      weightOptions: [
-        { weight: '250g', price: 11.99 },
-        { weight: '500g', price: 21.99 },
-        { weight: '1kg', price: 40.99 }
-      ]
-    },
-    {
-      id: 5,
-      name: "Mixed Veggie Medley",
-      description: "A delightful mix of seasonal vegetables - Traditional recipe",
-      price: 13.49,
-      category: "Vegetarian",
-      spiceLevel: "Medium",
-      region: "North Indian",
-      image: "/assets/MixedVegetablePickle.png",
-      weightOptions: [
-        { weight: '250g', price: 13.49 },
-        { weight: '500g', price: 24.99 },
-        { weight: '1kg', price: 46.99 }
-      ]
-    },
-    {
-      id: 6,
-      name: "Spicy Chicken",
-      description: "Savory chicken pickle with a spicy kick - Non-vegetarian delight",
-      price: 18.99,
-      category: "Non-Vegetarian",
-      spiceLevel: "Hot",
-      region: "South Indian",
-      image: "/assets/chicken.png",
-      weightOptions: [
-        { weight: '200g', price: 18.99 },
-        { weight: '400g', price: 35.99 },
-        { weight: '800g', price: 68.99 }
-      ]
-    },
-    {
-      id: 7,
-      name: "Mirchi Pickle",
-      description: "Traditional green chili pickle - Authentic and spicy",
-      price: 15.99,
-      category: "Vegetarian",
-      spiceLevel: "Extra Hot",
-      region: "North Indian",
-      image: "/assets/Mirchi.png",
-      weightOptions: [
-        { weight: '200g', price: 15.99 },
-        { weight: '400g', price: 29.99 },
-        { weight: '800g', price: 56.99 }
-      ]
-    },
-    {
-      id: 8,
-      name: "Garlic Seed Special",
-      description: "Special garlic seed pickle - Unique flavor combination",
-      price: 16.99,
-      category: "Vegetarian",
-      spiceLevel: "Medium",
-      region: "South Indian",
-      image: "/assets/GarlicSeed.png",
-      weightOptions: [
-        { weight: '250g', price: 16.99 },
-        { weight: '500g', price: 31.99 },
-        { weight: '1kg', price: 59.99 }
-      ]
-    },
-    {
-      id: 9,
-      name: "Mango Jar Special",
-      description: "Premium mango pickle in traditional jar - Family recipe",
-      price: 18.99,
-      category: "Vegetarian",
-      spiceLevel: "Medium",
-      region: "South Indian",
-      image: "/assets/MangoJar.png"
-    },
-    {
-      id: 10,
-      name: "Neem Jar Pickle",
-      description: "Traditional neem-infused pickle - Health benefits included",
-      price: 20.99,
-      category: "Vegetarian",
-      spiceLevel: "Mild",
-      region: "South Indian",
-      image: "/assets/Neemjar.png"
-    }
-  ];
-
   useEffect(() => {
     loadProducts();
   }, []);
 
   const loadProducts = async () => {
     try {
+      setLoading(true);
+      setError(null);
+      console.log('AdminPanel: Loading products from API');
       const response = await fetch('https://pickle-store-backend.onrender.com/api/products');
       if (response.ok) {
         const data = await response.json();
+        console.log('AdminPanel: Loaded products from API:', data.length);
         setProducts(data);
       } else {
-        console.error('Failed to load products from API');
-        setProducts([]);
+        throw new Error(`Failed to load products: ${response.status}`);
       }
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error('AdminPanel: Error loading products from API:', error);
+      setError('Failed to load products. Please check your connection and try again.');
       setProducts([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -219,6 +84,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       formDataToSend.append('name', formData.name);
       formDataToSend.append('description', formData.description);
       formDataToSend.append('category', formData.category);
+      formDataToSend.append('productType', formData.productType);
       formDataToSend.append('weights', JSON.stringify(weightOptions));
       formDataToSend.append('featured', formData.featured || false);
       formDataToSend.append('rating', formData.rating || 0);
@@ -259,7 +125,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         setFormData({
           name: '',
           description: '',
-          category: 'Pickles',
+          category: 'Vegetarian',
+          productType: 'Pickles',
           featured: false,
           rating: 0,
           reviews: 0,
@@ -292,6 +159,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       name: product.name,
       description: product.description,
       category: product.category,
+      productType: product.productType || 'Pickles', // Default to Pickles if not set
       featured: product.featured,
       rating: product.rating,
       reviews: product.reviews,
@@ -339,10 +207,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     setFormData({
       name: '',
       description: '',
-      price: '',
       category: 'Vegetarian',
-      spiceLevel: 'Medium',
-      region: 'South Indian',
+      productType: 'Pickles',
+      featured: false,
+      rating: 0,
+      reviews: 0,
       image: ''
     });
   };
@@ -409,8 +278,51 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         {/* Tab Content */}
         {activeTab === 'products' && (
           <>
+            {/* Loading State */}
+            {loading && (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <span className="ml-3 text-gray-600">Loading products...</span>
+              </div>
+            )}
+
+            {/* Error State */}
+            {error && !loading && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
+                <div className="flex items-center">
+                  <div className="flex-shrink-0">
+                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">Error Loading Products</h3>
+                    <p className="text-sm text-red-700 mt-1">{error}</p>
+                    <button
+                      onClick={loadProducts}
+                      className="mt-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm"
+                    >
+                      Retry
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* No Products State */}
+            {!loading && !error && products.length === 0 && (
+              <div className="text-center py-12">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2M4 13h2m0 0V9a2 2 0 012-2h2m0 0V6a2 2 0 012-2h3a2 2 0 012 2v1M9 7h6" />
+                </svg>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">No products found</h3>
+                <p className="mt-1 text-sm text-gray-500">Get started by adding your first product.</p>
+              </div>
+            )}
+
             {/* Products Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+            {!loading && !error && products.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
           {products.map((product) => (
             <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <img
@@ -441,6 +353,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   )}
                 </div>
                 <div className="flex flex-wrap gap-1 text-xs mb-3">
+                  <span className="bg-blue-100 px-2 py-1 rounded text-blue-800">{product.productType || 'Pickles'}</span>
                   <span className="bg-gray-100 px-2 py-1 rounded">{product.category}</span>
                   {product.featured && <span className="bg-yellow-100 px-2 py-1 rounded text-yellow-800">Featured</span>}
                   {product.rating && <span className="bg-green-100 px-2 py-1 rounded text-green-800">★ {product.rating}</span>}
@@ -463,6 +376,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             </div>
           ))}
         </div>
+            )}
 
         {/* Add/Edit Product Form Modal */}
         {showAddForm && (
@@ -513,7 +427,22 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1">Category</label>
+                    <label className="block text-sm font-medium mb-1">Product Type</label>
+                    <select
+                      name="productType"
+                      value={formData.productType}
+                      onChange={handleInputChange}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
+                    >
+                      <option value="Pickles">Pickles</option>
+                      <option value="Spices">Spices</option>
+                      <option value="Seafood">Seafood</option>
+                      <option value="Podi">Podi</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Dietary Category</label>
                     <select
                       name="category"
                       value={formData.category}
@@ -522,8 +451,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     >
                       <option value="Vegetarian">Vegetarian</option>
                       <option value="Non-Vegetarian">Non-Vegetarian</option>
-                      <option value="Seafood">Seafood</option>
-                      <option value="Podi's">Podi's</option>
                     </select>
                   </div>
                   
