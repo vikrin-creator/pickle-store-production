@@ -35,7 +35,7 @@ const OrderConfirmation = ({ order, onContinueShopping }) => {
           <h2 className="text-3xl font-bold mb-4">Order Placed Successfully!</h2>
           <p className="text-lg text-[#221c10]/80 mb-2">Thank you for your purchase!</p>
           <p className="text-[#221c10]/60">
-            Your order <span className="font-semibold text-[#ecab13]">#{order.id}</span> has been confirmed.
+            Your order <span className="font-semibold text-[#ecab13]">#{order.orderNumber || order.id}</span> has been confirmed.
           </p>
         </div>
 
@@ -47,18 +47,18 @@ const OrderConfirmation = ({ order, onContinueShopping }) => {
             <div className="space-y-4 mb-6">
               <div className="flex justify-between">
                 <span className="text-[#221c10]/60">Order Number:</span>
-                <span className="font-semibold">{order.id}</span>
+                <span className="font-semibold">{order.orderNumber || order.id}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#221c10]/60">Order Date:</span>
                 <span className="font-semibold">
-                  {new Date(order.orderDate).toLocaleDateString()}
+                  {new Date(order.createdAt || order.orderDate).toLocaleDateString()}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-[#221c10]/60">Status:</span>
                 <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-medium">
-                  Confirmed
+                  {order.status || 'Confirmed'}
                 </span>
               </div>
               <div className="flex justify-between">
@@ -70,10 +70,10 @@ const OrderConfirmation = ({ order, onContinueShopping }) => {
             <div className="border-t border-[#ecab13]/20 pt-6">
               <h4 className="font-semibold mb-4">Shipping Address</h4>
               <div className="text-[#221c10]/80 space-y-1">
-                <p>{order.customerInfo.firstName} {order.customerInfo.lastName}</p>
-                <p>{order.customerInfo.address}</p>
-                <p>{order.customerInfo.city}, {order.customerInfo.state} {order.customerInfo.zipCode}</p>
-                <p>{order.customerInfo.country}</p>
+                <p>{order.customerInfo.name}</p>
+                <p>{order.customerInfo.address?.street || order.customerInfo.address}</p>
+                <p>{order.customerInfo.address?.city || order.customerInfo.city}, {order.customerInfo.address?.state || order.customerInfo.state} {order.customerInfo.address?.pincode || order.customerInfo.zipCode}</p>
+                <p>{order.customerInfo.country || 'India'}</p>
               </div>
             </div>
           </div>
@@ -83,8 +83,8 @@ const OrderConfirmation = ({ order, onContinueShopping }) => {
             <h3 className="text-xl font-semibold mb-6">Order Items</h3>
             
             <div className="space-y-4 mb-6">
-              {order.items.map((item) => (
-                <div key={item.cartId} className="flex gap-4 pb-4 border-b border-gray-100 last:border-b-0">
+              {order.items.map((item, index) => (
+                <div key={item.cartId || index} className="flex gap-4 pb-4 border-b border-gray-100 last:border-b-0">
                   <img
                     src={item.image || 'https://via.placeholder.com/64x64/ecab13/FFFFFF?text=' + encodeURIComponent(item.name)}
                     alt={item.name}
@@ -94,16 +94,11 @@ const OrderConfirmation = ({ order, onContinueShopping }) => {
                     <h4 className="font-semibold">{item.name}</h4>
                     <p className="text-sm text-[#221c10]/60 mb-2">{item.description}</p>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        item.category === 'Vegetarian' ? 'bg-green-100 text-green-800' :
-                        item.category === 'Non-Vegetarian' ? 'bg-red-100 text-red-800' :
-                        item.category === 'Seafood' ? 'bg-blue-100 text-blue-800' :
-                        'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {item.category}
+                      <span className="px-2 py-1 rounded text-xs font-medium bg-yellow-100 text-yellow-800">
+                        {item.weight || item.selectedWeight?.weight || 'Standard'}
                       </span>
                       <span className="text-xs text-[#221c10]/60">
-                        {item.selectedSpiceLevel} • Qty: {item.quantity}
+                        Qty: {item.quantity}
                       </span>
                     </div>
                     <div className="text-[#ecab13] font-semibold">
@@ -118,19 +113,19 @@ const OrderConfirmation = ({ order, onContinueShopping }) => {
               <div className="flex justify-between">
                 <span>Subtotal:</span>
                 <span className="font-semibold">
-                  ₹{order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
+                  ₹{(order.subtotal || order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping:</span>
                 <span className="font-semibold">
-                  {order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) > 2000 ? 'Free' : '₹200'}
+                  ₹{(order.shipping || 0).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span>Tax (GST):</span>
                 <span className="font-semibold">
-                  ₹{(order.items.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18).toFixed(2)}
+                  ₹{(order.tax || 0).toFixed(2)}
                 </span>
               </div>
               <div className="flex justify-between text-lg font-bold text-[#ecab13] border-t pt-2">

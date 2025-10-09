@@ -72,21 +72,61 @@ const Checkout = ({ onBack, onOrderComplete }) => {
 
     setIsProcessing(true);
 
-    // Simulate payment processing
-    setTimeout(() => {
-      // Create order
-      const order = {
-        id: `ORD-${Date.now()}`,
-        items: cartItems,
-        total: total,
-        customerInfo: formData,
-        orderDate: new Date().toISOString(),
+    try {
+      // Calculate totals
+      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const shipping = subtotal > 2000 ? 0 : 200;
+      const tax = subtotal * 0.18;
+      const finalTotal = subtotal + shipping + tax;
+
+      // Prepare order data for backend
+      const orderData = {
+        items: cartItems.map(item => ({
+          productId: item._id || item.id,
+          name: item.name,
+          weight: item.selectedWeight?.weight || '250g',
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image
+        })),
+        customerInfo: {
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          phone: formData.phone,
+          address: {
+            street: formData.address,
+            city: formData.city,
+            state: formData.state,
+            pincode: formData.zipCode
+          }
+        },
+        subtotal: subtotal,
+        tax: tax,
+        shipping: shipping,
+        total: finalTotal,
+        paymentMethod: 'cod', // Cash on Delivery for now
+        paymentStatus: 'pending',
         status: 'confirmed'
       };
 
-      // Save order to localStorage
+      // Submit order to backend
+      const response = await fetch('https://pickle-store-backend.onrender.com/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData)
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create order');
+      }
+
+      const savedOrder = await response.json();
+
+      // Save order to localStorage for reference
       const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-      existingOrders.push(order);
+      existingOrders.push(savedOrder);
       localStorage.setItem('orders', JSON.stringify(existingOrders));
 
       // Clear cart
@@ -96,8 +136,12 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       window.dispatchEvent(new Event('cartUpdated'));
 
       setIsProcessing(false);
-      onOrderComplete(order);
-    }, 3000);
+      onOrderComplete(savedOrder);
+    } catch (error) {
+      console.error('Order creation failed:', error);
+      setIsProcessing(false);
+      alert('Failed to create order. Please try again.');
+    }
   };
 
   const validateForm = () => {
