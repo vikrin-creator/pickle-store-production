@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart, onNavigateHome }) => {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     spice: '',
     diet: ''
@@ -199,16 +200,21 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
       diet: ''
     });
     setSearchQuery('');
+    setShowSearch(false);
   };
 
   // Filter products based on selected filters and search query
   const filteredProducts = products.filter(product => {
-    // Search filter
-    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         product.description.toLowerCase().includes(searchQuery.toLowerCase());
+    // Search filter - make it more comprehensive
+    const searchTerm = searchQuery.toLowerCase().trim();
+    const matchesSearch = !searchTerm || 
+      product.name.toLowerCase().includes(searchTerm) ||
+      product.description.toLowerCase().includes(searchTerm) ||
+      (product.category && product.category.toLowerCase().includes(searchTerm));
     
-    // Spice level filter
-    const matchesSpice = !selectedFilters.spice || product.spiceLevel === selectedFilters.spice;
+    // Spice level filter - handle products without spiceLevel field
+    const productSpiceLevel = product.spiceLevel || 'Medium'; // Default to Medium if not set
+    const matchesSpice = !selectedFilters.spice || productSpiceLevel === selectedFilters.spice;
     
     // Dietary filter
     const matchesDiet = !selectedFilters.diet || product.category === selectedFilters.diet;
@@ -266,7 +272,12 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
         {/* Header Actions */}
         <div className="flex items-center gap-2">
           {/* Search Button */}
-          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-colors duration-200 hover:bg-[#ecab13]/20">
+          <button 
+            onClick={() => setShowSearch(!showSearch)}
+            className={`w-10 h-10 flex items-center justify-center rounded-full text-white transition-colors duration-200 ${
+              showSearch ? 'bg-[#ecab13]' : 'bg-white/20 hover:bg-[#ecab13]/20'
+            }`}
+          >
             <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
               <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
             </svg>
@@ -288,6 +299,47 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
           </button>
         </div>
       </header>
+
+      {/* Search Bar */}
+      {showSearch && (
+        <div className="bg-white border-b border-gray-200 px-4 sm:px-10 py-4">
+          <div className="max-w-md mx-auto">
+            <div className="relative">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search for pickles... (e.g., mango, chili, lime)"
+                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13] focus:border-[#ecab13]"
+                autoFocus
+              />
+              <svg 
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                fill="none" 
+                stroke="currentColor" 
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 hover:text-gray-600"
+                >
+                  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <p className="mt-2 text-sm text-gray-600">
+                Searching for: <span className="font-semibold">"{searchQuery}"</span>
+              </p>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="products-main">
@@ -347,8 +399,17 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
           {/* Products Section */}
           <section className="products-list-section flex-1">
             {/* Products Header */}
-            <div className="products-list-header flex justify-between items-center mb-8">
-              <h1 className="products-list-title text-3xl font-bold text-[#221c10]">Shop All Pickles</h1>
+            <div className="products-list-header flex justify-between items-center mb-6">
+              <div>
+                <h1 className="products-list-title text-3xl font-bold text-[#221c10]">Shop All Pickles</h1>
+                <p className="text-gray-600 mt-1">
+                  {searchQuery ? (
+                    <>Showing {sortedProducts.length} result{sortedProducts.length !== 1 ? 's' : ''} for "<span className="font-semibold">{searchQuery}</span>"</>
+                  ) : (
+                    <>Showing {sortedProducts.length} product{sortedProducts.length !== 1 ? 's' : ''}</>
+                  )}
+                </p>
+              </div>
               <div className="products-sort flex items-center gap-2">
                 <span className="text-gray-700">Sort by:</span>
                 <select
@@ -424,13 +485,31 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                 ))
               ) : (
                 <div className="col-span-full text-center py-12">
-                  <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
-                  <button
-                    onClick={clearAllFilters}
-                    className="mt-4 text-[#ecab13] hover:text-[#d49c12] font-medium"
-                  >
-                    Clear filters to see all products
-                  </button>
+                  {searchQuery ? (
+                    <>
+                      <svg className="mx-auto w-16 h-16 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                      <p className="text-gray-500 text-lg mb-2">No pickles found for "<span className="font-semibold">{searchQuery}</span>"</p>
+                      <p className="text-gray-400 text-sm mb-4">Try searching for "mango", "chili", "lime", or other pickle ingredients</p>
+                      <button
+                        onClick={() => setSearchQuery('')}
+                        className="text-[#ecab13] hover:text-[#d49c12] font-medium"
+                      >
+                        Clear search
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+                      <button
+                        onClick={clearAllFilters}
+                        className="mt-4 text-[#ecab13] hover:text-[#d49c12] font-medium"
+                      >
+                        Clear filters to see all products
+                      </button>
+                    </>
+                  )}
                 </div>
               )}
             </div>

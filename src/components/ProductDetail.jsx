@@ -84,7 +84,30 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
         </nav>
 
         {/* Header Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-4">
+          {/* Cart Icon with Count */}
+          <button 
+            onClick={() => window.navigateToCart && window.navigateToCart()}
+            className="relative flex items-center gap-2 text-white hover:text-[#ecab13] transition-colors duration-200"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5H20M7 13l-2.5 5M17 16v6a2 2 0 11-4 0v-6m4 0a2 2 0 104 0m-4 0a2 2 0 10-4 0" />
+            </svg>
+            {(() => {
+              try {
+                const cartItems = JSON.parse(localStorage.getItem('cartItems') || '[]');
+                const totalItems = cartItems.reduce((total, item) => total + (item.quantity || 0), 0);
+                return totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-[#ecab13] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-bold">
+                    {totalItems > 99 ? '99+' : totalItems}
+                  </span>
+                );
+              } catch {
+                return null;
+              }
+            })()}
+          </button>
+          
           <button
             onClick={onBack}
             className="flex items-center gap-2 text-white hover:text-[#ecab13] transition-colors duration-200"
@@ -133,7 +156,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
             <div className="border-t border-b border-[#ecab13]/20 py-6">
               <div className="text-3xl font-bold text-[#ecab13]">₹{selectedWeight?.price?.toFixed(2) || '150.00'}</div>
               <p className="text-sm text-[#221c10]/60 mt-1">
-                {selectedWeight?.weight || '250g'} • Free shipping on orders over ₹2000
+                {selectedWeight?.weight || '250g'}
               </p>
             </div>
 

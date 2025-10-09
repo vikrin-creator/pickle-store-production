@@ -523,10 +523,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       <option value="Vegetarian">Vegetarian</option>
                       <option value="Non-Vegetarian">Non-Vegetarian</option>
                       <option value="Seafood">Seafood</option>
-                      <option value="Pickles">Pickles</option>
-                      <option value="Chutneys">Chutneys</option>
-                      <option value="Spices">Spices</option>
-                      <option value="Oils">Oils</option>
                       <option value="Podi's">Podi's</option>
                     </select>
                   </div>
