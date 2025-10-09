@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import ImageManager from './ImageManager';
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [products, setProducts] = useState([]);
@@ -362,16 +361,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
           <div className="flex items-center gap-4">
             <button
-              onClick={() => {
-                const products = JSON.parse(localStorage.getItem('adminProducts') || '[]');
-                console.log('Current products in localStorage:', products.length);
-                alert(`Products in localStorage: ${products.length}`);
-              }}
-              className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
-            >
-              Check Storage ({products.length})
-            </button>
-            <button
               onClick={() => setShowAddForm(true)}
               className="px-4 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors"
             >
@@ -412,16 +401,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 }`}
               >
                 Products
-              </button>
-              <button
-                onClick={() => setActiveTab('images')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'images'
-                    ? 'border-orange-500 text-orange-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Image Manager
               </button>
             </nav>
           </div>
@@ -678,10 +657,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
         </>
-        )}
-
-        {activeTab === 'images' && (
-          <ImageManager />
         )}
       </div>
     </div>
