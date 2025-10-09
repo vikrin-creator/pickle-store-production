@@ -42,3 +42,4 @@ PickleBackend-New/
 # Temporary files
 *.tmp
 *.temp
+.vercel

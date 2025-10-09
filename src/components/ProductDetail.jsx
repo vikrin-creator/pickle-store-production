@@ -2,20 +2,38 @@ import { useState } from 'react';
 
 const ProductDetail = ({ product, onBack, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedSpiceLevel, setSelectedSpiceLevel] = useState(product.spiceLevel);
+  const [selectedSpiceLevel, setSelectedSpiceLevel] = useState(product.spiceLevel || 'Medium');
   const [selectedWeight, setSelectedWeight] = useState(
-    product.weightOptions && product.weightOptions.length > 0 
-      ? product.weightOptions[0] 
-      : { weight: '250g', price: product.price }
+    (product.weightOptions || product.weights) && (product.weightOptions || product.weights).length > 0 
+      ? (product.weightOptions || product.weights)[0] 
+      : { weight: '250g', price: product.price || 150 }
   );
+
+  // Add error handling for missing product
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-[#f8f7f6] flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-[#221c10] mb-4">Product not found</h2>
+          <button
+            onClick={onBack}
+            className="bg-[#ecab13] text-white px-6 py-3 rounded-lg hover:bg-[#d49c12] transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   const handleAddToCart = () => {
     onAddToCart({
       ...product,
+      id: product._id || product.id, // Ensure we use MongoDB _id
       quantity: quantity,
       selectedSpiceLevel: selectedSpiceLevel,
       selectedWeight: selectedWeight,
-      price: selectedWeight.price, // Use the selected weight's price
+      price: selectedWeight?.price || 150, // Use the selected weight's price
       cartId: Date.now() // Unique ID for cart item
     });
   };
@@ -85,7 +103,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
           <div className="space-y-4">
             <div className="aspect-square rounded-2xl overflow-hidden bg-white shadow-lg">
               <img
-                src={product.image || 'https://via.placeholder.com/600x600/ecab13/FFFFFF?text=' + encodeURIComponent(product.name)}
+                src={product.image || `https://pickle-store-backend.onrender.com/images/${product.imageFilename}` || 'https://via.placeholder.com/600x600/ecab13/FFFFFF?text=' + encodeURIComponent(product.name)}
                 alt={product.name}
                 className="w-full h-full object-cover"
               />
@@ -104,7 +122,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
                 }`}>
                   {product.category}
                 </span>
-                <span className="text-sm text-[#221c10]/60">{product.region}</span>
+                <span className="text-sm text-[#221c10]/60">{product.region || 'India'}</span>
               </div>
               
               <h1 className="text-3xl font-bold mb-3">{product.name}</h1>
@@ -113,9 +131,9 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
 
             {/* Price */}
             <div className="border-t border-b border-[#ecab13]/20 py-6">
-              <div className="text-3xl font-bold text-[#ecab13]">₹{selectedWeight.price.toFixed(2)}</div>
+              <div className="text-3xl font-bold text-[#ecab13]">₹{selectedWeight?.price?.toFixed(2) || '150.00'}</div>
               <p className="text-sm text-[#221c10]/60 mt-1">
-                {selectedWeight.weight} • Free shipping on orders over ₹2000
+                {selectedWeight?.weight || '250g'} • Free shipping on orders over ₹2000
               </p>
             </div>
 
@@ -140,29 +158,29 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
                 ))}
               </div>
               <p className="text-xs text-[#221c10]/60">
-                Default: {product.spiceLevel} (You can customize the spice level)
+                Default: {product.category || 'Medium'} (You can customize the spice level)
               </p>
             </div>
 
             {/* Weight/Size Selection */}
-            {product.weightOptions && product.weightOptions.length > 0 && (
+            {(product.weights || product.weightOptions) && (product.weights || product.weightOptions).length > 0 && (
               <div className="space-y-3">
                 <label className="block text-sm font-medium text-[#221c10]">
                   Weight & Size
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {product.weightOptions.map((option, index) => (
+                  {(product.weights || product.weightOptions).map((option, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedWeight(option)}
                       className={`p-4 rounded-lg border-2 transition-all duration-200 text-center ${
-                        selectedWeight.weight === option.weight
+                        selectedWeight?.weight === option.weight
                           ? 'border-[#ecab13] bg-[#ecab13] text-white'
                           : 'border-[#ecab13]/30 text-[#221c10] hover:border-[#ecab13]/60'
                       }`}
                     >
                       <div className="font-semibold">{option.weight}</div>
-                      <div className="text-sm opacity-80">₹{option.price.toFixed(2)}</div>
+                      <div className="text-sm opacity-80">₹{option.price?.toFixed(2) || '150.00'}</div>
                     </button>
                   ))}
                 </div>
@@ -203,7 +221,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 3H19" />
                 </svg>
-                Add to Cart - ${(selectedWeight.price * quantity).toFixed(2)}
+                Add to Cart - ₹{((selectedWeight?.price || 150) * quantity).toFixed(2)}
               </button>
               
               <div className="grid grid-cols-2 gap-3">
@@ -226,12 +244,12 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#221c10]/60">Region:</span>
-                  <span className="font-medium">{product.region}</span>
+                  <span className="font-medium">{product.region || 'India'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#221c10]/60">Default Spice:</span>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSpiceLevelColor(product.spiceLevel)}`}>
-                    {product.spiceLevel}
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSpiceLevelColor(product.category || 'Medium')}`}>
+                    {product.category || 'Medium'}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -240,7 +258,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-[#221c10]/60">Weight:</span>
-                  <span className="font-medium">500g</span>
+                  <span className="font-medium">{selectedWeight?.weight || '250g'}</span>
                 </div>
               </div>
             </div>
