@@ -368,13 +368,20 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
             <div className="products-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[calc(100vh-120px)] overflow-y-auto">
               {sortedProducts.length > 0 ? (
                 sortedProducts.map((product) => (
-                  <div key={product.id} className="product-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 relative">
+                  <div 
+                    key={product._id || product.id} 
+                    className="product-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 relative cursor-pointer"
+                    onClick={() => onProductClick && onProductClick(product)}
+                  >
                     <div className="product-image-wrapper relative">
                       <img
-                        src={product.image}
+                        src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : "https://via.placeholder.com/300x200"}
                         alt={product.name}
-                        className="w-full h-48 object-cover cursor-pointer"
-                        onClick={() => onProductClick && onProductClick(product)}
+                        className="w-full h-48 object-cover"
+                        onError={(e) => {
+                          console.log('ProductsPage: Image failed to load:', product.image);
+                          e.target.src = "https://via.placeholder.com/300x200";
+                        }}
                       />
                       <div className="product-favorite absolute top-2 right-2 p-2 bg-white/80 rounded-full cursor-pointer hover:bg-white transition-colors duration-200">
                         <svg
@@ -396,11 +403,11 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                       <p className="text-gray-600 text-sm mb-3">{product.description}</p>
                       
                       {/* Weight Options Display */}
-                      {product.weightOptions && product.weightOptions.length > 0 && (
+                      {(product.weightOptions || product.weights) && (product.weightOptions?.length > 0 || product.weights?.length > 0) && (
                         <div className="mb-3">
                           <p className="text-xs text-gray-600 mb-1">Available sizes:</p>
                           <div className="flex flex-wrap gap-1">
-                            {product.weightOptions.map((option, index) => (
+                            {(product.weightOptions || product.weights)?.map((option, index) => (
                               <span
                                 key={index}
                                 className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded border"
@@ -414,16 +421,19 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                       
                       <div className="product-actions flex justify-between items-center">
                         <span className="product-price text-[#ecab13] font-bold text-xl">
-                          {product.weightOptions && product.weightOptions.length > 0 
-                            ? `From ₹${Math.min(...product.weightOptions.map(opt => opt.price))}` 
-                            : `₹${product.price}`
+                          {(product.weightOptions?.length > 0 || product.weights?.length > 0)
+                            ? `From ₹${Math.min(...(product.weightOptions || product.weights).map(opt => opt.price))}` 
+                            : `₹${product.price || 'N/A'}`
                           }
                         </span>
                         <button
-                          onClick={() => onProductClick && onProductClick(product)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onProductClick && onProductClick(product);
+                          }}
                           className="add-btn bg-[#ecab13] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#d49c12] transition-colors duration-200"
                         >
-                          {product.weightOptions && product.weightOptions.length > 0 ? 'Choose Size' : 'Add'}
+                          {(product.weightOptions?.length > 0 || product.weights?.length > 0) ? 'Choose Size' : 'Add'}
                         </button>
                       </div>
                     </div>
