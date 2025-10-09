@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
+import CustomerAuth from './CustomerAuth';
+import authService from '../services/authService';
 
 const Checkout = ({ onBack, onOrderComplete }) => {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({
     // Contact Information
     email: '',
@@ -30,7 +34,30 @@ const Checkout = ({ onBack, onOrderComplete }) => {
 
   useEffect(() => {
     loadCartItems();
+    checkAuthStatus();
   }, []);
+
+  const checkAuthStatus = () => {
+    if (authService.isAuthenticated()) {
+      const user = authService.getCurrentUser();
+      setCurrentUser(user);
+      // Pre-fill form with user data
+      setFormData(prev => ({
+        ...prev,
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        phone: user.phone || '',
+        address: user.address?.street || '',
+        city: user.address?.city || '',
+        state: user.address?.state || '',
+        zipCode: user.address?.zipCode || '',
+        country: user.address?.country || 'India'
+      }));
+    } else {
+      setShowAuthModal(true);
+    }
+  };
 
   const loadCartItems = () => {
     try {
@@ -58,6 +85,33 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       ...prev,
       [name]: value
     }));
+  };
+
+  const handleAuthSuccess = (user) => {
+    setCurrentUser(user);
+    setShowAuthModal(false);
+    // Pre-fill form with user data
+    setFormData(prev => ({
+      ...prev,
+      firstName: user.firstName || '',
+      lastName: user.lastName || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      address: user.address?.street || '',
+      city: user.address?.city || '',
+      state: user.address?.state || '',
+      zipCode: user.address?.zipCode || '',
+      country: user.address?.country || 'India'
+    }));
+  };
+
+  const handleAuthClose = () => {
+    if (!authService.isAuthenticated()) {
+      // If user closes auth modal without logging in, go back to cart
+      onBack();
+    } else {
+      setShowAuthModal(false);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -110,10 +164,12 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       };
 
       // Submit order to backend
+      const token = authService.getToken();
       const response = await fetch('https://pickle-store-backend.onrender.com/api/orders', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(orderData)
       });
@@ -501,6 +557,14 @@ const Checkout = ({ onBack, onOrderComplete }) => {
           </div>
         </form>
       </div>
+
+      {/* Authentication Modal */}
+      {showAuthModal && (
+        <CustomerAuth 
+          onClose={handleAuthClose}
+          onSuccess={handleAuthSuccess}
+        />
+      )}
     </div>
   );
 };
