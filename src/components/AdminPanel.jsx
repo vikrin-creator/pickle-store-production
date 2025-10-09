@@ -1,29 +1,26 @@
 import { useState, useEffect } from 'react';
+import ImageManager from './ImageManager';
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [products, setProducts] = useState([]);
+  const [activeTab, setActiveTab] = useState('products');
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
-    category: 'Vegetarian',
-    spiceLevel: 'Medium',
-    region: 'South Indian',
-    image: '',
-    weightOptions: [
-      { weight: '250g', price: 12.99 },
-      { weight: '500g', price: 22.99 },
-      { weight: '1kg', price: 42.99 }
-    ]
+    category: 'Pickles',
+    featured: false,
+    rating: 0,
+    reviews: 0,
+    image: ''
   });
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
   const [weightOptions, setWeightOptions] = useState([
-    { weight: '250g', price: 12.99 },
-    { weight: '500g', price: 22.99 },
-    { weight: '1kg', price: 42.99 }
+    { weight: '250g', price: 150 },
+    { weight: '500g', price: 280 },
+    { weight: '1kg', price: 520 }
   ]);
 
   // Default products for initialization
@@ -174,19 +171,19 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     loadProducts();
   }, []);
 
-  const loadProducts = () => {
+  const loadProducts = async () => {
     try {
-      const savedProducts = localStorage.getItem('adminProducts');
-      if (savedProducts) {
-        const parsedProducts = JSON.parse(savedProducts);
-        setProducts(parsedProducts);
+      const response = await fetch('https://pickle-store-backend.onrender.com/api/products');
+      if (response.ok) {
+        const data = await response.json();
+        setProducts(data);
       } else {
-        setProducts(defaultProducts);
-        localStorage.setItem('adminProducts', JSON.stringify(defaultProducts));
+        console.error('Failed to load products from API');
+        setProducts([]);
       }
     } catch (error) {
       console.error('Error loading products:', error);
-      setProducts(defaultProducts);
+      setProducts([]);
     }
   };
 
@@ -216,66 +213,74 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     }
   };
 
-  const handleSaveProduct = () => {
+  const handleSaveProduct = async () => {
     try {
-      let updatedProducts;
+      const formDataToSend = new FormData();
       
-      if (editingProduct) {
-        // Update existing product
-        updatedProducts = products.map(product =>
-          product.id === editingProduct.id
-            ? { ...formData, id: editingProduct.id, price: parseFloat(formData.price), weightOptions: weightOptions }
-            : product
-        );
-        console.log('AdminPanel: Updating existing product');
-      } else {
-        // Add new product
-        const newProduct = {
-          ...formData,
-          id: Date.now(),
-          price: parseFloat(formData.price),
-          weightOptions: weightOptions
-        };
-        updatedProducts = [...products, newProduct];
-        console.log('AdminPanel: Adding new product:', newProduct.name);
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('category', formData.category);
+      formDataToSend.append('weights', JSON.stringify(weightOptions));
+      formDataToSend.append('featured', formData.featured || false);
+      formDataToSend.append('rating', formData.rating || 0);
+      formDataToSend.append('reviews', formData.reviews || 0);
+      
+      if (selectedImageFile) {
+        formDataToSend.append('image', selectedImageFile);
+      } else if (!editingProduct && !selectedImageFile) {
+        alert('Please select an image for the product');
+        return;
       }
-      
-      // Update state and localStorage
-      setProducts(updatedProducts);
-      localStorage.setItem('adminProducts', JSON.stringify(updatedProducts));
-      console.log('AdminPanel: Saved products to localStorage, count:', updatedProducts.length);
 
-      // Reset form
-      setFormData({
-        name: '',
-        description: '',
-        price: '',
-        category: 'Vegetarian',
-        spiceLevel: 'Medium',
-        region: 'South Indian',
-        image: '',
-        weightOptions: [
-          { weight: '250g', price: 12.99 },
-          { weight: '500g', price: 22.99 },
-          { weight: '1kg', price: 42.99 }
-        ]
+      const url = editingProduct 
+        ? `https://pickle-store-backend.onrender.com/api/admin/products/${editingProduct._id}`
+        : 'https://pickle-store-backend.onrender.com/api/admin/products';
+      
+      const method = editingProduct ? 'PUT' : 'POST';
+
+      const response = await fetch(url, {
+        method: method,
+        body: formDataToSend
       });
-      setWeightOptions([
-        { weight: '250g', price: 12.99 },
-        { weight: '500g', price: 22.99 },
-        { weight: '1kg', price: 42.99 }
-      ]);
-      setSelectedImageFile(null);
-      setImagePreview('');
-      setShowAddForm(false);
-      setEditingProduct(null);
 
-      // Trigger products updated event with delay to ensure localStorage is written
-      setTimeout(() => {
-        console.log('AdminPanel: Triggering productsUpdated event');
-        window.dispatchEvent(new Event('productsUpdated'));
-      }, 100);
-      
+      if (response.ok) {
+        const savedProduct = await response.json();
+        
+        if (editingProduct) {
+          // Update existing product in local state
+          setProducts(products.map(p => 
+            p._id === editingProduct._id ? savedProduct : p
+          ));
+        } else {
+          // Add new product to local state
+          setProducts([...products, savedProduct]);
+        }
+
+        // Reset form
+        setFormData({
+          name: '',
+          description: '',
+          category: 'Pickles',
+          featured: false,
+          rating: 0,
+          reviews: 0,
+          image: ''
+        });
+        setWeightOptions([
+          { weight: '250g', price: 150 },
+          { weight: '500g', price: 280 },
+          { weight: '1kg', price: 520 }
+        ]);
+        setSelectedImageFile(null);
+        setImagePreview('');
+        setShowAddForm(false);
+        setEditingProduct(null);
+
+        alert(editingProduct ? 'Product updated successfully!' : 'Product added successfully!');
+      } else {
+        const error = await response.json();
+        alert(`Failed to save product: ${error.error}`);
+      }
     } catch (error) {
       console.error('Error saving product:', error);
       alert('Failed to save product. Please try again.');
@@ -287,42 +292,39 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     setFormData({
       name: product.name,
       description: product.description,
-      price: product.price.toString(),
       category: product.category,
-      spiceLevel: product.spiceLevel,
-      region: product.region,
+      featured: product.featured,
+      rating: product.rating,
+      reviews: product.reviews,
       image: product.image
     });
-    // Set weight options if they exist, otherwise use default
-    setWeightOptions(product.weightOptions || [
-      { weight: '250g', price: 12.99 },
-      { weight: '500g', price: 22.99 },
-      { weight: '1kg', price: 42.99 }
+    // Set weight options from the product weights
+    setWeightOptions(product.weights || [
+      { weight: '250g', price: 150 },
+      { weight: '500g', price: 280 },
+      { weight: '1kg', price: 520 }
     ]);
     setImagePreview(product.image);
     setSelectedImageFile(null);
     setShowAddForm(true);
   };
 
-  const handleDeleteProduct = (productId) => {
-    if (window.confirm('Are you sure you want to delete this product?')) {
+  const handleDeleteProduct = async (productId) => {
+    if (window.confirm('Are you sure you want to delete this product? This will also delete its image from the database.')) {
       try {
-        const productToDelete = products.find(p => p.id === productId);
-        const updatedProducts = products.filter(product => product.id !== productId);
-        setProducts(updatedProducts);
-        localStorage.setItem('adminProducts', JSON.stringify(updatedProducts));
-        console.log('AdminPanel: Deleted product:', productToDelete?.name, 'New count:', updatedProducts.length);
-        
-        // Trigger products updated event immediately
-        console.log('AdminPanel: Triggering productsUpdated event for delete');
-        window.dispatchEvent(new Event('productsUpdated'));
-        
-        // Also trigger a storage event manually
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'adminProducts',
-          newValue: JSON.stringify(updatedProducts),
-          oldValue: localStorage.getItem('adminProducts')
-        }));
+        const response = await fetch(`https://pickle-store-backend.onrender.com/api/admin/products/${productId}`, {
+          method: 'DELETE'
+        });
+
+        if (response.ok) {
+          // Remove product from local state
+          const updatedProducts = products.filter(product => product._id !== productId);
+          setProducts(updatedProducts);
+          alert('Product and associated image deleted successfully!');
+        } else {
+          const error = await response.json();
+          alert(`Failed to delete product: ${error.error}`);
+        }
       } catch (error) {
         console.error('Error deleting product:', error);
         alert('Failed to delete product. Please try again.');
@@ -397,23 +399,65 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-3xl font-bold text-[#221c10] mb-8">Admin Panel</h1>
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+        {/* Tab Navigation */}
+        <div className="mb-8">
+          <div className="border-b border-gray-200">
+            <nav className="-mb-px flex space-x-8">
+              <button
+                onClick={() => setActiveTab('products')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'products'
+                    ? 'border-orange-500 text-orange-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Products
+              </button>
+              <button
+                onClick={() => setActiveTab('images')}
+                className={`py-2 px-1 border-b-2 font-medium text-sm ${
+                  activeTab === 'images'
+                    ? 'border-orange-500 text-orange-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                Image Manager
+              </button>
+            </nav>
+          </div>
+        </div>
+
+        {/* Tab Content */}
+        {activeTab === 'products' && (
+          <>
+            {/* Products Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
           {products.map((product) => (
-            <div key={product.id} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <img
-                src={product.image || '/assets/logo.png'}
+                src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : '/assets/logo.png'}
                 alt={product.name}
                 className="w-full h-48 object-cover"
               />
               <div className="p-4">
                 <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
                 <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
-                <p className="text-[#ecab13] font-bold text-lg mb-2">₹{product.price}</p>
+                <div className="mb-2">
+                  {product.weights && product.weights.length > 0 && (
+                    <div className="text-sm text-gray-700">
+                      <span className="font-semibold">Prices: </span>
+                      {product.weights.map((w, idx) => (
+                        <span key={idx} className="text-[#ecab13] font-bold">
+                          {w.weight}: ₹{w.price}{idx < product.weights.length - 1 ? ', ' : ''}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <div className="flex flex-wrap gap-1 text-xs mb-3">
                   <span className="bg-gray-100 px-2 py-1 rounded">{product.category}</span>
-                  <span className="bg-gray-100 px-2 py-1 rounded">{product.spiceLevel}</span>
-                  <span className="bg-gray-100 px-2 py-1 rounded">{product.region}</span>
+                  {product.featured && <span className="bg-yellow-100 px-2 py-1 rounded text-yellow-800">Featured</span>}
+                  {product.rating && <span className="bg-green-100 px-2 py-1 rounded text-green-800">★ {product.rating}</span>}
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -423,7 +467,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDeleteProduct(product.id)}
+                    onClick={() => handleDeleteProduct(product._id)}
                     className="flex-1 px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
                   >
                     Delete
@@ -625,6 +669,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
             </div>
           </div>
+        )}
+        </>
+        )}
+
+        {activeTab === 'images' && (
+          <ImageManager />
         )}
       </div>
     </div>
