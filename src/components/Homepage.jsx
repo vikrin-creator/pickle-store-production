@@ -1,0 +1,279 @@
+import { useState } from 'react';
+
+const Homepage = ({ cartCount, onNavigateToCart }) => {
+  const [email, setEmail] = useState('');
+
+  const handleNewsletterSubmit = (e) => {
+    e.preventDefault();
+    // Handle newsletter subscription
+    console.log('Newsletter subscription:', email);
+    setEmail('');
+  };
+
+  return (
+    <div className="min-h-screen w-full flex flex-col bg-[#f8f7f6] text-[#221c10] font-sans">
+      {/* Header */}
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700]/90 px-4 sm:px-10 py-4 backdrop-blur-sm animate-slide-down">
+        {/* Logo */}
+        <div className="flex items-center animate-fade-in">
+          <img 
+            src="/assets/logo.png" 
+            alt="Janiitra Logo" 
+            className="h-6 w-36 sm:h-8 sm:w-48 object-contain hover:scale-105 transition-transform duration-300"
+          />
+        </div>
+
+        {/* Navigation - Hidden on mobile, shown on larger screens */}
+        <nav className="hidden md:flex items-center gap-8 animate-fade-in-delay-1">
+          <button 
+            onClick={() => window.navigateToProducts && window.navigateToProducts()}
+            className="text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
+          >
+            Shop
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
+          </button>
+          <a href="#" className="text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
+            About
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
+          </a>
+          <a href="#" className="text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
+            Recipes
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
+          </a>
+          <a href="#" className="text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
+            Contact
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
+          </a>
+        </nav>
+
+        {/* Header Actions */}
+        <div className="flex items-center gap-2 animate-fade-in-delay-2">
+          {/* Search Button */}
+          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-110 hover:rotate-12 group">
+            <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
+              <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+            </svg>
+          </button>
+
+          {/* Cart Button */}
+          <button 
+            onClick={onNavigateToCart}
+            className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-110 group"
+          >
+            <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
+              <path d="M222.14,58.87A8,8,0,0,0,216,56H54.68L49.79,29.14A16,16,0,0,0,34.05,16H16a8,8,0,0,0,0,16h18L59.56,172.29a24,24,0,0,0,5.33,11.27,28,28,0,1,0,44.4,8.44h45.42A27.75,27.75,0,0,0,152,204a28,28,0,1,0,28-28H83.17a8,8,0,0,1-7.87-6.57L72.13,152h116a24,24,0,0,0,23.61-19.71l12.16-66.86A8,8,0,0,0,222.14,58.87ZM96,204a12,12,0,1,1-12-12A12,12,0,0,1,96,204Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,192,204Zm4-74.57A8,8,0,0,1,188.1,136H69.22L57.59,72H206.41Z"></path>
+            </svg>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#ecab13] text-xs font-bold text-white animate-bounce">
+                {cartCount}
+              </span>
+            )}
+          </button>
+        </div>
+      </header>
+
+      <main>
+        {/* Hero Section */}
+        <section 
+          className="flex items-center justify-center min-h-[60vh] bg-cover bg-center text-center text-[#e8e1e1] px-4 py-20 animate-fade-in"
+          style={{
+            backgroundImage: "linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('/assets/PickleBackgroundjars.png')"
+          }}
+        >
+          <div className="animate-slide-up">
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold uppercase tracking-wider mb-4 animate-bounce-in">
+              Janiitra
+            </h1>
+            <p className="mt-4 text-lg sm:text-xl max-w-3xl mx-auto leading-relaxed animate-fade-in-delay-1">
+              Authentic taste of tradition, crafted with love and care. Preserving age-old recipes of homemade pickles, 
+              made using organic ingredients, natural oils, and traditional methods – just like how they were prepared in our grandmothers' kitchens.
+            </p>
+            <button 
+              className="mt-8 bg-[#ecab13] text-[#221c10] px-8 py-3 font-bold text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-2 transform hover:rotate-1"
+              onClick={() => window.navigateToProducts && window.navigateToProducts()}
+            >
+              Shop Now
+            </button>
+          </div>
+        </section>
+
+        {/* Our Specialties Section */}
+        <section className="py-16 px-4 animate-fade-in-up">
+          <h2 className="text-center text-3xl sm:text-4xl font-bold mb-4 animate-slide-down">Today, we proudly specialize in:</h2>
+          <p className="text-center text-lg text-gray-600 mb-12 max-w-3xl mx-auto animate-fade-in-delay-1">
+            Every product carries the richness of Indian kitchens straight to your plate
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
+            {[
+              {
+                title: "🥒 Pickles (Veg & Non-Veg)",
+                description: "The heart of Janiitra – tangy, spicy, and full of flavor, prepared without preservatives for an authentic homemade experience.",
+                image: "/assets/MixedVegetablePickle.png"
+              },
+              {
+                title: "🌶 Spices",
+                description: "Pure Mirchi Powder and Haldi to enhance the flavor and aroma of your daily cooking.",
+                image: "/assets/Neemjar.png"
+              },
+              {
+                title: "🍃 Podi Varieties",
+                description: "Quick, ready-to-mix powders like Curry Leaf Podi and Kandi Podi – simple, healthy, and tasty.",
+                image: "/assets/MangoJar.png"
+              },
+              {
+                title: "🐟 Dry Seafood",
+                description: "Sun-dried prawns and fish sourced from the Godavari region, known for their superior quality and nutrition.",
+                image: "/assets/MixedVegetablePickle.png"
+              }
+            ].map((item, index) => (
+              <button 
+                key={index}
+                onClick={() => window.navigateToProducts && window.navigateToProducts()}
+                className={`rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
+                style={{ animationDelay: `${index * 0.2}s` }}
+              >
+                <div 
+                  className="aspect-square bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                  style={{ backgroundImage: `url('${item.image}')` }}
+                ></div>
+                <div className="p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300">
+                  <h3 className="text-xl font-bold">{item.title}</h3>
+                  <p className="mt-2 text-[#221c10]/70">{item.description}</p>
+                </div>
+              </button>
+            ))}
+          </div>
+        </section>
+
+        {/* Our Promise Section */}
+        <section className="py-16 px-4 bg-[#ecab13]/10 text-center animate-fade-in-up">
+          <h2 className="text-3xl sm:text-4xl font-bold mb-8 animate-bounce-in">🌱 Our Promise</h2>
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {[
+              { icon: "✔", title: "Authenticity First", desc: "Recipes rooted in tradition" },
+              { icon: "✔", title: "100% Natural", desc: "No preservatives, no artificial flavors" },
+              { icon: "✔", title: "Locally Sourced", desc: "Supporting farmers & fishermen" },
+              { icon: "✔", title: "Taste of Home", desc: "Packed with nostalgia, purity, and love" }
+            ].map((item, index) => (
+              <div 
+                key={index}
+                className={`bg-white rounded-xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105 animate-fade-in-stagger group cursor-pointer`}
+                style={{ animationDelay: `${index * 0.15}s` }}
+              >
+                <div className="text-2xl mb-3 group-hover:scale-125 transition-transform duration-300 group-hover:text-[#ecab13]">{item.icon}</div>
+                <h3 className="font-bold text-lg mb-2 group-hover:text-[#ecab13] transition-colors duration-300">{item.title}</h3>
+                <p className="text-[#221c10]/80">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+          <p className="max-w-4xl mx-auto mt-8 text-lg text-[#221c10]/80 leading-7 italic animate-fade-in-delay-2">
+            At Janiitra, food isn't just a product – it's an emotion, a tradition, and a way of life. 
+            Every jar of pickle, every pack of spice, and every podi mix carries the richness of Indian kitchens straight to your plate.
+          </p>
+        </section>
+
+        {/* Traditional Favorites Section */}
+        <section className="py-16 px-4 animate-fade-in-up">
+          <h2 className="text-center text-3xl sm:text-4xl font-bold mb-12 animate-slide-down">Traditional Favorites</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              {
+                title: "Mango Pickle",
+                description: "Traditional tangy mango pickle made with organic ingredients and natural oils.",
+                image: "/assets/MangoTango.png"
+              },
+              {
+                title: "Mirchi Powder",
+                description: "Pure, aromatic red chili powder to enhance your daily cooking.",
+                image: "/assets/Mirchi.png"
+              },
+              {
+                title: "Garlic Pickle",
+                description: "Spicy garlic pickle prepared using age-old recipes from grandmothers' kitchens.",
+                image: "/assets/Garlic.png"
+              }
+            ].map((item, index) => (
+              <div 
+                key={index} 
+                className={`relative bg-white rounded-xl shadow-sm p-4 text-center group hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger cursor-pointer`}
+                style={{ animationDelay: `${index * 0.2}s` }}
+              >
+                <div 
+                  className="aspect-square w-full overflow-hidden rounded-xl bg-gray-200 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
+                  style={{ backgroundImage: `url('${item.image}')` }}
+                ></div>
+                <div className="mt-4 group-hover:transform group-hover:translate-y-1 transition-transform duration-300">
+                  <div className="text-lg font-semibold group-hover:text-[#ecab13] transition-colors duration-300">{item.title}</div>
+                  <div className="mt-1 text-sm text-[#221c10]/70">{item.description}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* Newsletter Section */}
+        <section className="bg-[#ecab13]/10 rounded-2xl py-16 px-4 text-center mx-4 animate-fade-in-up">
+          <h2 className="text-3xl sm:text-4xl font-bold animate-bounce-in">Stay Connected with Janiitra</h2>
+          <p className="mt-4 mx-auto max-w-2xl text-lg text-[#221c10]/80 animate-fade-in-delay-1">
+            Get exclusive offers, traditional recipes, and authentic product updates straight from our kitchen to your inbox.
+          </p>
+          <form 
+            onSubmit={handleNewsletterSubmit}
+            className="mt-8 mx-auto flex max-w-96 gap-2"
+          >
+            <input 
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              className="flex-1 rounded-lg border border-[#ecab13] bg-[#f8f7f6] px-4 py-2 text-[#221c10] text-base focus:border-[#ecab13] focus:outline-none"
+              required
+            />
+            <button 
+              type="submit"
+              className="rounded-lg bg-[#ecab13] px-6 py-2 font-bold text-[#221c10] transition-transform duration-200 hover:scale-105"
+            >
+              Subscribe
+            </button>
+          </form>
+        </section>
+      </main>
+
+      {/* Footer */}
+      <footer className="border-t border-[#ecab13]/20 bg-[#f8f7f6] pt-10 text-center">
+        {/* Footer Links */}
+        <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-[#221c10]/70">
+          <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Contact Us</a>
+          <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Privacy Policy</a>
+          <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Terms of Service</a>
+        </div>
+
+        {/* Social Links */}
+        <div className="mt-6 flex justify-center gap-6 text-[#221c10]/70">
+          <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">
+            <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+              <path d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm40,152a40,40,0,0,1-40,40H80a40,40,0,0,1-40-40V80A40,40,0,0,1,80,40h96a40,40,0,0,1,40,40ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"></path>
+            </svg>
+          </a>
+          <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">
+            <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+              <path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm8,191.63V152h24a8,8,0,0,0,0-16H136V112a16,16,0,0,1,16-16h16a8,8,0,0,0,0-16H152a32,32,0,0,0-32,32v24H96a8,8,0,0,0,0,16h24v63.63a88,88,0,1,1,16,0Z"></path>
+            </svg>
+          </a>
+          <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">
+            <svg fill="currentColor" height="24px" viewBox="0 0 256 256" width="24px" xmlns="http://www.w3.org/2000/svg">
+              <path d="M247.39,68.94A8,8,0,0,0,240,64H209.57A48.66,48.66,0,0,0,168.1,40a46.91,46.91,0,0,0-33.75,13.7A47.9,47.9,0,0,0,120,88v6.09C79.74,83.47,46.81,50.72,46.46,50.37a8,8,0,0,0-13.65,4.92c-4.31,47.79,9.57,79.77,22,98.18a110.93,110.93,0,0,0,21.88,24.2c-15.23,17.53-39.21,26.74-39.47,26.84a8,8,0,0,0-3.85,11.93c.75,1.12,3.75,5.05,11.08,8.72C53.51,229.7,65.48,232,80,232c70.67,0,129.72-54.42,135.75-124.44l29.91-29.9A8,8,0,0,0,247.39,68.94Zm-45,29.41a8,8,0,0,0-2.32,5.14C196,166.58,143.28,216,80,216c-10.56,0-18-1.4-23.22-3.08,11.51-6.25,27.56-17,37.88-32.48A8,8,0,0,0,92,169.08c-.47-.27-43.91-26.34-44-96,16,13,45.25,33.17,78.67,38.79A8,8,0,0,0,136,104V88a32,32,0,0,1,9.6-22.92A30.94,30.94,0,0,1,167.9,56c12.66.16,24.49,7.88,29.44,19.21A8,8,0,0,0,204.67,80h16Z"></path>
+            </svg>
+          </a>
+        </div>
+
+        {/* Copyright */}
+        <div className="mt-6 pb-10 text-sm text-[#221c10]/60">
+          © 2024 Pickle Paradise. All rights reserved.
+        </div>
+      </footer>
+    </div>
+  );
+};
+
+export default Homepage;

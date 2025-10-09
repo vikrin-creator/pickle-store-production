@@ -1,0 +1,517 @@
+import { useState, useEffect } from 'react';
+
+const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart, onNavigateHome }) => {
+  const [products, setProducts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFilters, setSelectedFilters] = useState({
+    spice: '',
+    diet: ''
+  });
+  const [sortBy, setSortBy] = useState('Popularity');
+
+  // Default products data (fallback if localStorage is empty)
+  const defaultProducts = [
+    {
+      id: 1,
+      name: "Mango Tango",
+      description: "Traditional mango pickle made with organic ingredients and natural oils - Grandmothers' authentic recipe",
+      price: 12.99,
+      category: "Vegetarian",
+      spiceLevel: "Medium",
+      region: "South Indian",
+      image: "/assets/MangoTango.png",
+      weightOptions: [
+        { weight: '250g', price: 12.99 },
+        { weight: '500g', price: 22.99 },
+        { weight: '1kg', price: 42.99 }
+      ]
+    },
+    {
+      id: 2,
+      name: "Lime Zest",
+      description: "Pure zesty lime pickle without preservatives - Fresh limes with aromatic traditional spices",
+      price: 10.99,
+      category: "Vegetarian",
+      spiceLevel: "Mild",
+      region: "Gujarati",
+      image: "/assets/Limezest.png",
+      weightOptions: [
+        { weight: '200g', price: 10.99 },
+        { weight: '400g', price: 19.99 },
+        { weight: '800g', price: 37.99 }
+      ]
+    },
+    {
+      id: 3,
+      name: "Chili Kick",
+      description: "Authentic red chili pickle using age-old methods - Pure Mirchi powder, extra hot and flavorful",
+      price: 14.99,
+      category: "Vegetarian",
+      spiceLevel: "Extra Hot",
+      region: "North Indian",
+      image: "/assets/Chillikick.png",
+      weightOptions: [
+        { weight: '150g', price: 14.99 },
+        { weight: '300g', price: 27.99 },
+        { weight: '600g', price: 52.99 }
+      ]
+    },
+    {
+      id: 4,
+      name: "Garlic Burst",
+      description: "Homemade garlic pickle crafted with love - Rich, aromatic, and preservative-free",
+      price: 11.99,
+      category: "Vegetarian",
+      spiceLevel: "Hot",
+      region: "Gujarati",
+      image: "/assets/Garlic.png",
+      weightOptions: [
+        { weight: '250g', price: 11.99 },
+        { weight: '500g', price: 21.99 },
+        { weight: '1kg', price: 40.99 }
+      ]
+    },
+    {
+      id: 5,
+      name: "Mixed Veggie Medley",
+      description: "Traditional seasonal vegetables pickle - No artificial flavors, authentic taste of home",
+      price: 13.49,
+      category: "Vegetarian",
+      spiceLevel: "Medium",
+      region: "North Indian",
+      image: "/assets/MixedVegetablePickle.png",
+      weightOptions: [
+        { weight: '250g', price: 13.49 },
+        { weight: '500g', price: 24.99 },
+        { weight: '1kg', price: 46.99 }
+      ]
+    },
+    {
+      id: 6,
+      name: "Authentic Chicken Pickle",
+      description: "Traditional non-veg pickle using natural methods - Packed with nostalgia and authentic flavors",
+      price: 18.99,
+      category: "Non-Vegetarian",
+      spiceLevel: "Hot",
+      region: "South Indian",
+      image: "/assets/chicken.png",
+      weightOptions: [
+        { weight: '200g', price: 18.99 },
+        { weight: '400g', price: 35.99 },
+        { weight: '800g', price: 68.99 }
+      ]
+    },
+    {
+      id: 7,
+      name: "Mirchi Pickle",
+      description: "Traditional green chili pickle - Authentic and spicy",
+      price: 15.99,
+      category: "Vegetarian",
+      spiceLevel: "Extra Hot",
+      region: "North Indian",
+      image: "/assets/Mirchi.png",
+      weightOptions: [
+        { weight: '200g', price: 15.99 },
+        { weight: '400g', price: 29.99 },
+        { weight: '800g', price: 56.99 }
+      ]
+    },
+    {
+      id: 8,
+      name: "Garlic Seed Special",
+      description: "Special garlic seed pickle - Unique flavor combination",
+      price: 16.99,
+      category: "Vegetarian",
+      spiceLevel: "Medium",
+      region: "South Indian",
+      image: "/assets/GarlicSeed.png",
+      weightOptions: [
+        { weight: '250g', price: 16.99 },
+        { weight: '500g', price: 31.99 },
+        { weight: '1kg', price: 59.99 }
+      ]
+    },
+    {
+      id: 9,
+      name: "Mango Jar Special",
+      description: "Premium mango pickle in traditional jar - Family recipe",
+      price: 18.99,
+      category: "Vegetarian",
+      spiceLevel: "Medium",
+      region: "South Indian",
+      image: "/assets/MangoJar.png",
+      weightOptions: [
+        { weight: '250g', price: 18.99 },
+        { weight: '500g', price: 35.99 },
+        { weight: '1kg', price: 67.99 }
+      ]
+    },
+    {
+      id: 10,
+      name: "Neem Jar Pickle",
+      description: "Traditional neem-infused pickle - Health benefits included",
+      price: 20.99,
+      category: "Vegetarian",
+      spiceLevel: "Mild",
+      region: "South Indian",
+      image: "/assets/Neemjar.png",
+      weightOptions: [
+        { weight: '250g', price: 20.99 },
+        { weight: '500g', price: 39.99 },
+        { weight: '1kg', price: 74.99 }
+      ]
+    }
+  ];
+
+  // Load products from localStorage on component mount
+  useEffect(() => {
+    let lastKnownProductsString = '';
+
+    const loadProducts = () => {
+      console.log('ProductsPage: Loading products from localStorage');
+      try {
+        const savedProducts = localStorage.getItem('adminProducts');
+        if (savedProducts) {
+          const parsedProducts = JSON.parse(savedProducts);
+          console.log('ProductsPage: Found products in localStorage:', parsedProducts.length);
+          
+          // Only override with defaults if localStorage is completely empty or invalid
+          if (parsedProducts.length === 0) {
+            console.log('ProductsPage: Empty products array, using defaults');
+            setProducts(defaultProducts);
+            localStorage.setItem('adminProducts', JSON.stringify(defaultProducts));
+            lastKnownProductsString = JSON.stringify(defaultProducts);
+          } else {
+            // Use the products from localStorage as-is (from AdminPanel)
+            setProducts(parsedProducts);
+            lastKnownProductsString = savedProducts;
+          }
+        } else {
+          console.log('ProductsPage: No products in localStorage, using defaults');
+          // Initialize with default products if localStorage is empty
+          setProducts(defaultProducts);
+          localStorage.setItem('adminProducts', JSON.stringify(defaultProducts));
+          lastKnownProductsString = JSON.stringify(defaultProducts);
+        }
+      } catch (error) {
+        console.error('Error loading products from localStorage:', error);
+        setProducts(defaultProducts);
+        lastKnownProductsString = JSON.stringify(defaultProducts);
+      }
+    };
+
+    // Load products immediately when component mounts
+    loadProducts();
+
+    // Set up interval to check for changes every 1000ms when component is active
+    const intervalId = setInterval(() => {
+      const currentStoredProducts = localStorage.getItem('adminProducts');
+      if (currentStoredProducts && currentStoredProducts !== lastKnownProductsString) {
+        console.log('ProductsPage: Detected localStorage change via interval');
+        try {
+          const parsedProducts = JSON.parse(currentStoredProducts);
+          setProducts(parsedProducts);
+          lastKnownProductsString = currentStoredProducts;
+        } catch (error) {
+          console.error('Error parsing products from localStorage:', error);
+        }
+      }
+    }, 1000);
+
+    // Also listen for custom events for same-window updates
+    const handleProductUpdate = () => {
+      console.log('ProductsPage: Received productsUpdated event');
+      // Immediate update without delay
+      loadProducts();
+    };
+    
+    window.addEventListener('productsUpdated', handleProductUpdate);
+
+    return () => {
+      clearInterval(intervalId);
+      window.removeEventListener('productsUpdated', handleProductUpdate);
+    };
+  }, []); // Empty dependency array so it only runs once when component mounts
+
+  const handleFilterChange = (filterType, value) => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      [filterType]: prev[filterType] === value ? '' : value
+    }));
+  };
+
+  const clearAllFilters = () => {
+    setSelectedFilters({
+      spice: '',
+      diet: ''
+    });
+    setSearchQuery('');
+  };
+
+  // Filter products based on selected filters and search query
+  const filteredProducts = products.filter(product => {
+    // Search filter
+    const matchesSearch = product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         product.description.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    // Spice level filter
+    const matchesSpice = !selectedFilters.spice || product.spiceLevel === selectedFilters.spice;
+    
+    // Dietary filter
+    const matchesDiet = !selectedFilters.diet || product.category === selectedFilters.diet;
+    
+    return matchesSearch && matchesSpice && matchesDiet;
+  });
+
+  // Sort filtered products
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
+    switch (sortBy) {
+      case 'Price: Low to High':
+        return a.price - b.price;
+      case 'Price: High to Low':
+        return b.price - a.price;
+      case 'Newest':
+        return b.id - a.id; // Assuming higher ID means newer
+      case 'Popularity':
+      default:
+        return 0; // Keep original order for popularity
+    }
+  });
+
+  return (
+    <div className="products-page min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
+      {/* Header */}
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700]/90 px-4 sm:px-10 py-4 backdrop-blur-sm">
+        {/* Logo */}
+        <div className="flex items-center">
+          <img
+            src="/assets/logo.png"
+            alt="Janiitra Logo"
+            className="h-6 w-36 sm:h-8 sm:w-48 object-contain"
+          />
+        </div>
+
+        {/* Navigation - Hidden on mobile, shown on larger screens */}
+        <nav className="hidden md:flex items-center gap-8">
+          <button 
+            onClick={() => onNavigateHome && onNavigateHome()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Home
+          </button>
+          <button className="text-base font-medium text-[#ecab13]">
+            Shop
+          </button>
+          <a href="#" className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]">
+            About
+          </a>
+          <a href="#" className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]">
+            Contact
+          </a>
+        </nav>
+
+        {/* Header Actions */}
+        <div className="flex items-center gap-2">
+          {/* Search Button */}
+          <button className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-colors duration-200 hover:bg-[#ecab13]/20">
+            <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+              <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+            </svg>
+          </button>
+
+          {/* Cart Button */}
+          <button 
+            onClick={onNavigateToCart}
+            className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-colors duration-200 hover:bg-[#ecab13]/20"
+          >
+            <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
+              <path d="M222.14,58.87A8,8,0,0,0,216,56H54.68L49.79,29.14A16,16,0,0,0,34.05,16H16a8,8,0,0,0,0,16h18L59.56,172.29a24,24,0,0,0,5.33,11.27,28,28,0,1,0,44.4,8.44h45.42A27.75,27.75,0,0,0,152,204a28,28,0,1,0,28-28H83.17a8,8,0,0,1-7.87-6.57L72.13,152h116a24,24,0,0,0,23.61-19.71l12.16-66.86A8,8,0,0,0,222.14,58.87ZM96,204a12,12,0,1,1-12-12A12,12,0,0,1,96,204Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,192,204Zm4-74.57A8,8,0,0,1,188.1,136H69.22L57.59,72H206.41Z"></path>
+            </svg>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#ecab13] text-xs font-bold text-white">
+                {cartCount}
+              </span>
+            )}
+          </button>
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="products-main">
+        <div className="products-content flex align-start max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          {/* Sidebar Filters */}
+          <aside className="products-filters sticky top-28 z-5 hidden lg:block">
+            <div className="filters-container w-64 bg-white rounded-lg shadow-md p-6 mr-6">
+              <h2 className="filters-title text-xl font-bold mb-6 text-[#221c10]">Filters</h2>
+              
+              {/* Spice Level Filter */}
+              <div className="filter-group mb-6">
+                <h3 className="filter-label text-lg font-semibold mb-3 text-[#221c10]">Spice Level</h3>
+                <div className="filter-options space-y-2">
+                  {['Mild', 'Medium', 'Hot', 'Extra Hot'].map((level) => (
+                    <label key={level} className="flex items-center cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="spice" 
+                        checked={selectedFilters.spice === level}
+                        onChange={() => handleFilterChange('spice', level)}
+                        className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
+                      />
+                      <span className="text-gray-700">{level}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dietary Filter */}
+              <div className="filter-group mb-6">
+                <h3 className="filter-label text-lg font-semibold mb-3 text-[#221c10]">Dietary</h3>
+                <div className="filter-options space-y-2">
+                  {['Vegetarian', 'Non-Vegetarian', "Podi's", 'Seafood'].map((diet) => (
+                    <label key={diet} className="flex items-center cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="diet" 
+                        checked={selectedFilters.diet === diet}
+                        onChange={() => handleFilterChange('diet', diet)}
+                        className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
+                      />
+                      <span className="text-gray-700">{diet}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <button 
+                onClick={clearAllFilters}
+                className="apply-filters-btn w-full bg-[#ecab13] text-white py-2 px-4 rounded-lg font-semibold hover:bg-[#d49c12] transition-colors duration-200"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </aside>
+
+          {/* Products Section */}
+          <section className="products-list-section flex-1">
+            {/* Products Header */}
+            <div className="products-list-header flex justify-between items-center mb-8">
+              <h1 className="products-list-title text-3xl font-bold text-[#221c10]">Shop All Pickles</h1>
+              <div className="products-sort flex items-center gap-2">
+                <span className="text-gray-700">Sort by:</span>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
+                >
+                  <option value="Popularity">Popularity</option>
+                  <option value="Price: Low to High">Price: Low to High</option>
+                  <option value="Price: High to Low">Price: High to Low</option>
+                  <option value="Newest">Newest</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Products Grid */}
+            <div className="products-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[calc(100vh-120px)] overflow-y-auto">
+              {sortedProducts.length > 0 ? (
+                sortedProducts.map((product) => (
+                  <div key={product.id} className="product-card bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300 relative">
+                    <div className="product-image-wrapper relative">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-48 object-cover cursor-pointer"
+                        onClick={() => onProductClick && onProductClick(product)}
+                      />
+                      <div className="product-favorite absolute top-2 right-2 p-2 bg-white/80 rounded-full cursor-pointer hover:bg-white transition-colors duration-200">
+                        <svg
+                          className="w-5 h-5 text-gray-600 hover:text-[#ecab13]"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                          <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                      </div>
+                    </div>
+                    <div className="product-details p-4">
+                      <h3 className="font-semibold text-lg mb-2 text-[#221c10]">{product.name}</h3>
+                      <p className="text-gray-600 text-sm mb-3">{product.description}</p>
+                      
+                      {/* Weight Options Display */}
+                      {product.weightOptions && product.weightOptions.length > 0 && (
+                        <div className="mb-3">
+                          <p className="text-xs text-gray-600 mb-1">Available sizes:</p>
+                          <div className="flex flex-wrap gap-1">
+                            {product.weightOptions.map((option, index) => (
+                              <span
+                                key={index}
+                                className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded border"
+                              >
+                                {option.weight} - ₹{option.price}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="product-actions flex justify-between items-center">
+                        <span className="product-price text-[#ecab13] font-bold text-xl">
+                          {product.weightOptions && product.weightOptions.length > 0 
+                            ? `From ₹${Math.min(...product.weightOptions.map(opt => opt.price))}` 
+                            : `₹${product.price}`
+                          }
+                        </span>
+                        <button
+                          onClick={() => onProductClick && onProductClick(product)}
+                          className="add-btn bg-[#ecab13] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#d49c12] transition-colors duration-200"
+                        >
+                          {product.weightOptions && product.weightOptions.length > 0 ? 'Choose Size' : 'Add'}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-gray-500 text-lg">No products found matching your criteria.</p>
+                  <button
+                    onClick={clearAllFilters}
+                    className="mt-4 text-[#ecab13] hover:text-[#d49c12] font-medium"
+                  >
+                    Clear filters to see all products
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Pagination */}
+            <div className="products-pagination flex justify-center items-center gap-2 mt-8">
+              <button className="pagination-btn px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                &lt;
+              </button>
+              <button className="pagination-btn active px-3 py-2 bg-[#ecab13] text-white rounded-lg">
+                1
+              </button>
+              <button className="pagination-btn px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                2
+              </button>
+              <button className="pagination-btn px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                3
+              </button>
+              <button className="pagination-btn px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200">
+                &gt;
+              </button>
+            </div>
+          </section>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default ProductsPage;

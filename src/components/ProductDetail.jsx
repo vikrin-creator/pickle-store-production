@@ -1,0 +1,254 @@
+import { useState } from 'react';
+
+const ProductDetail = ({ product, onBack, onAddToCart }) => {
+  const [quantity, setQuantity] = useState(1);
+  const [selectedSpiceLevel, setSelectedSpiceLevel] = useState(product.spiceLevel);
+  const [selectedWeight, setSelectedWeight] = useState(
+    product.weightOptions && product.weightOptions.length > 0 
+      ? product.weightOptions[0] 
+      : { weight: '250g', price: product.price }
+  );
+
+  const handleAddToCart = () => {
+    onAddToCart({
+      ...product,
+      quantity: quantity,
+      selectedSpiceLevel: selectedSpiceLevel,
+      selectedWeight: selectedWeight,
+      price: selectedWeight.price, // Use the selected weight's price
+      cartId: Date.now() // Unique ID for cart item
+    });
+  };
+
+  const getSpiceLevelColor = (level) => {
+    switch (level) {
+      case 'Mild': return 'bg-green-100 text-green-800';
+      case 'Medium': return 'bg-yellow-100 text-yellow-800';
+      case 'Hot': return 'bg-orange-100 text-orange-800';
+      case 'Extra Hot': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
+      {/* Header */}
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700]/90 px-4 sm:px-10 py-4 backdrop-blur-sm">
+        {/* Logo */}
+        <div className="flex items-center">
+          <img 
+            src="/assets/logo.png"
+            alt="Janiitra Logo"
+            className="h-6 w-36 sm:h-8 sm:w-48 object-contain"
+          />
+        </div>
+
+        {/* Navigation - Hidden on mobile, shown on larger screens */}
+        <nav className="hidden md:flex items-center gap-8">
+          <button
+            onClick={() => window.navigateToHome && window.navigateToHome()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Home
+          </button>
+          <button
+            onClick={() => window.navigateToProducts && window.navigateToProducts()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Shop
+          </button>
+          <a href="#" className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]">
+            About
+          </a>
+          <a href="#" className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]">
+            Contact
+          </a>
+        </nav>
+
+        {/* Header Actions */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onBack}
+            className="flex items-center gap-2 text-white hover:text-[#ecab13] transition-colors duration-200"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back to Products
+          </button>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Product Image */}
+          <div className="space-y-4">
+            <div className="aspect-square rounded-2xl overflow-hidden bg-white shadow-lg">
+              <img
+                src={product.image || 'https://via.placeholder.com/600x600/ecab13/FFFFFF?text=' + encodeURIComponent(product.name)}
+                alt={product.name}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </div>
+
+          {/* Product Info */}
+          <div className="space-y-6">
+            <div>
+              <div className="flex items-center gap-3 mb-2">
+                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  product.category === 'Vegetarian' ? 'bg-green-100 text-green-800' :
+                  product.category === 'Non-Vegetarian' ? 'bg-red-100 text-red-800' :
+                  product.category === 'Seafood' ? 'bg-blue-100 text-blue-800' :
+                  'bg-yellow-100 text-yellow-800'
+                }`}>
+                  {product.category}
+                </span>
+                <span className="text-sm text-[#221c10]/60">{product.region}</span>
+              </div>
+              
+              <h1 className="text-3xl font-bold mb-3">{product.name}</h1>
+              <p className="text-lg text-[#221c10]/80 leading-relaxed">{product.description}</p>
+            </div>
+
+            {/* Price */}
+            <div className="border-t border-b border-[#ecab13]/20 py-6">
+              <div className="text-3xl font-bold text-[#ecab13]">₹{selectedWeight.price.toFixed(2)}</div>
+              <p className="text-sm text-[#221c10]/60 mt-1">
+                {selectedWeight.weight} • Free shipping on orders over ₹2000
+              </p>
+            </div>
+
+            {/* Spice Level Selection */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-[#221c10]">
+                Spice Level
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {['Mild', 'Medium', 'Hot', 'Extra Hot'].map((level) => (
+                  <button
+                    key={level}
+                    onClick={() => setSelectedSpiceLevel(level)}
+                    className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 ${
+                      selectedSpiceLevel === level
+                        ? 'border-[#ecab13] bg-[#ecab13] text-white'
+                        : 'border-[#ecab13]/30 text-[#221c10] hover:border-[#ecab13]/60'
+                    }`}
+                  >
+                    {level}
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-[#221c10]/60">
+                Default: {product.spiceLevel} (You can customize the spice level)
+              </p>
+            </div>
+
+            {/* Weight/Size Selection */}
+            {product.weightOptions && product.weightOptions.length > 0 && (
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-[#221c10]">
+                  Weight & Size
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {product.weightOptions.map((option, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setSelectedWeight(option)}
+                      className={`p-4 rounded-lg border-2 transition-all duration-200 text-center ${
+                        selectedWeight.weight === option.weight
+                          ? 'border-[#ecab13] bg-[#ecab13] text-white'
+                          : 'border-[#ecab13]/30 text-[#221c10] hover:border-[#ecab13]/60'
+                      }`}
+                    >
+                      <div className="font-semibold">{option.weight}</div>
+                      <div className="text-sm opacity-80">₹{option.price.toFixed(2)}</div>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-[#221c10]/60">
+                  Select your preferred jar size and weight
+                </p>
+              </div>
+            )}
+
+            {/* Quantity Selection */}
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-[#221c10]">
+                Quantity
+              </label>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  className="w-10 h-10 rounded-lg border border-[#ecab13]/30 flex items-center justify-center hover:bg-[#ecab13]/10 transition-colors duration-200"
+                >
+                  -
+                </button>
+                <span className="w-16 text-center font-medium text-lg">{quantity}</span>
+                <button
+                  onClick={() => setQuantity(quantity + 1)}
+                  className="w-10 h-10 rounded-lg border border-[#ecab13]/30 flex items-center justify-center hover:bg-[#ecab13]/10 transition-colors duration-200"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+
+            {/* Add to Cart Button */}
+            <div className="space-y-4">
+              <button
+                onClick={handleAddToCart}
+                className="w-full bg-[#ecab13] text-white py-4 rounded-xl font-semibold text-lg hover:opacity-90 transition-opacity duration-200 flex items-center justify-center gap-3"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 3H19" />
+                </svg>
+                Add to Cart - ${(selectedWeight.price * quantity).toFixed(2)}
+              </button>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <button className="py-3 rounded-lg border-2 border-[#ecab13]/30 text-[#221c10] font-medium hover:border-[#ecab13] hover:bg-[#ecab13]/5 transition-all duration-200">
+                  Add to Wishlist
+                </button>
+                <button className="py-3 rounded-lg border-2 border-[#ecab13]/30 text-[#221c10] font-medium hover:border-[#ecab13] hover:bg-[#ecab13]/5 transition-all duration-200">
+                  Share Product
+                </button>
+              </div>
+            </div>
+
+            {/* Product Details */}
+            <div className="space-y-4 pt-6 border-t border-[#ecab13]/20">
+              <h3 className="font-semibold text-lg">Product Details</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-[#221c10]/60">Category:</span>
+                  <span className="font-medium">{product.category}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#221c10]/60">Region:</span>
+                  <span className="font-medium">{product.region}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#221c10]/60">Default Spice:</span>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${getSpiceLevelColor(product.spiceLevel)}`}>
+                    {product.spiceLevel}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#221c10]/60">Shelf Life:</span>
+                  <span className="font-medium">12 months</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-[#221c10]/60">Weight:</span>
+                  <span className="font-medium">500g</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default ProductDetail;
