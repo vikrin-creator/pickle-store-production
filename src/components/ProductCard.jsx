@@ -64,23 +64,6 @@ const ProductCard = ({ product }) => {
           </div>
         </div>
         
-        {/* Weight Options Display */}
-        {(product.weightOptions || product.weights) && (product.weightOptions?.length > 0 || product.weights?.length > 0) && (
-          <div className="mb-3">
-            <p className="text-sm text-gray-600 mb-2">Available sizes:</p>
-            <div className="flex flex-wrap gap-1">
-              {(product.weightOptions || product.weights)?.map((option, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded border"
-                >
-                  {option.weight} - ₹{option.price}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-        
         <div className="flex items-center justify-between">
           <span className="text-sm text-gray-500">Choose size on details</span>
           <button className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition duration-300">

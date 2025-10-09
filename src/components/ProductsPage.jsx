@@ -402,27 +402,10 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                       <h3 className="font-semibold text-lg mb-2 text-[#221c10]">{product.name}</h3>
                       <p className="text-gray-600 text-sm mb-3">{product.description}</p>
                       
-                      {/* Weight Options Display */}
-                      {(product.weightOptions || product.weights) && (product.weightOptions?.length > 0 || product.weights?.length > 0) && (
-                        <div className="mb-3">
-                          <p className="text-xs text-gray-600 mb-1">Available sizes:</p>
-                          <div className="flex flex-wrap gap-1">
-                            {(product.weightOptions || product.weights)?.map((option, index) => (
-                              <span
-                                key={index}
-                                className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded border"
-                              >
-                                {option.weight} - ₹{option.price}
-                              </span>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      
                       <div className="product-actions flex justify-between items-center">
                         <span className="product-price text-[#ecab13] font-bold text-xl">
                           {(product.weightOptions?.length > 0 || product.weights?.length > 0)
-                            ? `From ₹${Math.min(...(product.weightOptions || product.weights).map(opt => opt.price))}` 
+                            ? `₹${Math.min(...(product.weightOptions || product.weights).map(opt => opt.price))}` 
                             : `₹${product.price || 'N/A'}`
                           }
                         </span>
