@@ -6,6 +6,7 @@ import Cart from './components/Cart'
 import Checkout from './components/Checkout'
 import OrderConfirmation from './components/OrderConfirmation'
 import AdminPanel from './components/AdminPanel'
+import AdminLogin from './components/AdminLogin'
 import './App.css'
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
   const [currentOrder, setCurrentOrder] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const [productsPageKey, setProductsPageKey] = useState(0);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
   // Load cart count on component mount
   useEffect(() => {
@@ -77,6 +79,24 @@ function App() {
 
   // Check for admin access via URL parameter or keyboard shortcut
   useEffect(() => {
+    // Check if admin is already authenticated
+    const isLoggedIn = sessionStorage.getItem('adminLoggedIn') === 'true';
+    const loginTime = sessionStorage.getItem('adminLoginTime');
+    
+    // Check if login is still valid (24 hours)
+    if (isLoggedIn && loginTime) {
+      const timeDiff = Date.now() - parseInt(loginTime);
+      const isLoginValid = timeDiff < (24 * 60 * 60 * 1000); // 24 hours
+      
+      if (isLoginValid) {
+        setIsAdminAuthenticated(true);
+      } else {
+        // Login expired, clear session
+        sessionStorage.removeItem('adminLoggedIn');
+        sessionStorage.removeItem('adminLoginTime');
+      }
+    }
+
     // Check URL parameter for admin access
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('admin') === 'true') {
@@ -103,6 +123,19 @@ function App() {
   window.navigateToHome = () => setCurrentPage('home');
   window.navigateToAdmin = () => setCurrentPage('admin');
   window.navigateToCart = () => setCurrentPage('cart');
+
+  // Admin authentication functions
+  const handleAdminLogin = () => {
+    setIsAdminAuthenticated(true);
+  };
+
+  const handleAdminLogout = () => {
+    setIsAdminAuthenticated(false);
+    sessionStorage.removeItem('adminLoggedIn');
+    sessionStorage.removeItem('adminLoginTime');
+    // Stay on admin page to show login form
+    setCurrentPage('admin');
+  };
 
   const handleProductClick = (product) => {
     setSelectedProduct(product);
@@ -168,7 +201,11 @@ function App() {
           />
         );
       case 'admin':
-        return <AdminPanel onBackToHome={handleBackToHome} />;
+        return isAdminAuthenticated ? (
+          <AdminPanel onBackToHome={handleBackToHome} onLogout={handleAdminLogout} />
+        ) : (
+          <AdminLogin onLoginSuccess={handleAdminLogin} />
+        );
       case 'home':
       default:
         return <Homepage cartCount={cartCount} onNavigateToCart={handleNavigateToCart} />;
