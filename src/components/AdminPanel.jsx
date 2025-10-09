@@ -438,6 +438,13 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : '/assets/logo.png'}
                 alt={product.name}
                 className="w-full h-48 object-cover"
+                onError={(e) => {
+                  console.log('Image failed to load:', product.image);
+                  e.target.src = '/assets/logo.png';
+                }}
+                onLoad={() => {
+                  console.log('Image loaded successfully:', product.image);
+                }}
               />
               <div className="p-4">
                 <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
