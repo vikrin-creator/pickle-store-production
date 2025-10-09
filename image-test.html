@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cloudinary Image Test - Janiitra Pickles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f8f7f6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2d6700;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .image-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .image-card {
+            background: white;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .image-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .image-card h3 {
+            color: #221c10;
+            margin: 10px 0 5px 0;
+        }
+        .status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { background: #fff3cd; color: #856404; }
+        .stats {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🥒 Cloudinary Image Loading Test</h1>
+        <div id="stats" class="stats">
+            <h3>Loading products...</h3>
+        </div>
+        <div id="imageGrid" class="image-grid">
+            <!-- Images will be loaded here -->
+        </div>
+    </div>
+
+    <script>
+        let loadedCount = 0;
+        let failedCount = 0;
+        let totalImages = 0;
+
+        async function loadProducts() {
+            try {
+                const response = await fetch('https://pickle-store-backend.onrender.com/api/products');
+                const products = await response.json();
+                
+                totalImages = products.length;
+                const imageGrid = document.getElementById('imageGrid');
+                
+                products.forEach(product => {
+                    const imageCard = document.createElement('div');
+                    imageCard.className = 'image-card';
+                    imageCard.innerHTML = `
+                        <img src="${product.image}" alt="${product.name}" 
+                             onload="imageLoaded(this)" 
+                             onerror="imageFailed(this)">
+                        <h3>${product.name}</h3>
+                        <div class="status loading">Loading...</div>
+                        <p><small>${product.image}</small></p>
+                    `;
+                    imageGrid.appendChild(imageCard);
+                });
+                
+                updateStats();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                document.getElementById('stats').innerHTML = 
+                    '<h3 style="color: red;">❌ Failed to load products</h3>';
+            }
+        }
+
+        function imageLoaded(img) {
+            loadedCount++;
+            const statusDiv = img.parentElement.querySelector('.status');
+            statusDiv.textContent = '✅ Loaded';
+            statusDiv.className = 'status success';
+            updateStats();
+        }
+
+        function imageFailed(img) {
+            failedCount++;
+            const statusDiv = img.parentElement.querySelector('.status');
+            statusDiv.textContent = '❌ Failed';
+            statusDiv.className = 'status error';
+            img.src = 'https://via.placeholder.com/200x200/ecab13/FFFFFF?text=Image+Not+Found';
+            updateStats();
+        }
+
+        function updateStats() {
+            const pendingCount = totalImages - loadedCount - failedCount;
+            const successRate = totalImages > 0 ? Math.round((loadedCount / totalImages) * 100) : 0;
+            
+            document.getElementById('stats').innerHTML = `
+                <h3>📊 Image Loading Statistics</h3>
+                <p><strong>Total Images:</strong> ${totalImages}</p>
+                <p><strong>✅ Successfully Loaded:</strong> ${loadedCount}</p>
+                <p><strong>❌ Failed to Load:</strong> ${failedCount}</p>
+                <p><strong>⏳ Pending:</strong> ${pendingCount}</p>
+                <p><strong>🎯 Success Rate:</strong> ${successRate}%</p>
+                ${successRate === 100 && totalImages > 0 ? 
+                    '<p style="color: green; font-weight: bold;">🎉 All images loaded successfully from Cloudinary!</p>' : 
+                    pendingCount === 0 && failedCount > 0 ? 
+                    '<p style="color: orange; font-weight: bold;">⚠️ Some images failed to load</p>' : 
+                    '<p style="color: blue;">⏳ Loading in progress...</p>'
+                }
+            `;
+        }
+
+        // Load products when page loads
+        loadProducts();
+    </script>
+</body>
+</html>
