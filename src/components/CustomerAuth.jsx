@@ -132,198 +132,274 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full p-8 relative shadow-2xl">
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors z-10"
-        >
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <img 
-            src="/assets/logo.png" 
-            alt="Janiitra Pickles" 
-            className="w-16 h-16 mx-auto mb-4"
-            onError={(e) => {
-              e.target.style.display = 'none';
-            }}
-          />
-          <h2 className="text-3xl font-bold text-gray-800 mb-2">
-            {isLogin ? 'Welcome Back!' : 'Join Janiitra'}
-          </h2>
-          <p className="text-gray-600">
-            {isLogin ? 'Login to your account' : 'Create your account'}
-          </p>
-        </div>
-
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* First Name & Last Name (Signup only) */}
-          {!isLogin && (
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  First Name
-                </label>
-                <input
-                  type="text"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors ${
-                    errors.firstName ? 'border-red-500' : 'border-gray-300'
-                  }`}
-                  placeholder="Enter first name"
+      <div className="relative min-h-screen w-full max-w-md">
+        {/* Background Image Overlay */}
+        <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20" style={{
+          backgroundImage: 'url("https://res.cloudinary.com/janiitra-pickles/image/upload/v1760011588/pickle-store/1760011587794-ChatGPT-Image-Oct-7%2C-2025%2C-07_28_52-PM.png")'
+        }}></div>
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-orange-50/50 via-orange-50 to-orange-50"></div>
+        
+        <div className="relative z-20 flex min-h-screen flex-col">
+          {/* Header with Logo */}
+          <header className="px-6 py-4">
+            <div className="flex items-center justify-between text-amber-900">
+              <div className="flex items-center gap-3">
+                <img 
+                  src="/assets/logo.png" 
+                  alt="Janiitra Pickles" 
+                  className="w-8 h-8"
+                  onError={(e) => {
+                    // Fallback to a spice/pickle icon if logo fails
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'block';
+                  }}
                 />
-                {errors.firstName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-                )}
+                <svg 
+                  className="h-8 w-8 text-orange-500 hidden" 
+                  fill="none" 
+                  viewBox="0 0 48 48" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M13.8261 17.4264C16.7203 18.1174 20.2244 18.5217 24 18.5217C27.7756 18.5217 31.2797 18.1174 34.1739 17.4264C36.9144 16.7722 39.9967 15.2331 41.3563 14.1648L24.8486 40.6391C24.4571 41.267 23.5429 41.267 23.1514 40.6391L6.64374 14.1648C8.00331 15.2331 11.0856 16.7722 13.8261 17.4264Z" fill="currentColor"></path>
+                </svg>
+                <h1 className="text-2xl font-bold tracking-tight">Janiitra Pickles</h1>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Last Name
-                </label>
-                <input
-                  type="text"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors ${
-                    errors.lastName ? 'border-red-500' : 'border-gray-300'
+              {/* Close Button */}
+              <button
+                onClick={onClose}
+                className="text-gray-500 hover:text-gray-700 transition-colors z-20"
+              >
+                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+          </header>
+
+          {/* Main Auth Form */}
+          <main className="flex flex-1 items-center justify-center py-8">
+            <div className="w-full max-w-md rounded-xl bg-white/90 p-8 shadow-2xl backdrop-blur-sm">
+              {/* Tab Buttons */}
+              <div className="mb-8 flex rounded-lg border border-orange-200 bg-orange-50 p-1">
+                <button 
+                  onClick={() => setIsLogin(true)}
+                  className={`w-1/2 rounded-md py-2.5 text-lg font-bold transition-colors ${
+                    isLogin 
+                      ? 'bg-orange-500 text-white' 
+                      : 'text-amber-700 hover:text-orange-500'
                   }`}
-                  placeholder="Enter last name"
-                />
-                {errors.lastName && (
-                  <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                >
+                  Login
+                </button>
+                <button 
+                  onClick={() => setIsLogin(false)}
+                  className={`w-1/2 rounded-md py-2.5 text-lg font-bold transition-colors ${
+                    !isLogin 
+                      ? 'bg-orange-500 text-white' 
+                      : 'text-amber-700 hover:text-orange-500'
+                  }`}
+                >
+                  Sign Up
+                </button>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit} className="space-y-6">
+                {/* First Name & Last Name (Signup only) */}
+                {!isLogin && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-amber-900" htmlFor="firstName">
+                        First Name
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="text"
+                          name="firstName"
+                          id="firstName"
+                          value={formData.firstName}
+                          onChange={handleInputChange}
+                          className={`w-full rounded-lg border p-3 text-amber-900 placeholder-amber-600 ring-1 ring-inset ring-transparent transition-all focus:border-orange-500 focus:ring-2 focus:ring-inset focus:ring-orange-500 ${
+                            errors.firstName ? 'border-red-500' : 'border-orange-300'
+                          }`}
+                          placeholder="First name"
+                        />
+                        {errors.firstName && (
+                          <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+                        )}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-amber-900" htmlFor="lastName">
+                        Last Name
+                      </label>
+                      <div className="mt-1">
+                        <input
+                          type="text"
+                          name="lastName"
+                          id="lastName"
+                          value={formData.lastName}
+                          onChange={handleInputChange}
+                          className={`w-full rounded-lg border p-3 text-amber-900 placeholder-amber-600 ring-1 ring-inset ring-transparent transition-all focus:border-orange-500 focus:ring-2 focus:ring-inset focus:ring-orange-500 ${
+                            errors.lastName ? 'border-red-500' : 'border-orange-300'
+                          }`}
+                          placeholder="Last name"
+                        />
+                        {errors.lastName && (
+                          <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 )}
-              </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-sm font-medium text-amber-900" htmlFor="email">
+                    Email Address
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="email"
+                      name="email"
+                      id="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className={`w-full rounded-lg border p-3 text-amber-900 placeholder-amber-600 ring-1 ring-inset ring-transparent transition-all focus:border-orange-500 focus:ring-2 focus:ring-inset focus:ring-orange-500 ${
+                        errors.email ? 'border-red-500' : 'border-orange-300'
+                      }`}
+                      placeholder="you@example.com"
+                      required
+                    />
+                    {errors.email && (
+                      <p className="text-red-500 text-sm mt-1">{errors.email}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Phone (Signup only) */}
+                {!isLogin && (
+                  <div>
+                    <label className="block text-sm font-medium text-amber-900" htmlFor="phone">
+                      Phone Number
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="tel"
+                        name="phone"
+                        id="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        className={`w-full rounded-lg border p-3 text-amber-900 placeholder-amber-600 ring-1 ring-inset ring-transparent transition-all focus:border-orange-500 focus:ring-2 focus:ring-inset focus:ring-orange-500 ${
+                          errors.phone ? 'border-red-500' : 'border-orange-300'
+                        }`}
+                        placeholder="Your phone number"
+                      />
+                      {errors.phone && (
+                        <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Password */}
+                <div>
+                  <label className="block text-sm font-medium text-amber-900" htmlFor="password">
+                    Password
+                  </label>
+                  <div className="mt-1">
+                    <input
+                      type="password"
+                      name="password"
+                      id="password"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      className={`w-full rounded-lg border p-3 text-amber-900 placeholder-amber-600 ring-1 ring-inset ring-transparent transition-all focus:border-orange-500 focus:ring-2 focus:ring-inset focus:ring-orange-500 ${
+                        errors.password ? 'border-red-500' : 'border-orange-300'
+                      }`}
+                      placeholder="••••••••"
+                      required
+                    />
+                    {errors.password && (
+                      <p className="text-red-500 text-sm mt-1">{errors.password}</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Confirm Password (Signup only) */}
+                {!isLogin && (
+                  <div>
+                    <label className="block text-sm font-medium text-amber-900" htmlFor="confirmPassword">
+                      Confirm Password
+                    </label>
+                    <div className="mt-1">
+                      <input
+                        type="password"
+                        name="confirmPassword"
+                        id="confirmPassword"
+                        value={formData.confirmPassword}
+                        onChange={handleInputChange}
+                        className={`w-full rounded-lg border p-3 text-amber-900 placeholder-amber-600 ring-1 ring-inset ring-transparent transition-all focus:border-orange-500 focus:ring-2 focus:ring-inset focus:ring-orange-500 ${
+                          errors.confirmPassword ? 'border-red-500' : 'border-orange-300'
+                        }`}
+                        placeholder="••••••••"
+                      />
+                      {errors.confirmPassword && (
+                        <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Forgot Password (Login only) */}
+                {isLogin && (
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm">
+                      <a className="font-medium text-orange-600 transition-colors hover:text-orange-500" href="#">
+                        Forgot your password?
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* Submit Error */}
+                {errors.submit && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                    <p className="text-red-600 text-sm">{errors.submit}</p>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <div>
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="w-full rounded-lg bg-orange-500 px-4 py-3 text-lg font-bold text-white transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center">
+                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                        {isLogin ? 'Logging In...' : 'Creating Account...'}
+                      </div>
+                    ) : (
+                      isLogin ? 'Login' : 'Create Account'
+                    )}
+                  </button>
+                </div>
+              </form>
+
+              {/* Toggle Link */}
+              <p className="mt-8 text-center text-sm text-amber-700">
+                {isLogin ? "Don't have an account?" : "Already have an account?"}
+                <button
+                  onClick={toggleMode}
+                  className="ml-2 font-medium text-orange-600 transition-colors hover:text-orange-500"
+                >
+                  {isLogin ? 'Sign up' : 'Login'}
+                </button>
+              </p>
             </div>
-          )}
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Email Address
-            </label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors ${
-                errors.email ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="Enter your email"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-1">{errors.email}</p>
-            )}
-          </div>
-
-          {/* Phone (Signup only) */}
-          {!isLogin && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Phone Number
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors ${
-                  errors.phone ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Enter your phone number"
-              />
-              {errors.phone && (
-                <p className="text-red-500 text-sm mt-1">{errors.phone}</p>
-              )}
-            </div>
-          )}
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleInputChange}
-              className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors ${
-                errors.password ? 'border-red-500' : 'border-gray-300'
-              }`}
-              placeholder="Enter your password"
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-1">{errors.password}</p>
-            )}
-          </div>
-
-          {/* Confirm Password (Signup only) */}
-          {!isLogin && (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Confirm Password
-              </label>
-              <input
-                type="password"
-                name="confirmPassword"
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500 transition-colors ${
-                  errors.confirmPassword ? 'border-red-500' : 'border-gray-300'
-                }`}
-                placeholder="Confirm your password"
-              />
-              {errors.confirmPassword && (
-                <p className="text-red-500 text-sm mt-1">{errors.confirmPassword}</p>
-              )}
-            </div>
-          )}
-
-          {/* Submit Error */}
-          {errors.submit && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-red-600 text-sm">{errors.submit}</p>
-            </div>
-          )}
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-orange-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isLoading ? (
-              <div className="flex items-center justify-center">
-                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                {isLogin ? 'Logging In...' : 'Creating Account...'}
-              </div>
-            ) : (
-              isLogin ? 'Login' : 'Create Account'
-            )}
-          </button>
-        </form>
-
-        {/* Toggle Mode */}
-        <div className="mt-6 text-center">
-          <p className="text-gray-600">
-            {isLogin ? "Don't have an account?" : "Already have an account?"}
-            <button
-              onClick={toggleMode}
-              className="ml-2 text-orange-500 font-semibold hover:text-orange-600 transition-colors"
-            >
-              {isLogin ? 'Sign Up' : 'Login'}
-            </button>
-          </p>
+          </main>
         </div>
       </div>
     </div>
