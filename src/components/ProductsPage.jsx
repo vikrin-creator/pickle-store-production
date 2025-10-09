@@ -163,75 +163,28 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
     }
   ];
 
-  // Load products from localStorage on component mount
+  // Load products from API on component mount
   useEffect(() => {
-    let lastKnownProductsString = '';
-
-    const loadProducts = () => {
-      console.log('ProductsPage: Loading products from localStorage');
-      try {
-        const savedProducts = localStorage.getItem('adminProducts');
-        if (savedProducts) {
-          const parsedProducts = JSON.parse(savedProducts);
-          console.log('ProductsPage: Found products in localStorage:', parsedProducts.length);
-          
-          // Only override with defaults if localStorage is completely empty or invalid
-          if (parsedProducts.length === 0) {
-            console.log('ProductsPage: Empty products array, using defaults');
-            setProducts(defaultProducts);
-            localStorage.setItem('adminProducts', JSON.stringify(defaultProducts));
-            lastKnownProductsString = JSON.stringify(defaultProducts);
-          } else {
-            // Use the products from localStorage as-is (from AdminPanel)
-            setProducts(parsedProducts);
-            lastKnownProductsString = savedProducts;
-          }
-        } else {
-          console.log('ProductsPage: No products in localStorage, using defaults');
-          // Initialize with default products if localStorage is empty
-          setProducts(defaultProducts);
-          localStorage.setItem('adminProducts', JSON.stringify(defaultProducts));
-          lastKnownProductsString = JSON.stringify(defaultProducts);
-        }
-      } catch (error) {
-        console.error('Error loading products from localStorage:', error);
-        setProducts(defaultProducts);
-        lastKnownProductsString = JSON.stringify(defaultProducts);
-      }
-    };
-
-    // Load products immediately when component mounts
     loadProducts();
+  }, []);
 
-    // Set up interval to check for changes every 1000ms when component is active
-    const intervalId = setInterval(() => {
-      const currentStoredProducts = localStorage.getItem('adminProducts');
-      if (currentStoredProducts && currentStoredProducts !== lastKnownProductsString) {
-        console.log('ProductsPage: Detected localStorage change via interval');
-        try {
-          const parsedProducts = JSON.parse(currentStoredProducts);
-          setProducts(parsedProducts);
-          lastKnownProductsString = currentStoredProducts;
-        } catch (error) {
-          console.error('Error parsing products from localStorage:', error);
-        }
+  const loadProducts = async () => {
+    try {
+      console.log('ProductsPage: Loading products from API');
+      const response = await fetch('https://pickle-store-backend.onrender.com/api/products');
+      if (response.ok) {
+        const data = await response.json();
+        console.log('ProductsPage: Loaded products from API:', data.length);
+        setProducts(data);
+      } else {
+        console.error('ProductsPage: Failed to load products from API, using defaults');
+        setProducts(defaultProducts);
       }
-    }, 1000);
-
-    // Also listen for custom events for same-window updates
-    const handleProductUpdate = () => {
-      console.log('ProductsPage: Received productsUpdated event');
-      // Immediate update without delay
-      loadProducts();
-    };
-    
-    window.addEventListener('productsUpdated', handleProductUpdate);
-
-    return () => {
-      clearInterval(intervalId);
-      window.removeEventListener('productsUpdated', handleProductUpdate);
-    };
-  }, []); // Empty dependency array so it only runs once when component mounts
+    } catch (error) {
+      console.error('ProductsPage: Error loading products from API:', error);
+      setProducts(defaultProducts);
+    }
+  };
 
   const handleFilterChange = (filterType, value) => {
     setSelectedFilters(prev => ({

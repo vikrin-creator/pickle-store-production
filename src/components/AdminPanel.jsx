@@ -435,15 +435,15 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           {products.map((product) => (
             <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <img
-                src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : '/assets/logo.png'}
+                src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : 'https://via.placeholder.com/300x200'}
                 alt={product.name}
                 className="w-full h-48 object-cover"
                 onError={(e) => {
-                  console.log('Image failed to load:', product.image);
-                  e.target.src = '/assets/logo.png';
+                  console.log('AdminPanel: Image failed to load:', product.image);
+                  e.target.src = 'https://via.placeholder.com/300x200';
                 }}
                 onLoad={() => {
-                  console.log('Image loaded successfully:', product.image);
+                  console.log('AdminPanel: Image loaded successfully:', product.image);
                 }}
               />
               <div className="p-4">
