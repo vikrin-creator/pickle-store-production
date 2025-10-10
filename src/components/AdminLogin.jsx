@@ -117,12 +117,24 @@ const AdminLogin = ({ onLoginSuccess }) => {
           </button>
         </form>
 
-        <div className="mt-6 text-center">
+        <div className="mt-6 text-center space-y-2">
           <button
             onClick={() => window.history.back()}
-            className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+            className="block w-full text-sm text-gray-600 hover:text-gray-800 transition-colors"
           >
             ← Back to Store
+          </button>
+          <button
+            onClick={() => {
+              // Clear admin session
+              sessionStorage.removeItem('adminLoggedIn');
+              sessionStorage.removeItem('adminLoginTime');
+              // Force page reload to reset any admin state
+              window.location.reload();
+            }}
+            className="block w-full text-sm text-red-600 hover:text-red-800 transition-colors"
+          >
+            🚪 Logout Admin Session
           </button>
         </div>
 

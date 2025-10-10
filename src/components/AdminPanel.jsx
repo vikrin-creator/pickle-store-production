@@ -588,22 +588,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       <option value="Extra Hot">Extra Hot</option>
                     </select>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Region</label>
-                    <select
-                      name="region"
-                      value={formData.region}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                    >
-                      <option value="South Indian">South Indian</option>
-                      <option value="North Indian">North Indian</option>
-                      <option value="Gujarati">Gujarati</option>
-                      <option value="Hyderabadi">Hyderabadi</option>
-                      <option value="Coastal">Coastal</option>
-                    </select>
-                  </div>
 
                   {/* Weight Options Section */}
                   <div className="col-span-2">
