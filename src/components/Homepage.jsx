@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import authService from '../services/authService';
+import CustomerAuth from './CustomerAuth';
 
 const Homepage = ({ cartCount, onNavigateToCart }) => {
   const [email, setEmail] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -18,6 +20,20 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     setUser(null);
     // Refresh page or update UI as needed
     window.location.reload();
+  };
+
+  const handleShowLogin = () => {
+    setShowAuthModal(true);
+  };
+
+  const handleAuthClose = () => {
+    setShowAuthModal(false);
+  };
+
+  const handleAuthSuccess = (userData) => {
+    setIsAuthenticated(true);
+    setUser(userData);
+    setShowAuthModal(false);
   };
 
   const handleNewsletterSubmit = (e) => {
@@ -85,24 +101,32 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
           {/* Account/Logout Button */}
           {isAuthenticated ? (
-            <button 
-              onClick={handleLogout}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-red-500/20 hover:scale-110 group"
-              title={`Logout ${user?.name || 'User'}`}
-            >
-              <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
-                <path d="M112,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h56a8,8,0,0,1,0,16H48V208h56A8,8,0,0,1,112,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L188.69,112H112a8,8,0,0,0,0,16h76.69l-18.35,18.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,221.66,122.34Z"></path>
-              </svg>
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Welcome message - only show on larger screens */}
+              <span className="hidden xl:block text-white text-sm">
+                Welcome, {user?.firstName || 'Customer'}!
+              </span>
+              <button 
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-red-500/20 hover:scale-105 group"
+                title={`Logout ${user?.firstName || 'User'}`}
+              >
+                <svg fill="currentColor" height="18px" viewBox="0 0 256 256" width="18px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
+                  <path d="M112,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h56a8,8,0,0,1,0,16H48V208h56A8,8,0,0,1,112,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L188.69,112H112a8,8,0,0,0,0,16h76.69l-18.35,18.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,221.66,122.34Z"></path>
+                </svg>
+                <span className="hidden lg:block text-sm font-medium">Logout</span>
+              </button>
+            </div>
           ) : (
             <button 
-              onClick={() => {/* Handle login modal opening */}}
-              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-110 group"
+              onClick={handleShowLogin}
+              className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-105 group"
               title="Login"
             >
-              <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
+              <svg fill="currentColor" height="18px" viewBox="0 0 256 256" width="18px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
                 <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
               </svg>
+              <span className="hidden lg:block text-sm font-medium">Login</span>
             </button>
           )}
 
@@ -327,6 +351,14 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           © 2024 Pickle Paradise. All rights reserved.
         </div>
       </footer>
+
+      {/* Authentication Modal */}
+      {showAuthModal && (
+        <CustomerAuth 
+          onClose={handleAuthClose}
+          onSuccess={handleAuthSuccess}
+        />
+      )}
     </div>
   );
 };
