@@ -4,7 +4,16 @@ const ProductCard = ({ product }) => {
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
       <div className="relative">
         <img
-          src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : "https://via.placeholder.com/300x200"}
+          src={product.image ? 
+            (product.image.startsWith('https://res.cloudinary.com/') ? 
+              product.image : 
+              (product.image.startsWith('/api/') ? 
+                `https://pickle-store-backend.onrender.com${product.image}` : 
+                product.image
+              )
+            ) : 
+            "https://via.placeholder.com/300x200"
+          }
           alt={product.name}
           className="w-full h-48 object-cover"
           onError={(e) => {

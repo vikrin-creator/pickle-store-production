@@ -40,7 +40,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       description: "Traditional mango pickle made with organic ingredients and natural oils",
       category: "Vegetarian",
       spiceLevel: "Medium",
-      image: "/assets/MangoTango.png",
+      image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009352/pickle-store/MangoTango.png",
       weights: [
         { weight: '250g', price: 150, _id: '1a' },
         { weight: '500g', price: 280, _id: '1b' },
@@ -57,7 +57,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       description: "Zesty lime pickle with a hint of spice",
       category: "Vegetarian",
       spiceLevel: "Mild",
-      image: "/assets/Limezest.png",
+      image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009347/pickle-store/Limezest.png",
       weights: [
         { weight: '250g', price: 140, _id: '2a' },
         { weight: '500g', price: 260, _id: '2b' },
@@ -74,7 +74,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       description: "Extra spicy chilli pickle for the ultimate kick",
       category: "Vegetarian",
       spiceLevel: "Hot",
-      image: "/assets/Chillikick.png",
+      image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009338/pickle-store/Chillikick.png",
       weights: [
         { weight: '250g', price: 180, _id: '3a' },
         { weight: '500g', price: 340, _id: '3b' },
@@ -91,7 +91,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       description: "Spicy garlic pickle perfect for adding flavor to your meals",
       category: "Vegetarian",
       spiceLevel: "Medium",
-      image: "/assets/Garlic.png",
+      image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009343/pickle-store/Garlic.png",
       weights: [
         { weight: '250g', price: 180, _id: '4a' },
         { weight: '500g', price: 340, _id: '4b' },
@@ -186,62 +186,57 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       setHomepageLoading(true);
       console.log('AdminPanel: Loading homepage sections');
       
-      // Check if running on localhost
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      
-      if (isLocalhost) {
-        // Use mock data for localhost development
-        console.log('AdminPanel: Running on localhost, using mock homepage data');
-        setTimeout(() => {
-          setHomepageSections({
-            featured: {
-              title: 'Featured Pickles',
-              products: [
-                {
-                  productId: {
-                    _id: '1',
-                    name: 'Mango Tango',
-                    description: 'Traditional mango pickle made with organic ingredients',
-                    price: 150,
-                    image: '/assets/MangoTango.png',
-                    weights: [{ weight: '250g', price: 150 }]
-                  },
-                  customTitle: null,
-                  customDescription: null,
-                  customImage: null
-                }
-              ]
-            },
-            customerFavorites: {
-              title: 'Customer Favorites',
-              products: [
-                {
-                  productId: {
-                    _id: '3',
-                    name: 'Chili Kick',
-                    description: 'Spicy red chili pickle for heat lovers',
-                    price: 140,
-                    image: '/assets/ChiliKick.png',
-                    weights: [{ weight: '250g', price: 140 }]
-                  },
-                  customTitle: 'Spicy Special',
-                  customDescription: 'Our hottest and most popular pickle!',
-                  customImage: null
-                }
-              ]
-            }
-          });
-          setHomepageLoading(false);
-        }, 300);
-        return;
+      try {
+        // Always try to fetch from API first
+        const sections = await HomepageService.getAllSections();
+        const sectionsMap = {};
+        sections.forEach(section => {
+          sectionsMap[section.sectionType] = section;
+        });
+        setHomepageSections(sectionsMap);
+        console.log('AdminPanel: Successfully loaded homepage sections from API:', sections.length);
+      } catch (apiError) {
+        console.log('AdminPanel: API failed, using mock homepage data as fallback');
+        // Use mock data as fallback
+        setHomepageSections({
+          featured: {
+            title: 'Featured Pickles',
+            products: [
+              {
+                productId: {
+                  _id: '1',
+                  name: 'Mango Tango',
+                  description: 'Traditional mango pickle made with organic ingredients',
+                  price: 150,
+                  image: 'https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009352/pickle-store/MangoTango.png',
+                  weights: [{ weight: '250g', price: 150 }]
+                },
+                customTitle: null,
+                customDescription: null,
+                customImage: null
+              }
+            ]
+          },
+          customerFavorites: {
+            title: 'Customer Favorites',
+            products: [
+              {
+                productId: {
+                  _id: '3',
+                  name: 'Chili Kick',
+                  description: 'Spicy red chili pickle for heat lovers',
+                  price: 140,
+                  image: 'https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009338/pickle-store/Chillikick.png',
+                  weights: [{ weight: '250g', price: 140 }]
+                },
+                customTitle: 'Spicy Special',
+                customDescription: 'Our hottest and most popular pickle!',
+                customImage: null
+              }
+            ]
+          }
+        });
       }
-
-      const sections = await HomepageService.getAllSections();
-      const sectionsMap = {};
-      sections.forEach(section => {
-        sectionsMap[section.sectionType] = section;
-      });
-      setHomepageSections(sectionsMap);
     } catch (error) {
       console.error('Error loading homepage sections:', error);
       // Use empty sections as fallback
@@ -257,14 +252,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   // Homepage management functions
   const addProductToHomepage = async (productId, sectionType, customData = {}) => {
     try {
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      
-      if (isLocalhost) {
-        // Mock functionality for localhost
-        console.log(`Mock: Adding product ${productId} to ${sectionType} section`);
-        return;
-      }
-
       await HomepageService.addProductToSection(sectionType, {
         productId,
         ...customData
@@ -280,14 +267,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
   const removeProductFromHomepage = async (productId, sectionType) => {
     try {
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      
-      if (isLocalhost) {
-        // Mock functionality for localhost
-        console.log(`Mock: Removing product ${productId} from ${sectionType} section`);
-        return;
-      }
-
       await HomepageService.removeProductFromSection(sectionType, productId);
       
       // Reload sections
@@ -300,14 +279,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
   const updateHomepageProduct = async (productId, sectionType, updateData, customImage = null) => {
     try {
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      
-      if (isLocalhost) {
-        // Mock functionality for localhost
-        console.log(`Mock: Updating product ${productId} in ${sectionType} section`);
-        return;
-      }
-
       await HomepageService.updateProductInSection(sectionType, productId, updateData, customImage);
       
       // Reload sections
@@ -320,60 +291,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
   const initializeHomepageWithDefaults = async () => {
     try {
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      
-      if (isLocalhost) {
-        // For localhost, create mock homepage sections with some default products
-        console.log('Mock: Initializing homepage with default products');
-        
-        // Mock homepage sections with some products from the default products list
-        const mockHomepageSections = {
-          featured: {
-            sectionType: 'featured',
-            title: 'Featured Pickles',
-            description: 'Hand-picked favorites from our collection',
-            products: [
-              {
-                productId: defaultProducts[0], // Mango Tango
-                customImage: null,
-                customTitle: null,
-                customDescription: null,
-                order: 0,
-                isActive: true
-              },
-              {
-                productId: defaultProducts[1], // Lime Zest
-                customImage: null,
-                customTitle: null,
-                customDescription: null,
-                order: 1,
-                isActive: true
-              }
-            ]
-          },
-          customerFavorites: {
-            sectionType: 'customerFavorites',
-            title: 'Customer Favorites',
-            description: 'Most loved products by our customers',
-            products: [
-              {
-                productId: defaultProducts[2], // Chili Kick
-                customImage: null,
-                customTitle: null,
-                customDescription: null,
-                order: 0,
-                isActive: true
-              }
-            ]
-          }
-        };
-        
-        setHomepageSections(mockHomepageSections);
-        alert('Homepage initialized with default products for testing!');
-        return;
-      }
-
-      // For production, try to initialize via API
+      // Try to initialize via API
       await HomepageService.initializeDefaultSections();
       await loadHomepageSections();
       alert('Homepage sections initialized successfully!');
@@ -1084,7 +1002,16 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       {/* Product Image */}
                       <div className="relative">
                         <img
-                          src={displayImage ? (displayImage.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${displayImage}` : displayImage) : 'https://via.placeholder.com/300x200'}
+                          src={displayImage ? 
+                            (displayImage.startsWith('https://res.cloudinary.com/') ? 
+                              displayImage : 
+                              (displayImage.startsWith('/api/') ? 
+                                `https://pickle-store-backend.onrender.com${displayImage}` : 
+                                displayImage
+                              )
+                            ) : 
+                            'https://via.placeholder.com/300x200'
+                          }
                           alt={displayTitle}
                           className="w-full h-48 object-cover"
                           onError={(e) => {
