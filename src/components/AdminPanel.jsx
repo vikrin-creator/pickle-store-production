@@ -25,6 +25,110 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     { weight: '1kg', price: 520 }
   ]);
 
+  // Default products for localhost development
+  const defaultProducts = [
+    {
+      _id: '1',
+      name: "Mango Tango",
+      description: "Traditional mango pickle made with organic ingredients and natural oils",
+      category: "Vegetarian",
+      spiceLevel: "Medium",
+      image: "/assets/MangoTango.png",
+      weights: [
+        { weight: '250g', price: 150, _id: '1a' },
+        { weight: '500g', price: 280, _id: '1b' },
+        { weight: '1kg', price: 520, _id: '1c' }
+      ],
+      inStock: true,
+      featured: true,
+      rating: 4.5,
+      reviews: 123
+    },
+    {
+      _id: '2',
+      name: "Lime Zest",
+      description: "Zesty lime pickle with a hint of spice",
+      category: "Vegetarian",
+      spiceLevel: "Mild",
+      image: "/assets/Limezest.png",
+      weights: [
+        { weight: '250g', price: 140, _id: '2a' },
+        { weight: '500g', price: 260, _id: '2b' },
+        { weight: '1kg', price: 480, _id: '2c' }
+      ],
+      inStock: true,
+      featured: false,
+      rating: 4.3,
+      reviews: 56
+    },
+    {
+      _id: '3',
+      name: "Chilli Kick",
+      description: "Extra spicy chilli pickle for the ultimate kick",
+      category: "Vegetarian",
+      spiceLevel: "Hot",
+      image: "/assets/Chillikick.png",
+      weights: [
+        { weight: '250g', price: 180, _id: '3a' },
+        { weight: '500g', price: 340, _id: '3b' },
+        { weight: '1kg', price: 650, _id: '3c' }
+      ],
+      inStock: true,
+      featured: false,
+      rating: 4.8,
+      reviews: 145
+    },
+    {
+      _id: '4',
+      name: "Garlic Pickle",
+      description: "Spicy garlic pickle perfect for adding flavor to your meals",
+      category: "Vegetarian",
+      spiceLevel: "Medium",
+      image: "/assets/Garlic.png",
+      weights: [
+        { weight: '250g', price: 180, _id: '4a' },
+        { weight: '500g', price: 340, _id: '4b' },
+        { weight: '1kg', price: 650, _id: '4c' }
+      ],
+      inStock: true,
+      featured: false,
+      rating: 4.7,
+      reviews: 156
+    },
+    {
+      _id: '5',
+      name: "Seafood Special",
+      description: "Premium seafood pickle with authentic spices",
+      category: "Seafood",
+      spiceLevel: "Medium",
+      image: "/assets/chicken.png",
+      weights: [
+        { weight: '250g', price: 200, _id: '5a' },
+        { weight: '500g', price: 380, _id: '5b' }
+      ],
+      inStock: true,
+      featured: false,
+      rating: 4.6,
+      reviews: 89
+    },
+    {
+      _id: '6',
+      name: "Curry Leaf Podi",
+      description: "Traditional South Indian curry leaf powder",
+      category: "Podi's",
+      spiceLevel: "Medium",
+      image: "/assets/MangoJar.png",
+      weights: [
+        { weight: '250g', price: 120, _id: '6a' },
+        { weight: '500g', price: 220, _id: '6b' }
+      ],
+      inStock: true,
+      featured: false,
+      rating: 4.4,
+      reviews: 78
+    }
+  ];
+
   useEffect(() => {
     loadProducts();
   }, []);
@@ -34,18 +138,34 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       setLoading(true);
       setError(null);
       console.log('AdminPanel: Loading products from API');
+      
+      // Check if running on localhost
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      if (isLocalhost) {
+        // Use default products for localhost development
+        console.log('AdminPanel: Running on localhost, using default products');
+        setTimeout(() => {
+          setProducts(defaultProducts);
+          setLoading(false);
+        }, 500); // Simulate API delay
+        return;
+      }
+      
+      // Try to fetch from API for production
       const response = await fetch('https://pickle-store-backend.onrender.com/api/products');
       if (response.ok) {
         const data = await response.json();
         console.log('AdminPanel: Loaded products from API:', data.length);
         setProducts(data);
       } else {
-        throw new Error(`Failed to load products: ${response.status}`);
+        console.log('AdminPanel: API failed, using default products');
+        setProducts(defaultProducts);
       }
     } catch (error) {
       console.error('AdminPanel: Error loading products from API:', error);
-      setError('Failed to load products. Please check your connection and try again.');
-      setProducts([]);
+      console.log('AdminPanel: Using default products as fallback');
+      setProducts(defaultProducts);
     } finally {
       setLoading(false);
     }

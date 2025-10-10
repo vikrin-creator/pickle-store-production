@@ -6,7 +6,8 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   const [showSearch, setShowSearch] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     spice: '',
-    diet: ''
+    diet: '',
+    category: ''
   });
   const [sortBy, setSortBy] = useState('Popularity');
 
@@ -197,7 +198,8 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   const clearAllFilters = () => {
     setSelectedFilters({
       spice: '',
-      diet: ''
+      diet: '',
+      category: ''
     });
     setSearchQuery('');
     setShowSearch(false);
@@ -219,7 +221,23 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
     // Dietary filter
     const matchesDiet = !selectedFilters.diet || product.category === selectedFilters.diet;
     
-    return matchesSearch && matchesSpice && matchesDiet;
+    // Category filter - map categories appropriately
+    const matchesCategory = !selectedFilters.category || (() => {
+      switch (selectedFilters.category) {
+        case 'Pickles':
+          return product.category === 'Vegetarian' || product.category === 'Non-Vegetarian';
+        case 'Seafood':
+          return product.category === 'Seafood';
+        case 'Podi':
+          return product.category === "Podi's";
+        case 'Spices':
+          return product.category === 'Spices';
+        default:
+          return true;
+      }
+    })();
+    
+    return matchesSearch && matchesSpice && matchesDiet && matchesCategory;
   });
 
   // Sort filtered products
@@ -368,11 +386,35 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                 </div>
               </div>
 
+              {/* Category Filter */}
+              <div className="filter-group mb-6">
+                <h3 className="filter-label text-lg font-semibold mb-3 text-[#221c10]">Category</h3>
+                <div className="filter-options space-y-2">
+                  {[
+                    { name: 'Pickles', emoji: '🥒' },
+                    { name: 'Seafood', emoji: '🐟' },
+                    { name: 'Podi', emoji: '🍃' },
+                    { name: 'Spices', emoji: '🌶️' }
+                  ].map((category) => (
+                    <label key={category.name} className="flex items-center cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="category" 
+                        checked={selectedFilters.category === category.name}
+                        onChange={() => handleFilterChange('category', category.name)}
+                        className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
+                      />
+                      <span className="text-gray-700">{category.emoji} {category.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
               {/* Dietary Filter */}
               <div className="filter-group mb-6">
                 <h3 className="filter-label text-lg font-semibold mb-3 text-[#221c10]">Dietary</h3>
                 <div className="filter-options space-y-2">
-                  {['Vegetarian', 'Non-Vegetarian', "Podi's", 'Seafood'].map((diet) => (
+                  {['Vegetarian', 'Non-Vegetarian'].map((diet) => (
                     <label key={diet} className="flex items-center cursor-pointer">
                       <input 
                         type="radio" 
