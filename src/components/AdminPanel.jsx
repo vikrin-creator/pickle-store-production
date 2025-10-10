@@ -200,6 +200,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
   const handleSaveProduct = async () => {
     try {
+      console.log('Form data before sending:', formData); // Debug log
+      
       const formDataToSend = new FormData();
       
       formDataToSend.append('name', formData.name);
@@ -216,7 +218,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       
       formDataToSend.append('category', categoryToSend);
       formDataToSend.append('productType', formData.productType);
-      formDataToSend.append('spiceLevel', formData.spiceLevel);
+      formDataToSend.append('spiceLevel', formData.spiceLevel || 'Medium');
       formDataToSend.append('weights', JSON.stringify(weightOptions));
       formDataToSend.append('featured', formData.featured || false);
       formDataToSend.append('rating', formData.rating || 0);
@@ -227,6 +229,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       } else if (!editingProduct && !selectedImageFile) {
         alert('Please select an image for the product');
         return;
+      }
+
+      // Debug: Log what we're sending
+      console.log('FormData contents:');
+      for (let [key, value] of formDataToSend.entries()) {
+        console.log(key, value);
       }
 
       const url = editingProduct 
@@ -299,12 +307,16 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       reviews: product.reviews,
       image: product.image
     });
-    // Set weight options from the product weights
-    setWeightOptions(product.weights || [
+    // Set weight options from the product weights - strip _id fields for frontend use
+    const cleanWeights = product.weights ? product.weights.map(w => ({
+      weight: w.weight,
+      price: w.price
+    })) : [
       { weight: '250g', price: 150 },
       { weight: '500g', price: 280 },
       { weight: '1kg', price: 520 }
-    ]);
+    ];
+    setWeightOptions(cleanWeights);
     setImagePreview(product.image);
     setSelectedImageFile(null);
     setShowAddForm(true);
