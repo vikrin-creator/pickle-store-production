@@ -265,11 +265,15 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'Price: Low to High':
-        return a.price - b.price;
+        const priceA = a.price || a.weightOptions?.[0]?.price || 0;
+        const priceB = b.price || b.weightOptions?.[0]?.price || 0;
+        return priceA - priceB;
       case 'Price: High to Low':
-        return b.price - a.price;
+        const priceHighA = a.price || a.weightOptions?.[0]?.price || 0;
+        const priceHighB = b.price || b.weightOptions?.[0]?.price || 0;
+        return priceHighB - priceHighA;
       case 'Newest':
-        return b.id - a.id; // Assuming higher ID means newer
+        return (b._id || b.id || 0) - (a._id || a.id || 0); // Assuming higher ID means newer
       case 'Popularity':
       default:
         return 0; // Keep original order for popularity

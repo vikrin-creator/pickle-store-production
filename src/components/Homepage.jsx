@@ -125,13 +125,15 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               data-mobile-menu
             >
               <nav className="py-2">
-                <a 
-                  href="#shop" 
-                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-                  onClick={() => setShowMobileMenu(false)}
+                <button 
+                  onClick={() => {
+                    window.navigateToProducts && window.navigateToProducts();
+                    setShowMobileMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
                 >
                   Shop
-                </a>
+                </button>
                 <a 
                   href="#recipes" 
                   className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"

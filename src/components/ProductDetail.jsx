@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Footer from './Footer';
 
-const ProductDetail = ({ product, onBack, onAddToCart }) => {
+const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist }) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedSpiceLevel, setSelectedSpiceLevel] = useState(product.spiceLevel || 'Medium');
   const [selectedWeight, setSelectedWeight] = useState(
@@ -9,6 +9,27 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
       ? (product.weightOptions || product.weights)[0] 
       : { weight: '250g', price: product.price || 150 }
   );
+  const [isInWishlist, setIsInWishlist] = useState(false);
+
+  // Check if product is in wishlist
+  useEffect(() => {
+    const checkWishlistStatus = () => {
+      const savedWishlist = localStorage.getItem('wishlist');
+      if (savedWishlist) {
+        try {
+          const wishlist = JSON.parse(savedWishlist);
+          const isProductInWishlist = wishlist.some(item => 
+            (item._id || item.id) === (product._id || product.id)
+          );
+          setIsInWishlist(isProductInWishlist);
+        } catch (error) {
+          console.error('Error checking wishlist status:', error);
+        }
+      }
+    };
+
+    checkWishlistStatus();
+  }, [product]);
 
   // Add error handling for missing product
   if (!product) {
@@ -37,6 +58,35 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
       price: selectedWeight?.price || 150, // Use the selected weight's price
       cartId: Date.now() // Unique ID for cart item
     });
+  };
+
+  const handleWishlistToggle = () => {
+    const savedWishlist = localStorage.getItem('wishlist');
+    let wishlist = [];
+    
+    if (savedWishlist) {
+      try {
+        wishlist = JSON.parse(savedWishlist);
+      } catch (error) {
+        console.error('Error parsing wishlist:', error);
+        wishlist = [];
+      }
+    }
+
+    const productId = product._id || product.id;
+    const isCurrentlyInWishlist = wishlist.some(item => (item._id || item.id) === productId);
+
+    if (isCurrentlyInWishlist) {
+      // Remove from wishlist
+      wishlist = wishlist.filter(item => (item._id || item.id) !== productId);
+      setIsInWishlist(false);
+    } else {
+      // Add to wishlist
+      wishlist.push(product);
+      setIsInWishlist(true);
+    }
+
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
   };
 
   const getSpiceLevelColor = (level) => {
@@ -163,11 +213,11 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
             </div>
 
             {/* Spice Level Selection */}
-            <div className="space-y-3">
+            <div className="space-y-3 text-center">
               <label className="block text-sm font-medium text-[#221c10]">
                 Spice Level
               </label>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 justify-center">
                 {['Mild', 'Medium', 'Hot', 'Extra Hot'].map((level) => (
                   <button
                     key={level}
@@ -250,8 +300,18 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
               </button>
               
               <div className="grid grid-cols-2 gap-3">
-                <button className="py-3 rounded-lg border-2 border-[#ecab13]/30 text-[#221c10] font-medium hover:border-[#ecab13] hover:bg-[#ecab13]/5 transition-all duration-200">
-                  Add to Wishlist
+                <button 
+                  onClick={handleWishlistToggle}
+                  className={`py-3 rounded-lg border-2 font-medium transition-all duration-200 flex items-center justify-center gap-2 ${
+                    isInWishlist 
+                      ? 'border-red-500 bg-red-50 text-red-600 hover:bg-red-100' 
+                      : 'border-[#ecab13]/30 text-[#221c10] hover:border-[#ecab13] hover:bg-[#ecab13]/5'
+                  }`}
+                >
+                  <svg className="w-4 h-4" fill={isInWishlist ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                  </svg>
+                  {isInWishlist ? 'In Wishlist' : 'Add to Wishlist'}
                 </button>
                 <button className="py-3 rounded-lg border-2 border-[#ecab13]/30 text-[#221c10] font-medium hover:border-[#ecab13] hover:bg-[#ecab13]/5 transition-all duration-200">
                   Share Product

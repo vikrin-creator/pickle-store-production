@@ -7,6 +7,7 @@ import Checkout from './components/Checkout'
 import OrderConfirmation from './components/OrderConfirmation'
 import AdminPanel from './components/AdminPanel'
 import AdminLogin from './components/AdminLogin'
+import Wishlist from './components/Wishlist'
 import './App.css'
 
 function App() {
@@ -189,6 +190,10 @@ function App() {
     setCurrentPage('cart');
   };
 
+  const navigateToWishlist = () => {
+    setCurrentPage('wishlist');
+  };
+
   const navigateToCheckout = () => {
     setCurrentPage('checkout');
   };
@@ -212,6 +217,7 @@ function App() {
     window.navigateToHome = navigateToHome;
     window.navigateToProducts = navigateToProducts;
     window.navigateToCart = navigateToCart;
+    window.navigateToWishlist = navigateToWishlist;
     window.navigateToCheckout = navigateToCheckout;
     window.navigateToAdmin = navigateToAdmin;
     window.navigateToProductDetail = navigateToProductDetail;
@@ -221,6 +227,7 @@ function App() {
       delete window.navigateToHome;
       delete window.navigateToProducts;
       delete window.navigateToCart;
+      delete window.navigateToWishlist;
       delete window.navigateToCheckout;
       delete window.navigateToAdmin;
       delete window.navigateToProductDetail;
@@ -298,6 +305,7 @@ function App() {
             product={selectedProduct} 
             onBack={handleBackToProducts} 
             onAddToCart={addToCart}
+            onNavigateToWishlist={navigateToWishlist}
           />
         );
       case 'cart':
@@ -305,6 +313,14 @@ function App() {
           <Cart 
             onBack={handleBackToProducts} 
             onNavigateToCheckout={handleNavigateToCheckout}
+          />
+        );
+      case 'wishlist':
+        return (
+          <Wishlist 
+            onBack={handleBackToProducts}
+            onNavigateToCart={handleNavigateToCart}
+            onAddToCart={addToCart}
           />
         );
       case 'checkout':
