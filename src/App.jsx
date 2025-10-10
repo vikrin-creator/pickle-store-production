@@ -18,6 +18,80 @@ function App() {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('all');
 
+  // Initialize page from URL on mount
+  useEffect(() => {
+    const initializeFromURL = () => {
+      const path = window.location.pathname;
+      const searchParams = new URLSearchParams(window.location.search);
+      
+      if (path === '/products' || searchParams.get('page') === 'products') {
+        setCurrentPage('products');
+        const category = searchParams.get('category');
+        if (category) setCategoryFilter(category);
+      } else if (path === '/cart' || searchParams.get('page') === 'cart') {
+        setCurrentPage('cart');
+      } else if (path === '/checkout' || searchParams.get('page') === 'checkout') {
+        setCurrentPage('checkout');
+      } else if (path === '/admin' || searchParams.get('page') === 'admin') {
+        setCurrentPage('admin');
+      } else {
+        setCurrentPage('home');
+      }
+    };
+
+    initializeFromURL();
+
+    // Listen for browser back/forward button
+    const handlePopState = (event) => {
+      initializeFromURL();
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Update URL when page changes
+  useEffect(() => {
+    const updateURL = () => {
+      const currentURL = new URL(window.location);
+      
+      switch (currentPage) {
+        case 'products':
+          currentURL.searchParams.set('page', 'products');
+          if (categoryFilter !== 'all') {
+            currentURL.searchParams.set('category', categoryFilter);
+          } else {
+            currentURL.searchParams.delete('category');
+          }
+          break;
+        case 'cart':
+          currentURL.searchParams.set('page', 'cart');
+          currentURL.searchParams.delete('category');
+          break;
+        case 'checkout':
+          currentURL.searchParams.set('page', 'checkout');
+          currentURL.searchParams.delete('category');
+          break;
+        case 'admin':
+          currentURL.searchParams.set('page', 'admin');
+          currentURL.searchParams.delete('category');
+          break;
+        case 'home':
+        default:
+          currentURL.searchParams.delete('page');
+          currentURL.searchParams.delete('category');
+          break;
+      }
+
+      // Only push to history if URL actually changed
+      if (currentURL.toString() !== window.location.toString()) {
+        window.history.pushState({ page: currentPage }, '', currentURL.toString());
+      }
+    };
+
+    updateURL();
+  }, [currentPage, categoryFilter]);
+
   // Load cart count on component mount
   useEffect(() => {
     updateCartCount();
@@ -97,34 +171,82 @@ function App() {
         sessionStorage.removeItem('adminLoginTime');
       }
     }
+  }, []);
 
+  // Navigation functions
+  const navigateToHome = () => {
+    setCurrentPage('home');
+    setCategoryFilter('all');
+  };
+
+  const navigateToProducts = (category = 'all') => {
+    setCurrentPage('products');
+    setCategoryFilter(category);
+    setProductsPageKey(prev => prev + 1);
+  };
+
+  const navigateToCart = () => {
+    setCurrentPage('cart');
+  };
+
+  const navigateToCheckout = () => {
+    setCurrentPage('checkout');
+  };
+
+  const navigateToAdmin = () => {
+    setCurrentPage('admin');
+  };
+
+  const navigateToProductDetail = (product) => {
+    setSelectedProduct(product);
+    setCurrentPage('productDetail');
+  };
+
+  const navigateToOrderConfirmation = (order) => {
+    setCurrentOrder(order);
+    setCurrentPage('orderConfirmation');
+  };
+
+  // Make navigation functions globally available
+  useEffect(() => {
+    window.navigateToHome = navigateToHome;
+    window.navigateToProducts = navigateToProducts;
+    window.navigateToCart = navigateToCart;
+    window.navigateToCheckout = navigateToCheckout;
+    window.navigateToAdmin = navigateToAdmin;
+    window.navigateToProductDetail = navigateToProductDetail;
+    window.navigateToOrderConfirmation = navigateToOrderConfirmation;
+    
+    return () => {
+      delete window.navigateToHome;
+      delete window.navigateToProducts;
+      delete window.navigateToCart;
+      delete window.navigateToCheckout;
+      delete window.navigateToAdmin;
+      delete window.navigateToProductDetail;
+      delete window.navigateToOrderConfirmation;
+    };
+  }, []);
+
+  // Handle URL parameters and keyboard shortcuts after navigation functions are available
+  useEffect(() => {
     // Check URL parameter for admin access
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('admin') === 'true') {
-      setCurrentPage('admin');
+      navigateToAdmin();
     }
 
     // Add keyboard shortcut for admin access (Ctrl+Shift+A)
     const handleKeyDown = (event) => {
       if (event.ctrlKey && event.shiftKey && event.key === 'A') {
         event.preventDefault();
-        setCurrentPage('admin');
+        navigateToAdmin();
       }
     };
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  // Make navigation functions available globally
-  window.navigateToProducts = (category = 'all') => {
-    setCategoryFilter(category);
-    setProductsPageKey(prev => prev + 1); // Force re-render
-    setCurrentPage('products');
-  };
-  window.navigateToHome = () => setCurrentPage('home');
-  window.navigateToAdmin = () => setCurrentPage('admin');
-  window.navigateToCart = () => setCurrentPage('cart');
+  }, [navigateToAdmin]);
 
   // Admin authentication functions
   const handleAdminLogin = () => {
@@ -136,37 +258,34 @@ function App() {
     sessionStorage.removeItem('adminLoggedIn');
     sessionStorage.removeItem('adminLoginTime');
     // Stay on admin page to show login form
-    setCurrentPage('admin');
+    navigateToAdmin();
   };
 
   const handleProductClick = (product) => {
-    setSelectedProduct(product);
-    setCurrentPage('productDetail');
+    navigateToProductDetail(product);
   };
 
   const handleBackToProducts = () => {
     setSelectedProduct(null);
-    setProductsPageKey(prev => prev + 1); // Force re-render
-    setCurrentPage('products');
+    navigateToProducts(categoryFilter);
   };
 
   const handleBackToHome = () => {
     setSelectedProduct(null);
     setCurrentOrder(null);
-    setCurrentPage('home');
+    navigateToHome();
   };
 
   const handleNavigateToCart = () => {
-    setCurrentPage('cart');
+    navigateToCart();
   };
 
   const handleNavigateToCheckout = () => {
-    setCurrentPage('checkout');
+    navigateToCheckout();
   };
 
   const handleOrderComplete = (order) => {
-    setCurrentOrder(order);
-    setCurrentPage('orderConfirmation');
+    navigateToOrderConfirmation(order);
   };
 
   const renderPage = () => {
