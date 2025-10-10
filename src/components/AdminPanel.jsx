@@ -27,7 +27,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   
   // Homepage management state
   const [homepageSections, setHomepageSections] = useState({});
-  const [selectedSection, setSelectedSection] = useState('all');
+  const [selectedSection, setSelectedSection] = useState('featured');
   const [homepageLoading, setHomepageLoading] = useState(false);
   const [showAddToHomepage, setShowAddToHomepage] = useState(false);
   const [editingHomepageProduct, setEditingHomepageProduct] = useState(null);
@@ -138,8 +138,10 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
   useEffect(() => {
     loadProducts();
-    loadHomepageSections();
-  }, []);
+    if (activeTab === 'homepage') {
+      loadHomepageSections();
+    }
+  }, [activeTab]);
 
   const loadProducts = async () => {
     try {
@@ -192,8 +194,42 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         console.log('AdminPanel: Running on localhost, using mock homepage data');
         setTimeout(() => {
           setHomepageSections({
-            featured: { products: [] },
-            customerFavorites: { products: [] }
+            featured: {
+              title: 'Featured Pickles',
+              products: [
+                {
+                  productId: {
+                    _id: '1',
+                    name: 'Mango Tango',
+                    description: 'Traditional mango pickle made with organic ingredients',
+                    price: 150,
+                    image: '/assets/MangoTango.png',
+                    weights: [{ weight: '250g', price: 150 }]
+                  },
+                  customTitle: null,
+                  customDescription: null,
+                  customImage: null
+                }
+              ]
+            },
+            customerFavorites: {
+              title: 'Customer Favorites',
+              products: [
+                {
+                  productId: {
+                    _id: '3',
+                    name: 'Chili Kick',
+                    description: 'Spicy red chili pickle for heat lovers',
+                    price: 140,
+                    image: '/assets/ChiliKick.png',
+                    weights: [{ weight: '250g', price: 140 }]
+                  },
+                  customTitle: 'Spicy Special',
+                  customDescription: 'Our hottest and most popular pickle!',
+                  customImage: null
+                }
+              ]
+            }
           });
           setHomepageLoading(false);
         }, 300);
@@ -571,6 +607,60 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     }
   };
 
+  // Homepage product editing functions
+  const handleEditHomepageProduct = (homepageProduct, sectionType) => {
+    const product = homepageProduct.productId;
+    setEditingHomepageProduct({
+      ...homepageProduct,
+      sectionType: sectionType,
+      originalProduct: product
+    });
+  };
+
+  const handleUpdateHomepageProduct = async (formData, customImageFile) => {
+    try {
+      if (!editingHomepageProduct) return;
+
+      const { sectionType, originalProduct } = editingHomepageProduct;
+      const productId = originalProduct._id || originalProduct.id;
+
+      // Prepare update data
+      const updateData = {
+        customTitle: formData.customTitle || null,
+        customDescription: formData.customDescription || null
+      };
+
+      // Call API to update homepage product
+      await HomepageService.updateProductInSection(sectionType, productId, updateData, customImageFile);
+      
+      // Reload homepage sections to reflect changes
+      await loadHomepageSections();
+      
+      // Close modal
+      setEditingHomepageProduct(null);
+      
+      alert('Homepage product updated successfully!');
+    } catch (error) {
+      console.error('Error updating homepage product:', error);
+      alert('Failed to update homepage product: ' + error.message);
+    }
+  };
+
+  const handleRemoveFromHomepage = async (productId, sectionType) => {
+    if (!window.confirm(`Are you sure you want to remove this product from ${sectionType === 'featured' ? 'Featured Pickles' : 'Customer Favorites'}?`)) {
+      return;
+    }
+
+    try {
+      await HomepageService.removeProductFromSection(sectionType, productId);
+      await loadHomepageSections();
+      alert('Product removed from homepage successfully!');
+    } catch (error) {
+      console.error('Error removing product from homepage:', error);
+      alert('Failed to remove product from homepage: ' + error.message);
+    }
+  };
+
   const handleCancelEdit = () => {
     setShowAddForm(false);
     setEditingProduct(null);
@@ -943,51 +1033,18 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         {activeTab === 'homepage' && (
           <>
             {/* Loading State */}
-            {loading && (
+            {homepageLoading && (
               <div className="flex justify-center items-center py-12">
                 <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                <span className="ml-3 text-gray-600">Loading products...</span>
+                <span className="ml-3 text-gray-600">Loading homepage content...</span>
               </div>
             )}
 
-            {/* Error State */}
-            {error && !loading && (
-              <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
-                <div className="flex items-center">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="ml-3">
-                    <h3 className="text-sm font-medium text-red-800">Error Loading Products</h3>
-                    <p className="text-sm text-red-700 mt-1">{error}</p>
-                    <button
-                      onClick={loadProducts}
-                      className="mt-2 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 text-sm"
-                    >
-                      Retry
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Filter Tabs */}
-            {!loading && !error && (
+            {/* Filter Tabs for Homepage Sections */}
+            {!homepageLoading && (
               <div className="mb-6">
                 <div className="border-b border-gray-200">
                   <nav className="-mb-px flex space-x-8">
-                    <button
-                      onClick={() => setSelectedSection('all')}
-                      className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                        selectedSection === 'all'
-                          ? 'border-orange-500 text-orange-600'
-                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      All Products ({products.length})
-                    </button>
                     <button
                       onClick={() => setSelectedSection('featured')}
                       className={`py-2 px-1 border-b-2 font-medium text-sm ${
@@ -996,7 +1053,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                     >
-                      Featured ({products.filter(p => p.featured).length})
+                      Featured Pickles ({(homepageSections.featured?.products || []).length})
                     </button>
                     <button
                       onClick={() => setSelectedSection('customerFavorites')}
@@ -1006,51 +1063,50 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                     >
-                      Customer Favorites ({products.filter(p => p.customerFavorite).length})
+                      Customer Favorites ({(homepageSections.customerFavorites?.products || []).length})
                     </button>
                   </nav>
                 </div>
               </div>
             )}
 
-            {/* No Products State */}
-            {!loading && !error && products.length === 0 && (
-              <div className="text-center py-12">
-                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2M4 13h2m0 0V9a2 2 0 012-2h2m0 0V6a2 2 0 012-2h3a2 2 0 012 2v1M9 7h6" />
-                </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No products found</h3>
-                <p className="mt-1 text-sm text-gray-500">Get started by adding your first product.</p>
-              </div>
-            )}
-
-            {/* Products Grid - Filter based on selected section */}
-            {!loading && !error && products.length > 0 && (
+            {/* Homepage Products Grid */}
+            {!homepageLoading && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-                {products
-                  .filter(product => {
-                    if (selectedSection === 'all') return true;
-                    if (selectedSection === 'featured') return product.featured;
-                    if (selectedSection === 'customerFavorites') return product.customerFavorite;
-                    return true;
-                  })
-                  .map((product) => (
-                    <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden">
-                      <img
-                        src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : 'https://via.placeholder.com/300x200'}
-                        alt={product.name}
-                        className="w-full h-48 object-cover"
-                        onError={(e) => {
-                          console.log('AdminPanel: Image failed to load:', product.image);
-                          e.target.src = 'https://via.placeholder.com/300x200';
-                        }}
-                        onLoad={() => {
-                          console.log('AdminPanel: Image loaded successfully:', product.image);
-                        }}
-                      />
+                {(homepageSections[selectedSection]?.products || []).map((homepageProduct, index) => {
+                  const product = homepageProduct.productId;
+                  const displayTitle = homepageProduct.customTitle || product.name;
+                  const displayDescription = homepageProduct.customDescription || product.description;
+                  const displayImage = homepageProduct.customImage || product.image;
+                  
+                  return (
+                    <div key={product._id || product.id || index} className="bg-white rounded-lg shadow-md overflow-hidden">
+                      {/* Product Image */}
+                      <div className="relative">
+                        <img
+                          src={displayImage ? (displayImage.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${displayImage}` : displayImage) : 'https://via.placeholder.com/300x200'}
+                          alt={displayTitle}
+                          className="w-full h-48 object-cover"
+                          onError={(e) => {
+                            e.target.src = 'https://via.placeholder.com/300x200';
+                          }}
+                        />
+                        {/* Custom content indicator */}
+                        {(homepageProduct.customTitle || homepageProduct.customDescription || homepageProduct.customImage) && (
+                          <div className="absolute top-2 right-2">
+                            <span className="bg-blue-500 text-white px-2 py-1 rounded-full text-xs">
+                              Custom
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
                       <div className="p-4">
-                        <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
-                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
+                        {/* Product Info */}
+                        <h3 className="font-semibold text-lg mb-2">{displayTitle}</h3>
+                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">{displayDescription}</p>
+                        
+                        {/* Price Display */}
                         <div className="mb-2">
                           {product.weights && product.weights.length > 0 && (
                             <div className="text-sm text-gray-700">
@@ -1063,54 +1119,134 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                             </div>
                           )}
                         </div>
+
+                        {/* Tags */}
                         <div className="flex flex-wrap gap-1 text-xs mb-3">
                           <span className="bg-blue-100 px-2 py-1 rounded text-blue-800">{product.productType || 'Pickles'}</span>
                           <span className="bg-gray-100 px-2 py-1 rounded">{product.category}</span>
-                          {product.featured && <span className="bg-yellow-100 px-2 py-1 rounded text-yellow-800">Featured</span>}
-                          {product.customerFavorite && <span className="bg-pink-100 px-2 py-1 rounded text-pink-800">Customer Favorite</span>}
-                          {product.rating && <span className="bg-green-100 px-2 py-1 rounded text-green-800">★ {product.rating}</span>}
+                          <span className="bg-green-100 px-2 py-1 rounded text-green-800">
+                            {selectedSection === 'featured' ? 'Featured' : 'Customer Favorite'}
+                          </span>
+                          {product.rating && <span className="bg-yellow-100 px-2 py-1 rounded text-yellow-800">★ {product.rating}</span>}
                         </div>
-                        <div className="space-y-2">
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => handleEditProduct(product)}
-                              className="flex-1 px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => handleDeleteProduct(product._id)}
-                              className="flex-1 px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
-                            >
-                              Delete
-                            </button>
-                          </div>
-                          <div className="flex gap-2">
-                            <button
-                              onClick={() => toggleFeaturedStatus(product._id || product.id)}
-                              className={`flex-1 px-3 py-2 rounded font-medium transition-colors text-sm ${
-                                product.featured
-                                  ? 'bg-yellow-500 text-white hover:bg-yellow-600'
-                                  : 'bg-gray-200 text-gray-700 hover:bg-yellow-200'
-                              }`}
-                            >
-                              {product.featured ? '★ Featured' : '★ Feature'}
-                            </button>
-                            <button
-                              onClick={() => toggleCustomerFavorite(product._id || product.id)}
-                              className={`flex-1 px-3 py-2 rounded font-medium transition-colors text-sm ${
-                                product.customerFavorite
-                                  ? 'bg-pink-500 text-white hover:bg-pink-600'
-                                  : 'bg-gray-200 text-gray-700 hover:bg-pink-200'
-                              }`}
-                            >
-                              {product.customerFavorite ? '❤️ Favorite' : '❤️ Favorite'}
-                            </button>
-                          </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEditHomepageProduct(homepageProduct, selectedSection)}
+                            className="flex-1 px-3 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors text-sm"
+                          >
+                            Edit Homepage Display
+                          </button>
+                          <button
+                            onClick={() => handleRemoveFromHomepage(product._id || product.id, selectedSection)}
+                            className="flex-1 px-3 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm"
+                          >
+                            Remove
+                          </button>
                         </div>
                       </div>
                     </div>
-                  ))}
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!homepageLoading && (!homepageSections[selectedSection]?.products || homepageSections[selectedSection].products.length === 0) && (
+              <div className="text-center py-12">
+                <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2 2v-5m16 0h-2M4 13h2m0 0V9a2 2 0 012-2h2m0 0V6a2 2 0 012-2h3a2 2 0 012 2v1M9 7h6" />
+                </svg>
+                <h3 className="mt-2 text-sm font-medium text-gray-900">
+                  No products in {selectedSection === 'featured' ? 'Featured Pickles' : 'Customer Favorites'}
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  Use the Products tab to add products to homepage sections.
+                </p>
+              </div>
+            )}
+
+            {/* Edit Homepage Product Modal */}
+            {editingHomepageProduct && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+                  <div className="p-6">
+                    <h2 className="text-2xl font-bold mb-4">
+                      Edit Homepage Display
+                    </h2>
+                    
+                    <div className="mb-4 p-3 bg-gray-50 rounded">
+                      <p className="text-sm text-gray-600">
+                        <strong>Original Product:</strong> {editingHomepageProduct.originalProduct.name}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        Customize how this product appears on the homepage. Leave fields empty to use the original product data.
+                      </p>
+                    </div>
+                    
+                    {/* Form */}
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Custom Title (Optional)</label>
+                        <input
+                          type="text"
+                          id="custom-title"
+                          defaultValue={editingHomepageProduct.customTitle || ''}
+                          placeholder={editingHomepageProduct.originalProduct.name}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Custom Description (Optional)</label>
+                        <textarea
+                          id="custom-description"
+                          defaultValue={editingHomepageProduct.customDescription || ''}
+                          placeholder={editingHomepageProduct.originalProduct.description}
+                          rows={3}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium mb-1">Custom Image (Optional)</label>
+                        <input
+                          type="file"
+                          id="custom-image"
+                          accept="image/*"
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Current: {editingHomepageProduct.customImage ? 'Custom image' : 'Original product image'}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Form Actions */}
+                    <div className="flex gap-2 mt-6">
+                      <button
+                        onClick={() => {
+                          const formData = {
+                            customTitle: document.getElementById('custom-title').value,
+                            customDescription: document.getElementById('custom-description').value
+                          };
+                          const customImageFile = document.getElementById('custom-image').files[0];
+                          handleUpdateHomepageProduct(formData, customImageFile);
+                        }}
+                        className="flex-1 px-4 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors"
+                      >
+                        Update Homepage Display
+                      </button>
+                      <button
+                        onClick={() => setEditingHomepageProduct(null)}
+                        className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
           </>
