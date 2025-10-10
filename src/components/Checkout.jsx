@@ -245,7 +245,8 @@ const Checkout = ({ onBack, onOrderComplete }) => {
           <img 
             src="/assets/logo.png"
             alt="Janiitra Logo"
-            className="h-6 w-36 sm:h-8 sm:w-48 object-contain"
+            className="h-6 w-36 sm:h-8 sm:w-48 object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
+            onClick={() => window.navigateToHome && window.navigateToHome()}
           />
         </div>
 

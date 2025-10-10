@@ -131,17 +131,17 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="relative min-h-screen w-full max-w-md">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="relative w-full max-w-md my-8 mx-auto">
         {/* Background Image Overlay */}
-        <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20" style={{
+        <div className="absolute inset-0 z-0 bg-cover bg-center opacity-20 rounded-xl" style={{
           backgroundImage: 'url("https://res.cloudinary.com/janiitra-pickles/image/upload/v1760011588/pickle-store/1760011587794-ChatGPT-Image-Oct-7%2C-2025%2C-07_28_52-PM.png")'
         }}></div>
-        <div className="absolute inset-0 z-10 bg-gradient-to-b from-orange-50/50 via-orange-50 to-orange-50"></div>
+        <div className="absolute inset-0 z-10 bg-gradient-to-b from-orange-50/50 via-orange-50 to-orange-50 rounded-xl"></div>
         
-        <div className="relative z-20 flex min-h-screen flex-col">
+        <div className="relative z-20 flex flex-col bg-white/90 rounded-xl shadow-2xl backdrop-blur-sm min-h-[500px] max-h-[90vh] overflow-y-auto">
           {/* Header with Logo */}
-          <header className="px-6 py-4">
+          <header className="px-6 py-4 flex-shrink-0">
             <div className="flex items-center justify-between text-amber-900">
               <div className="flex items-center gap-3">
                 <img 
@@ -177,13 +177,13 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
           </header>
 
           {/* Main Auth Form */}
-          <main className="flex flex-1 items-center justify-center py-8">
-            <div className="w-full max-w-md rounded-xl bg-white/90 p-8 shadow-2xl backdrop-blur-sm">
+          <main className="flex-1 py-4 px-6">
+            <div className="w-full">
               {/* Tab Buttons */}
-              <div className="mb-8 flex rounded-lg border border-orange-200 bg-orange-50 p-1">
+              <div className="mb-6 flex rounded-lg border border-orange-200 bg-orange-50 p-1">
                 <button 
                   onClick={() => setIsLogin(true)}
-                  className={`w-1/2 rounded-md py-2.5 text-lg font-bold transition-colors ${
+                  className={`w-1/2 rounded-md py-2.5 text-base font-bold transition-colors ${
                     isLogin 
                       ? 'bg-orange-500 text-white' 
                       : 'text-amber-700 hover:text-orange-500'
@@ -193,7 +193,7 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
                 </button>
                 <button 
                   onClick={() => setIsLogin(false)}
-                  className={`w-1/2 rounded-md py-2.5 text-lg font-bold transition-colors ${
+                  className={`w-1/2 rounded-md py-2.5 text-base font-bold transition-colors ${
                     !isLogin 
                       ? 'bg-orange-500 text-white' 
                       : 'text-amber-700 hover:text-orange-500'
@@ -204,10 +204,10 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
               </div>
 
               {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-4">
                 {/* First Name & Last Name (Signup only) */}
                 {!isLogin && (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="block text-sm font-medium text-amber-900" htmlFor="firstName">
                         First Name

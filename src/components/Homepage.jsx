@@ -52,7 +52,8 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           <img 
             src="/assets/logo.png" 
             alt="Janiitra - Authentic Indian Pickles Logo" 
-            className="h-5 w-28 sm:h-6 sm:w-36 md:h-8 md:w-48 object-contain hover:scale-105 transition-transform duration-300"
+            className="h-5 w-28 sm:h-6 sm:w-36 md:h-8 md:w-48 object-contain hover:scale-105 transition-transform duration-300 cursor-pointer"
+            onClick={() => window.navigateToHome && window.navigateToHome()}
           />
         </div>
 
@@ -157,12 +158,9 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           aria-label="Hero section showcasing authentic Indian pickles"
         >
           <div className="animate-slide-up max-w-6xl mx-auto">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold uppercase tracking-wider mb-4 animate-bounce-in">
-              Janiitra
-            </h1>
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold uppercase tracking-wide mb-4 text-[#ecab13] animate-fade-in-delay-1">
+            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold uppercase tracking-wide mb-4 text-[#ecab13] animate-fade-in-delay-1">
               AUTHENTIC INDIAN PICKLES
-            </h2>
+            </h1>
             <p className="mt-4 text-base sm:text-lg md:text-xl max-w-2xl lg:max-w-4xl mx-auto leading-relaxed animate-fade-in-delay-2 px-4">
               Handcrafted with love, bursting with traditional flavours that dance on your tongue.
             </p>
