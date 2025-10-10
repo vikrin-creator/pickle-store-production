@@ -207,12 +207,23 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
 
   // Filter products based on selected filters and search query
   const filteredProducts = products.filter(product => {
-    // Search filter - make it more comprehensive
+    // Search filter - enhanced for better matching
     const searchTerm = searchQuery.toLowerCase().trim();
-    const matchesSearch = !searchTerm || 
-      product.name.toLowerCase().includes(searchTerm) ||
-      product.description.toLowerCase().includes(searchTerm) ||
-      (product.category && product.category.toLowerCase().includes(searchTerm));
+    const matchesSearch = !searchTerm || (() => {
+      // Search in product name
+      const nameMatch = product.name.toLowerCase().includes(searchTerm);
+      // Search in description
+      const descriptionMatch = product.description.toLowerCase().includes(searchTerm);
+      // Search in category
+      const categoryMatch = product.category && product.category.toLowerCase().includes(searchTerm);
+      // Search in spice level
+      const spiceLevelMatch = product.spiceLevel && product.spiceLevel.toLowerCase().includes(searchTerm);
+      // Search in individual words (for partial matching)
+      const nameWords = product.name.toLowerCase().split(' ');
+      const wordMatch = nameWords.some(word => word.startsWith(searchTerm));
+      
+      return nameMatch || descriptionMatch || categoryMatch || spiceLevelMatch || wordMatch;
+    })();
     
     // Spice level filter - handle products without spiceLevel field
     const productSpiceLevel = product.spiceLevel || 'Medium'; // Default to Medium if not set
@@ -555,25 +566,6 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                   )}
                 </div>
               )}
-            </div>
-
-            {/* Pagination */}
-            <div className="products-pagination flex justify-center items-center gap-2 mt-8">
-              <button className="pagination-btn px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                &lt;
-              </button>
-              <button className="pagination-btn active px-3 py-2 bg-[#ecab13] text-white rounded-lg">
-                1
-              </button>
-              <button className="pagination-btn px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                2
-              </button>
-              <button className="pagination-btn px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                3
-              </button>
-              <button className="pagination-btn px-3 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                &gt;
-              </button>
             </div>
           </section>
         </div>
