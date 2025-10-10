@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import authService from '../services/authService';
+import HomepageService from '../services/homepageService';
 import CustomerAuth from './CustomerAuth';
 
 const Homepage = ({ cartCount, onNavigateToCart }) => {
@@ -14,12 +15,103 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [homepageData, setHomepageData] = useState({
+    featured: { products: [] },
+    customerFavorites: { products: [] }
+  });
+  const [homepageLoading, setHomepageLoading] = useState(true);
 
   // Check authentication status on component mount
   useEffect(() => {
     setIsAuthenticated(authService.isAuthenticated());
     setUser(authService.getCurrentUser());
+    loadHomepageData();
   }, []);
+
+  // Load homepage data from API
+  const loadHomepageData = async () => {
+    try {
+      setHomepageLoading(true);
+      
+      // Check if running on localhost
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      if (isLocalhost) {
+        // Use mock data for localhost development
+        setTimeout(() => {
+          setHomepageData({
+            featured: {
+              title: 'Featured Pickles',
+              products: [
+                {
+                  productId: {
+                    _id: '1',
+                    name: 'Mango Tango',
+                    description: 'Traditional mango pickle made with organic ingredients',
+                    price: 150,
+                    image: '/assets/MangoTango.png',
+                    category: 'Vegetarian'
+                  },
+                  customTitle: null,
+                  customDescription: null,
+                  customImage: null
+                },
+                {
+                  productId: {
+                    _id: '2',
+                    name: 'Lime Zest',
+                    description: 'Zesty lime pickle with a hint of spice',
+                    price: 120,
+                    image: '/assets/Limezest.png',
+                    category: 'Vegetarian'
+                  },
+                  customTitle: null,
+                  customDescription: null,
+                  customImage: null
+                }
+              ]
+            },
+            customerFavorites: {
+              title: 'Customer Favorites',
+              products: [
+                {
+                  productId: {
+                    _id: '3',
+                    name: 'Chili Kick',
+                    description: 'Spicy red chili pickle for heat lovers',
+                    price: 140,
+                    image: '/assets/ChiliKick.png',
+                    category: 'Vegetarian'
+                  },
+                  customTitle: null,
+                  customDescription: null,
+                  customImage: null
+                }
+              ]
+            }
+          });
+          setHomepageLoading(false);
+        }, 500);
+        return;
+      }
+
+      const sections = await HomepageService.getAllSections();
+      const sectionsMap = {};
+      sections.forEach(section => {
+        sectionsMap[section.sectionType] = section;
+      });
+      setHomepageData(sectionsMap);
+    } catch (error) {
+      console.error('Error loading homepage data:', error);
+      // Use fallback data
+      setHomepageData({
+        featured: { title: 'Featured Pickles', products: [] },
+        customerFavorites: { title: 'Customer Favorites', products: [] }
+      });
+    } finally {
+      setHomepageLoading(false);
+    }
+  };
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -258,54 +350,105 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Our Specialties Section */}
         <section className="py-12 sm:py-16 px-3 sm:px-6 animate-fade-in-up" id="specialties" aria-labelledby="specialties-heading">
-          <h2 id="specialties-heading" className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-4 animate-slide-down">Featured Pickles</h2>
+          <h2 id="specialties-heading" className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-4 animate-slide-down">
+            {homepageData.featured?.title || 'Featured Pickles'}
+          </h2>
           <p className="text-center text-base sm:text-lg text-gray-600 mb-8 sm:mb-12 max-w-3xl mx-auto animate-fade-in-delay-1 px-4">
-            Every product carries the richness of Indian kitchens straight to your plate
+            {homepageData.featured?.description || 'Every product carries the richness of Indian kitchens straight to your plate'}
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
-            {[
-              {
-                title: "🥒 Pickles (Veg & Non-Veg)",
-                description: "The heart of Janiitra – tangy, spicy, and full of flavor, prepared without preservatives for an authentic homemade experience.",
-                image: "/assets/MixedVegetablePickle.png",
-                category: "Pickles"
-              },
-              {
-                title: "🌶 Spices",
-                description: "Pure Mirchi Powder and Haldi to enhance the flavor and aroma of your daily cooking.",
-                image: "/assets/Neemjar.png",
-                category: "Spices"
-              },
-              {
-                title: "🍃 Podi Varieties",
-                description: "Quick, ready-to-mix powders like Curry Leaf Podi and Kandi Podi – simple, healthy, and tasty.",
-                image: "/assets/MangoJar.png",
-                category: "Podi"
-              },
-              {
-                title: "🐟 Dry Seafood",
-                description: "Sun-dried prawns and fish sourced from the Godavari region, known for their superior quality and nutrition.",
-                image: "/assets/MixedVegetablePickle.png",
-                category: "Seafood"
-              }
-            ].map((item, index) => (
-                <button 
-                  key={index}
-                  onClick={() => handleCategoryNavigate(item.category)}
-                  className={`rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger mx-2`}
-                  style={{ animationDelay: `${index * 0.2}s` }}
-                >
-                  <div 
-                    className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
-                    style={{ backgroundImage: `url('${item.image}')` }}
-                  ></div>
-                  <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300">
-                    <h3 className="text-lg sm:text-xl font-bold">{item.title}</h3>
-                    <p className="mt-2 text-sm sm:text-base text-[#221c10]/70">{item.description}</p>
-                  </div>
-                </button>
-              ))}
-          </div>
+          
+          {/* Loading State */}
+          {homepageLoading && (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ecab13]"></div>
+              <span className="ml-3 text-gray-600">Loading featured products...</span>
+            </div>
+          )}
+
+          {/* Dynamic Featured Products */}
+          {!homepageLoading && homepageData.featured?.products?.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
+              {homepageData.featured.products.map((homepageProduct, index) => {
+                const product = homepageProduct.productId;
+                return (
+                  <button 
+                    key={product._id || product.id || index}
+                    onClick={() => {
+                      if (window.navigateToProductDetail) {
+                        window.navigateToProductDetail(product);
+                      }
+                    }}
+                    className={`rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger mx-2`}
+                    style={{ animationDelay: `${index * 0.2}s` }}
+                  >
+                    <div 
+                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                      style={{ backgroundImage: `url('${homepageProduct.customImage || product.image || '/placeholder-pickle.jpg'}')` }}
+                    ></div>
+                    <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300">
+                      <h3 className="text-lg sm:text-xl font-bold">
+                        {homepageProduct.customTitle || product.name}
+                      </h3>
+                      <p className="mt-2 text-sm sm:text-base text-[#221c10]/70">
+                        {homepageProduct.customDescription || product.description}
+                      </p>
+                      <div className="mt-3 text-lg font-bold text-[#ecab13]">
+                        ₹{product.price}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Fallback to static categories if no featured products */}
+          {!homepageLoading && (!homepageData.featured?.products || homepageData.featured.products.length === 0) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
+              {[
+                {
+                  title: "🥒 Pickles (Veg & Non-Veg)",
+                  description: "The heart of Janiitra – tangy, spicy, and full of flavor, prepared without preservatives for an authentic homemade experience.",
+                  image: "/assets/MixedVegetablePickle.png",
+                  category: "Pickles"
+                },
+                {
+                  title: "🌶 Spices",
+                  description: "Pure Mirchi Powder and Haldi to enhance the flavor and aroma of your daily cooking.",
+                  image: "/assets/Neemjar.png",
+                  category: "Spices"
+                },
+                {
+                  title: "🍃 Podi Varieties",
+                  description: "Quick, ready-to-mix powders like Curry Leaf Podi and Kandi Podi – simple, healthy, and tasty.",
+                  image: "/assets/MangoJar.png",
+                  category: "Podi"
+                },
+                {
+                  title: "🐟 Dry Seafood",
+                  description: "Sun-dried prawns and fish sourced from the Godavari region, known for their superior quality and nutrition.",
+                  image: "/assets/MixedVegetablePickle.png",
+                  category: "Seafood"
+                }
+              ].map((item, index) => (
+                  <button 
+                    key={index}
+                    onClick={() => handleCategoryNavigate(item.category)}
+                    className={`rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger mx-2`}
+                    style={{ animationDelay: `${index * 0.2}s` }}
+                  >
+                    <div 
+                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                      style={{ backgroundImage: `url('${item.image}')` }}
+                    ></div>
+                    <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300">
+                      <h3 className="text-lg sm:text-xl font-bold">{item.title}</h3>
+                      <p className="mt-2 text-sm sm:text-base text-[#221c10]/70">{item.description}</p>
+                    </div>
+                  </button>
+                ))}
+            </div>
+          )}
         </section>
 
         {/* Our Promise Section */}
@@ -337,41 +480,92 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Traditional Favorites Section */}
         <section className="py-12 sm:py-16 px-3 sm:px-6 animate-fade-in-up">
-          <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 animate-slide-down">Customer Favorites</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
-            {[
-              {
-                title: "Mango Pickle",
-                description: "Traditional tangy mango pickle made with organic ingredients and natural oils.",
-                image: "/assets/MangoTango.png"
-              },
-              {
-                title: "Mirchi Powder",
-                description: "Pure, aromatic red chili powder to enhance your daily cooking.",
-                image: "/assets/Mirchi.png"
-              },
-              {
-                title: "Garlic Pickle",
-                description: "Spicy garlic pickle prepared using age-old recipes from grandmothers' kitchens.",
-                image: "/assets/Garlic.png"
-              }
-            ].map((item, index) => (
-              <div 
-                key={index} 
-                className={`relative bg-white rounded-xl shadow-sm p-3 sm:p-4 text-center group hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger cursor-pointer mx-2`}
-                style={{ animationDelay: `${index * 0.2}s` }}
-              >
+          <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 animate-slide-down">
+            {homepageData.customerFavorites?.title || 'Customer Favorites'}
+          </h2>
+          
+          {/* Loading State */}
+          {homepageLoading && (
+            <div className="flex justify-center items-center py-12">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ecab13]"></div>
+              <span className="ml-3 text-gray-600">Loading customer favorites...</span>
+            </div>
+          )}
+
+          {/* Dynamic Customer Favorites */}
+          {!homepageLoading && homepageData.customerFavorites?.products?.length > 0 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+              {homepageData.customerFavorites.products.map((homepageProduct, index) => {
+                const product = homepageProduct.productId;
+                return (
+                  <button 
+                    key={product._id || product.id || index} 
+                    onClick={() => {
+                      if (window.navigateToProductDetail) {
+                        window.navigateToProductDetail(product);
+                      }
+                    }}
+                    className={`relative bg-white rounded-xl shadow-sm p-3 sm:p-4 text-center group hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger cursor-pointer mx-2`}
+                    style={{ animationDelay: `${index * 0.2}s` }}
+                  >
+                    <div 
+                      className="aspect-square w-full overflow-hidden rounded-xl bg-gray-200 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
+                      style={{ backgroundImage: `url('${homepageProduct.customImage || product.image || '/placeholder-pickle.jpg'}')` }}
+                    ></div>
+                    <div className="mt-3 sm:mt-4 group-hover:transform group-hover:translate-y-1 transition-transform duration-300">
+                      <div className="text-base sm:text-lg font-semibold group-hover:text-[#ecab13] transition-colors duration-300">
+                        {homepageProduct.customTitle || product.name}
+                      </div>
+                      <div className="mt-1 text-xs sm:text-sm text-[#221c10]/70 px-1">
+                        {homepageProduct.customDescription || product.description}
+                      </div>
+                      <div className="mt-2 text-lg font-bold text-[#ecab13]">
+                        ₹{product.price}
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Fallback to static favorites if no customer favorites */}
+          {!homepageLoading && (!homepageData.customerFavorites?.products || homepageData.customerFavorites.products.length === 0) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
+              {[
+                {
+                  title: "Mango Pickle",
+                  description: "Traditional tangy mango pickle made with organic ingredients and natural oils.",
+                  image: "/assets/MangoTango.png"
+                },
+                {
+                  title: "Mirchi Powder",
+                  description: "Pure, aromatic red chili powder to enhance your daily cooking.",
+                  image: "/assets/Mirchi.png"
+                },
+                {
+                  title: "Garlic Pickle",
+                  description: "Spicy garlic pickle prepared using age-old recipes from grandmothers' kitchens.",
+                  image: "/assets/Garlic.png"
+                }
+              ].map((item, index) => (
                 <div 
-                  className="aspect-square w-full overflow-hidden rounded-xl bg-gray-200 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
-                  style={{ backgroundImage: `url('${item.image}')` }}
-                ></div>
-                <div className="mt-3 sm:mt-4 group-hover:transform group-hover:translate-y-1 transition-transform duration-300">
-                  <div className="text-base sm:text-lg font-semibold group-hover:text-[#ecab13] transition-colors duration-300">{item.title}</div>
-                  <div className="mt-1 text-xs sm:text-sm text-[#221c10]/70 px-1">{item.description}</div>
+                  key={index} 
+                  className={`relative bg-white rounded-xl shadow-sm p-3 sm:p-4 text-center group hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger cursor-pointer mx-2`}
+                  style={{ animationDelay: `${index * 0.2}s` }}
+                >
+                  <div 
+                    className="aspect-square w-full overflow-hidden rounded-xl bg-gray-200 bg-cover bg-center group-hover:scale-110 transition-transform duration-500"
+                    style={{ backgroundImage: `url('${item.image}')` }}
+                  ></div>
+                  <div className="mt-3 sm:mt-4 group-hover:transform group-hover:translate-y-1 transition-transform duration-300">
+                    <div className="text-base sm:text-lg font-semibold group-hover:text-[#ecab13] transition-colors duration-300">{item.title}</div>
+                    <div className="mt-1 text-xs sm:text-sm text-[#221c10]/70 px-1">{item.description}</div>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Newsletter Section */}
