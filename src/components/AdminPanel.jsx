@@ -12,6 +12,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     description: '',
     category: 'Vegetarian',
     productType: 'Pickles',
+    spiceLevel: 'Medium',
     featured: false,
     rating: 0,
     reviews: 0,
@@ -205,6 +206,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       formDataToSend.append('description', formData.description);
       formDataToSend.append('category', formData.category);
       formDataToSend.append('productType', formData.productType);
+      formDataToSend.append('spiceLevel', formData.spiceLevel);
       formDataToSend.append('weights', JSON.stringify(weightOptions));
       formDataToSend.append('featured', formData.featured || false);
       formDataToSend.append('rating', formData.rating || 0);
@@ -247,6 +249,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           description: '',
           category: 'Vegetarian',
           productType: 'Pickles',
+          spiceLevel: 'Medium',
           featured: false,
           rating: 0,
           reviews: 0,
@@ -280,6 +283,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       description: product.description,
       category: product.category,
       productType: product.productType || 'Pickles', // Default to Pickles if not set
+      spiceLevel: product.spiceLevel || 'Medium',
       featured: product.featured,
       rating: product.rating,
       reviews: product.reviews,
