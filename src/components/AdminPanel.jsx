@@ -282,6 +282,71 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     }
   };
 
+  const initializeHomepageWithDefaults = async () => {
+    try {
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      if (isLocalhost) {
+        // For localhost, create mock homepage sections with some default products
+        console.log('Mock: Initializing homepage with default products');
+        
+        // Mock homepage sections with some products from the default products list
+        const mockHomepageSections = {
+          featured: {
+            sectionType: 'featured',
+            title: 'Featured Pickles',
+            description: 'Hand-picked favorites from our collection',
+            products: [
+              {
+                productId: defaultProducts[0], // Mango Tango
+                customImage: null,
+                customTitle: null,
+                customDescription: null,
+                order: 0,
+                isActive: true
+              },
+              {
+                productId: defaultProducts[1], // Lime Zest
+                customImage: null,
+                customTitle: null,
+                customDescription: null,
+                order: 1,
+                isActive: true
+              }
+            ]
+          },
+          customerFavorites: {
+            sectionType: 'customerFavorites',
+            title: 'Customer Favorites',
+            description: 'Most loved products by our customers',
+            products: [
+              {
+                productId: defaultProducts[2], // Chili Kick
+                customImage: null,
+                customTitle: null,
+                customDescription: null,
+                order: 0,
+                isActive: true
+              }
+            ]
+          }
+        };
+        
+        setHomepageSections(mockHomepageSections);
+        alert('Homepage initialized with default products for testing!');
+        return;
+      }
+
+      // For production, try to initialize via API
+      await HomepageService.initializeDefaultSections();
+      await loadHomepageSections();
+      alert('Homepage sections initialized successfully!');
+    } catch (error) {
+      console.error('Error initializing homepage:', error);
+      alert('Error initializing homepage: ' + error.message);
+    }
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -871,6 +936,15 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               >
                 Customer Favorites
               </button>
+              
+              {/* Initialize Homepage Button */}
+              <button
+                onClick={initializeHomepageWithDefaults}
+                className="ml-auto px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
+                title="Populate homepage sections with default products for testing"
+              >
+                Initialize Homepage
+              </button>
             </div>
 
             {/* Loading State */}
@@ -884,6 +958,19 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             {/* Section Content */}
             {!homepageLoading && (
               <div className="space-y-6">
+                {/* Debug Info (only in localhost) */}
+                {(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
+                  <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
+                    <h4 className="font-semibold text-gray-800 mb-2">Debug Info (localhost only)</h4>
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <div>Selected Section: <strong>{selectedSection}</strong></div>
+                      <div>Homepage Sections Keys: <strong>{Object.keys(homepageSections).join(', ') || 'None'}</strong></div>
+                      <div>Current Section Products: <strong>{homepageSections[selectedSection]?.products?.length || 0}</strong></div>
+                      <div>Total Products Available: <strong>{products.length}</strong></div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Section Info */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <h3 className="font-semibold text-blue-800 mb-2">
@@ -912,60 +999,64 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
                 {/* Products Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {homepageSections[selectedSection]?.products?.map((homepageProduct, index) => {
-                    const product = homepageProduct.productId;
-                    return (
-                      <div key={product._id || product.id} className="bg-white rounded-lg shadow-md border border-gray-200 p-4">
-                        {/* Product Image */}
-                        <div className="relative mb-4">
-                          <img
-                            src={homepageProduct.customImage || product.image || '/placeholder-pickle.jpg'}
-                            alt={homepageProduct.customTitle || product.name}
-                            className="w-full h-48 object-cover rounded-lg"
-                            onError={(e) => {
-                              e.target.src = '/placeholder-pickle.jpg';
-                            }}
-                          />
-                          <div className="absolute top-2 right-2">
-                            <span className="bg-[#ecab13] text-white px-2 py-1 rounded-full text-xs">
-                              #{index + 1}
-                            </span>
+                  {(homepageSections[selectedSection]?.products || []).length > 0 ? (
+                    homepageSections[selectedSection].products.map((homepageProduct, index) => {
+                      const product = homepageProduct.productId;
+                      console.log('Rendering homepage product:', { homepageProduct, product }); // Debug log
+                      
+                      return (
+                        <div key={product._id || product.id || index} className="bg-white rounded-lg shadow-md border border-gray-200 p-4">
+                          {/* Product Image */}
+                          <div className="relative mb-4">
+                            <img
+                              src={homepageProduct.customImage || product.image || '/placeholder-pickle.jpg'}
+                              alt={homepageProduct.customTitle || product.name}
+                              className="w-full h-48 object-cover rounded-lg"
+                              onError={(e) => {
+                                e.target.src = '/placeholder-pickle.jpg';
+                              }}
+                            />
+                            <div className="absolute top-2 right-2">
+                              <span className="bg-[#ecab13] text-white px-2 py-1 rounded-full text-xs">
+                                #{index + 1}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Product Info */}
+                          <div className="space-y-3">
+                            <h4 className="font-semibold text-[#221c10] text-lg">
+                              {homepageProduct.customTitle || product.name}
+                            </h4>
+                            
+                            <p className="text-gray-600 text-sm line-clamp-2">
+                              {homepageProduct.customDescription || product.description}
+                            </p>
+
+                            <div className="text-lg font-bold text-[#ecab13]">
+                              ₹{product.price || (product.weights && product.weights[0]?.price) || 'N/A'}
+                            </div>
+
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 pt-2">
+                              <button
+                                onClick={() => setEditingHomepageProduct({ ...homepageProduct, sectionType: selectedSection })}
+                                className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                              >
+                                Edit
+                              </button>
+                              <button
+                                onClick={() => removeProductFromHomepage(product._id || product.id, selectedSection)}
+                                className="flex-1 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
+                              >
+                                Remove
+                              </button>
+                            </div>
                           </div>
                         </div>
-
-                        {/* Product Info */}
-                        <div className="space-y-3">
-                          <h4 className="font-semibold text-[#221c10] text-lg">
-                            {homepageProduct.customTitle || product.name}
-                          </h4>
-                          
-                          <p className="text-gray-600 text-sm line-clamp-2">
-                            {homepageProduct.customDescription || product.description}
-                          </p>
-
-                          <div className="text-lg font-bold text-[#ecab13]">
-                            ₹{product.price}
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex gap-2 pt-2">
-                            <button
-                              onClick={() => setEditingHomepageProduct({ ...homepageProduct, sectionType: selectedSection })}
-                              className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
-                            >
-                              Edit
-                            </button>
-                            <button
-                              onClick={() => removeProductFromHomepage(product._id || product.id, selectedSection)}
-                              className="flex-1 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
-                            >
-                              Remove
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  }) || []}
+                      );
+                    })
+                  ) : null}
                 </div>
 
                 {/* Empty State */}
