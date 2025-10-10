@@ -170,7 +170,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
       {/* Mobile Menu Dropdown */}
       {showMobileMenu && (
         <div 
-          className="lg:hidden absolute top-full left-0 right-0 z-40 bg-white border border-gray-200 shadow-lg rounded-b-lg mx-4 mt-1"
+          className="lg:hidden absolute top-full right-4 z-40 bg-white border border-gray-200 shadow-lg rounded-lg mt-1 w-48"
           data-mobile-menu
         >
           <nav className="py-2">
@@ -216,7 +216,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           aria-label="Hero section showcasing authentic Indian pickles"
         >
           <div className="animate-slide-up max-w-6xl mx-auto">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold uppercase tracking-wide mb-4 text-[#ecab13] animate-fade-in-delay-1">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold uppercase tracking-wide mb-4 text-white animate-fade-in-delay-1">
               AUTHENTIC INDIAN PICKLES
             </h1>
             <p className="mt-4 text-sm sm:text-base md:text-lg max-w-2xl lg:max-w-4xl mx-auto leading-relaxed animate-fade-in-delay-2 px-4">

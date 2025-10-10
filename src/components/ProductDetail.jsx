@@ -193,19 +193,19 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
                 <label className="block text-xs font-medium text-[#221c10]">
                   Weight & Size
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-1">
                   {(product.weights || product.weightOptions).map((option, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedWeight(option)}
-                      className={`p-2 rounded-lg border-2 transition-all duration-200 text-center ${
+                      className={`p-1 rounded-md border transition-all duration-200 text-center ${
                         selectedWeight?.weight === option.weight
                           ? 'border-[#ecab13] bg-[#ecab13] text-white'
                           : 'border-[#ecab13]/30 text-[#221c10] hover:border-[#ecab13]/60'
                       }`}
                     >
-                      <div className="text-sm font-semibold">{option.weight}</div>
-                      <div className="text-xs opacity-80">₹{option.price?.toFixed(2) || '150.00'}</div>
+                      <div className="text-xs font-medium">{option.weight}</div>
+                      <div className="text-xs opacity-70">₹{option.price?.toFixed(2) || '150.00'}</div>
                     </button>
                   ))}
                 </div>
