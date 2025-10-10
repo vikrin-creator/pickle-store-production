@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Footer from './Footer';
 
 const ProductDetail = ({ product, onBack, onAddToCart }) => {
   const [quantity, setQuantity] = useState(1);
@@ -289,6 +290,9 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

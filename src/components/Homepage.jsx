@@ -7,12 +7,27 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Check authentication status on component mount
   useEffect(() => {
     setIsAuthenticated(authService.isAuthenticated());
     setUser(authService.getCurrentUser());
   }, []);
+
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showMobileMenu && !event.target.closest('header') && !event.target.closest('[data-mobile-menu]')) {
+        setShowMobileMenu(false);
+      }
+    };
+
+    if (showMobileMenu) {
+      document.addEventListener('click', handleClickOutside);
+      return () => document.removeEventListener('click', handleClickOutside);
+    }
+  }, [showMobileMenu]);
 
   const handleLogout = () => {
     authService.clearAuth();
@@ -34,6 +49,10 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     setIsAuthenticated(true);
     setUser(userData);
     setShowAuthModal(false);
+  };
+
+  const toggleMobileMenu = () => {
+    setShowMobileMenu(!showMobileMenu);
   };
 
   const handleNewsletterSubmit = (e) => {
@@ -83,11 +102,12 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Mobile Menu Button - Only visible on mobile */}
         <button 
+          onClick={toggleMobileMenu}
           className="lg:hidden text-white hover:text-[#ecab13] transition-colors duration-300"
-          aria-label="Open mobile menu"
+          aria-label="Toggle mobile menu"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showMobileMenu ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
           </svg>
         </button>
 
@@ -141,6 +161,114 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </div>
       </header>
 
+      {/* Mobile Menu Dropdown */}
+      {showMobileMenu && (
+        <div 
+          className="lg:hidden absolute top-full left-0 right-0 z-40 bg-[#2d6700] border-t border-[#ecab13]/30 shadow-lg animate-slide-down"
+          data-mobile-menu
+        >
+          <nav className="px-4 py-4 space-y-3">
+            <a 
+              href="#shop" 
+              className="flex items-center justify-between py-3 px-4 text-white hover:text-[#ecab13] hover:bg-white/10 rounded-lg transition-all duration-300"
+              onClick={() => setShowMobileMenu(false)}
+            >
+              <span className="text-base font-medium">Shop</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+            <a 
+              href="#recipes" 
+              className="flex items-center justify-between py-3 px-4 text-white hover:text-[#ecab13] hover:bg-white/10 rounded-lg transition-all duration-300"
+              onClick={() => setShowMobileMenu(false)}
+            >
+              <span className="text-base font-medium">Recipes</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+            <a 
+              href="#about" 
+              className="flex items-center justify-between py-3 px-4 text-white hover:text-[#ecab13] hover:bg-white/10 rounded-lg transition-all duration-300"
+              onClick={() => setShowMobileMenu(false)}
+            >
+              <span className="text-base font-medium">About</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+            <a 
+              href="#contact" 
+              className="flex items-center justify-between py-3 px-4 text-white hover:text-[#ecab13] hover:bg-white/10 rounded-lg transition-all duration-300"
+              onClick={() => setShowMobileMenu(false)}
+            >
+              <span className="text-base font-medium">Contact</span>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+            
+            {/* Mobile Auth Section */}
+            <div className="pt-3 border-t border-white/20">
+              {isAuthenticated ? (
+                <div className="space-y-3">
+                  <div className="px-4 py-2 text-[#ecab13] text-sm">
+                    Welcome, {user?.firstName || 'Customer'}!
+                  </div>
+                  <button 
+                    onClick={() => {
+                      handleLogout();
+                      setShowMobileMenu(false);
+                    }}
+                    className="w-full flex items-center gap-3 py-3 px-4 text-white hover:text-red-400 hover:bg-white/10 rounded-lg transition-all duration-300"
+                  >
+                    <svg fill="currentColor" height="18px" viewBox="0 0 256 256" width="18px" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M112,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h56a8,8,0,0,1,0,16H48V208h56A8,8,0,0,1,112,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L188.69,112H112a8,8,0,0,0,0,16h76.69l-18.35,18.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,221.66,122.34Z"></path>
+                    </svg>
+                    <span className="text-base font-medium">Logout</span>
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  onClick={() => {
+                    handleShowLogin();
+                    setShowMobileMenu(false);
+                  }}
+                  className="w-full flex items-center gap-3 py-3 px-4 text-white hover:text-[#ecab13] hover:bg-white/10 rounded-lg transition-all duration-300"
+                >
+                  <svg fill="currentColor" height="18px" viewBox="0 0 256 256" width="18px" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M141.66,133.66l-40,40a8,8,0,0,1-11.32-11.32L116.69,136H24a8,8,0,0,1,0-16h92.69L90.34,93.66a8,8,0,0,1,11.32-11.32l40,40A8,8,0,0,1,141.66,133.66ZM200,32H136a8,8,0,0,0,0,16h64V208H136a8,8,0,0,0,0,16h64a16,16,0,0,0,16-16V48A16,16,0,0,0,200,32Z"></path>
+                  </svg>
+                  <span className="text-base font-medium">Login</span>
+                </button>
+              )}
+              
+              {/* Cart Button */}
+              <button 
+                onClick={() => {
+                  onNavigateToCart();
+                  setShowMobileMenu(false);
+                }}
+                className="w-full flex items-center justify-between py-3 px-4 text-white hover:text-[#ecab13] hover:bg-white/10 rounded-lg transition-all duration-300 mt-3"
+              >
+                <div className="flex items-center gap-3">
+                  <svg fill="currentColor" height="18px" viewBox="0 0 256 256" width="18px" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M222.14,58.87A8,8,0,0,0,216,56H54.68L49.79,29.14A16,16,0,0,0,34.05,16H16a8,8,0,0,0,0,16H34.05l31.1,185.05A16,16,0,0,0,80.9,232H192a8,8,0,0,0,0-16H80.9L77.22,200H188.1a16,16,0,0,0,15.75-13.14L216.73,63.82A8,8,0,0,0,222.14,58.87ZM188.1,184H73.84L60.79,72H203.21ZM104,232a16,16,0,1,1-16-16A16,16,0,0,1,104,232Zm96,0a16,16,0,1,1-16-16A16,16,0,0,1,200,232Z"></path>
+                  </svg>
+                  <span className="text-base font-medium">Cart</span>
+                </div>
+                {cartCount > 0 && (
+                  <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#ecab13] text-xs font-bold text-white">
+                    {cartCount}
+                  </span>
+                )}
+              </button>
+            </div>
+          </nav>
+        </div>
+      )}
+
       <main role="main">
         {/* Hero Section */}
         <section 
@@ -151,14 +279,14 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           aria-label="Hero section showcasing authentic Indian pickles"
         >
           <div className="animate-slide-up max-w-6xl mx-auto">
-            <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold uppercase tracking-wide mb-4 text-[#ecab13] animate-fade-in-delay-1">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold uppercase tracking-wide mb-4 text-[#ecab13] animate-fade-in-delay-1">
               AUTHENTIC INDIAN PICKLES
             </h1>
-            <p className="mt-4 text-base sm:text-lg md:text-xl max-w-2xl lg:max-w-4xl mx-auto leading-relaxed animate-fade-in-delay-2 px-4">
+            <p className="mt-4 text-sm sm:text-base md:text-lg max-w-2xl lg:max-w-4xl mx-auto leading-relaxed animate-fade-in-delay-2 px-4">
               Handcrafted with love, bursting with traditional flavours that dance on your tongue.
             </p>
             <button 
-              className="mt-6 sm:mt-8 bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-bold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1"
+              className="mt-6 sm:mt-8 bg-[#2d6700] text-white px-6 sm:px-8 py-2.5 sm:py-3 font-bold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1 hover:bg-[#234d00]"
               onClick={() => window.navigateToProducts && window.navigateToProducts()}
               aria-label="Shop authentic Indian pickles now"
             >
@@ -203,7 +331,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 style={{ animationDelay: `${index * 0.2}s` }}
               >
                 <div 
-                  className="aspect-square bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                  className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
                   style={{ backgroundImage: `url('${item.image}')` }}
                 ></div>
                 <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300">

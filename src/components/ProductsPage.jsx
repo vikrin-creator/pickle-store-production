@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Footer from './Footer';
 
 const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart, onNavigateHome }) => {
   const [products, setProducts] = useState([]);
@@ -425,10 +426,10 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                 <h3 className="filter-label text-base font-semibold mb-3 text-[#221c10]">Category</h3>
                 <div className="filter-options space-y-2">
                   {[
-                    { name: 'Pickles', emoji: '🥒' },
-                    { name: 'Seafood', emoji: '🐟' },
-                    { name: 'Podi', emoji: '🍃' },
-                    { name: 'Spices', emoji: '🌶️' }
+                    { name: 'Pickles'},
+                    { name: 'Seafood'},
+                    { name: 'Podi'},
+                    { name: 'Spices'}
                   ].map((category) => (
                     <label key={category.name} className="flex items-center cursor-pointer">
                       <input 
@@ -594,7 +595,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
             </div>
 
             {/* Products Grid */}
-            <div className="products-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-h-[calc(100vh-120px)] overflow-y-auto">
+            <div className="products-grid grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-h-[calc(100vh-120px)] overflow-y-auto">
               {sortedProducts.length > 0 ? (
                 sortedProducts.map((product) => (
                   <div 
@@ -606,15 +607,15 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                       <img
                         src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : "https://via.placeholder.com/300x200"}
                         alt={product.name}
-                        className="w-full h-48 object-cover"
+                        className="w-full h-36 sm:h-40 md:h-48 object-cover"
                         onError={(e) => {
                           console.log('ProductsPage: Image failed to load:', product.image);
                           e.target.src = "https://via.placeholder.com/300x200";
                         }}
                       />
-                      <div className="product-favorite absolute top-2 right-2 p-2 bg-white/80 rounded-full cursor-pointer hover:bg-white transition-colors duration-200">
+                      <div className="product-favorite absolute top-1 sm:top-2 right-1 sm:right-2 p-1 sm:p-2 bg-white/80 rounded-full cursor-pointer hover:bg-white transition-colors duration-200">
                         <svg
-                          className="w-5 h-5 text-gray-600 hover:text-[#ecab13]"
+                          className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 hover:text-[#ecab13]"
                           fill="none"
                           stroke="currentColor"
                           strokeLinecap="round"
@@ -627,12 +628,12 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                         </svg>
                       </div>
                     </div>
-                    <div className="product-details p-4">
-                      <h3 className="font-semibold text-lg mb-2 text-[#221c10]">{product.name}</h3>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
+                    <div className="product-details p-3 sm:p-4">
+                      <h3 className="font-semibold text-sm sm:text-base md:text-lg mb-1 sm:mb-2 text-[#221c10] line-clamp-1">{product.name}</h3>
+                      <p className="text-gray-600 text-xs sm:text-sm mb-2 sm:mb-3 line-clamp-2">{product.description}</p>
                       
                       <div className="product-actions flex justify-between items-center">
-                        <span className="product-price text-[#ecab13] font-bold text-lg sm:text-xl">
+                        <span className="product-price text-[#ecab13] font-bold text-sm sm:text-lg md:text-xl">
                           {(product.weightOptions?.length > 0 || product.weights?.length > 0)
                             ? `₹${Math.min(...(product.weightOptions || product.weights).map(opt => opt.price))}` 
                             : `₹${product.price || 'N/A'}`
@@ -643,9 +644,16 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                             e.stopPropagation();
                             onProductClick && onProductClick(product);
                           }}
-                          className="add-btn bg-[#ecab13] text-white px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-[#d49c12] transition-colors duration-200 text-sm sm:text-base"
+                          className="add-btn bg-[#ecab13] text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg font-semibold hover:bg-[#d49c12] transition-colors duration-200 text-xs sm:text-sm md:text-base"
                         >
-                          {(product.weightOptions?.length > 0 || product.weights?.length > 0) ? 'Choose Size' : 'Add'}
+                          {(product.weightOptions?.length > 0 || product.weights?.length > 0) 
+                            ? <span className="hidden sm:inline">Choose Size</span>
+                            : <span className="hidden sm:inline">Add</span>
+                          }
+                          {(product.weightOptions?.length > 0 || product.weights?.length > 0) 
+                            ? <span className="sm:hidden">Size</span>
+                            : <span className="sm:hidden">+</span>
+                          }
                         </button>
                       </div>
                     </div>
@@ -685,6 +693,9 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
           </div>
         </div>
       </main>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

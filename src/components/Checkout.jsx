@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import CustomerAuth from './CustomerAuth';
 import authService from '../services/authService';
+import Footer from './Footer';
 
 const Checkout = ({ onBack, onOrderComplete }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -566,6 +567,9 @@ const Checkout = ({ onBack, onOrderComplete }) => {
           onSuccess={handleAuthSuccess}
         />
       )}
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

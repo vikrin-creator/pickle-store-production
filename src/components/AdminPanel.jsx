@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Footer from './Footer';
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [products, setProducts] = useState([]);
@@ -691,6 +692,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         </>
         )}
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

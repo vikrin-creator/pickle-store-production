@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import Footer from './Footer';
 
 const Cart = ({ onBack, onNavigateToCheckout }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -308,6 +309,9 @@ const Cart = ({ onBack, onNavigateToCheckout }) => {
           </div>
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

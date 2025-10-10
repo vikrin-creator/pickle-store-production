@@ -147,7 +147,7 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
                 <img 
                   src="/assets/logo.png" 
                   alt="Janiitra Pickles" 
-                  className="w-8 h-8"
+                  className="w-12 h-12 sm:w-14 sm:h-14"
                   onError={(e) => {
                     // Fallback to a spice/pickle icon if logo fails
                     e.target.style.display = 'none';
@@ -155,14 +155,14 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
                   }}
                 />
                 <svg 
-                  className="h-8 w-8 text-orange-500 hidden" 
+                  className="h-12 w-12 sm:h-14 sm:w-14 text-orange-500 hidden" 
                   fill="none" 
                   viewBox="0 0 48 48" 
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <path d="M13.8261 17.4264C16.7203 18.1174 20.2244 18.5217 24 18.5217C27.7756 18.5217 31.2797 18.1174 34.1739 17.4264C36.9144 16.7722 39.9967 15.2331 41.3563 14.1648L24.8486 40.6391C24.4571 41.267 23.5429 41.267 23.1514 40.6391L6.64374 14.1648C8.00331 15.2331 11.0856 16.7722 13.8261 17.4264Z" fill="currentColor"></path>
                 </svg>
-                <h1 className="text-2xl font-bold tracking-tight">Janiitra Pickles</h1>
+                <h1 className="text-lg sm:text-xl font-bold tracking-tight">Janiitra Pickles</h1>
               </div>
               {/* Close Button */}
               <button

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import Footer from './Footer';
 
 const OrderConfirmation = ({ order, onContinueShopping }) => {
   return (
@@ -187,6 +188,9 @@ const OrderConfirmation = ({ order, onContinueShopping }) => {
           </button>
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
