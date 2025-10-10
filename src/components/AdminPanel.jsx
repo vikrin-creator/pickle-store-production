@@ -27,7 +27,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   
   // Homepage management state
   const [homepageSections, setHomepageSections] = useState({});
-  const [selectedSection, setSelectedSection] = useState('featured');
+  const [selectedSection, setSelectedSection] = useState('all');
   const [homepageLoading, setHomepageLoading] = useState(false);
   const [showAddToHomepage, setShowAddToHomepage] = useState(false);
   const [editingHomepageProduct, setEditingHomepageProduct] = useState(null);
@@ -541,6 +541,36 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     }
   };
 
+  const toggleCustomerFavorite = async (productId) => {
+    try {
+      const product = products.find(p => (p._id || p.id) === productId);
+      if (!product) return;
+
+      const updatedFavoriteStatus = !product.customerFavorite;
+      
+      // Update local state
+      const updatedProducts = products.map(p => 
+        (p._id || p.id) === productId 
+          ? { ...p, customerFavorite: updatedFavoriteStatus }
+          : p
+      );
+      
+      setProducts(updatedProducts);
+      
+      // TODO: Add API call to update customer favorite status on backend when available
+      // const response = await fetch(`https://pickle-store-backend.onrender.com/api/admin/products/${productId}/customer-favorite`, {
+      //   method: 'PATCH',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ customerFavorite: updatedFavoriteStatus })
+      // });
+      
+      alert(`Product ${updatedFavoriteStatus ? 'added to' : 'removed from'} customer favorites!`);
+    } catch (error) {
+      console.error('Error toggling customer favorite status:', error);
+      alert('Failed to update customer favorite status. Please try again.');
+    }
+  };
+
   const handleCancelEdit = () => {
     setShowAddForm(false);
     setEditingProduct(null);
@@ -911,300 +941,141 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
         {/* Homepage Tab Content */}
         {activeTab === 'homepage' && (
-          <div className="space-y-8">
-            <h2 className="text-2xl font-bold text-[#221c10] mb-6">Homepage Management</h2>
-            
-            {/* Section Toggle */}
-            <div className="flex gap-4 mb-6">
-              <button
-                onClick={() => setSelectedSection('featured')}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                  selectedSection === 'featured'
-                    ? 'bg-[#ecab13] text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Featured Pickles
-              </button>
-              <button
-                onClick={() => setSelectedSection('customerFavorites')}
-                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
-                  selectedSection === 'customerFavorites'
-                    ? 'bg-[#ecab13] text-white'
-                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
-              >
-                Customer Favorites
-              </button>
-              
-              {/* Initialize Homepage Button */}
-              <button
-                onClick={initializeHomepageWithDefaults}
-                className="ml-auto px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors text-sm"
-                title="Populate homepage sections with default products for testing"
-              >
-                Initialize Homepage
-              </button>
-            </div>
-
+          <>
             {/* Loading State */}
-            {homepageLoading && (
+            {loading && (
               <div className="flex justify-center items-center py-12">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ecab13]"></div>
-                <span className="ml-3 text-gray-600">Loading homepage sections...</span>
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <span className="ml-3 text-gray-600">Loading products...</span>
               </div>
             )}
 
-            {/* Section Content */}
-            {!homepageLoading && (
-              <div className="space-y-6">
-                {/* Debug Info (only in localhost) */}
-                {(window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') && (
-                  <div className="bg-gray-100 border border-gray-300 rounded-lg p-4">
-                    <h4 className="font-semibold text-gray-800 mb-2">Debug Info (localhost only)</h4>
-                    <div className="text-sm text-gray-600 space-y-1">
-                      <div>Selected Section: <strong>{selectedSection}</strong></div>
-                      <div>Homepage Sections Keys: <strong>{Object.keys(homepageSections).join(', ') || 'None'}</strong></div>
-                      <div>Current Section Products: <strong>{homepageSections[selectedSection]?.products?.length || 0}</strong></div>
-                      <div>Total Products Available: <strong>{products.length}</strong></div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Section Info */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <h3 className="font-semibold text-blue-800 mb-2">
-                    {selectedSection === 'featured' ? 'Featured Pickles Section' : 'Customer Favorites Section'}
-                  </h3>
-                  <p className="text-blue-700 text-sm">
-                    {selectedSection === 'featured' 
-                      ? 'Manage products that appear in the Featured Pickles section on the homepage. You can add products, customize their display, and reorder them.'
-                      : 'Manage products that appear in the Customer Favorites section on the homepage. These should be your most popular or recommended products.'
-                    }
-                  </p>
-                </div>
-
-                {/* Add Product Button */}
-                <div className="flex justify-between items-center">
-                  <h3 className="text-xl font-semibold text-[#221c10]">
-                    {selectedSection === 'featured' ? 'Featured' : 'Customer Favorite'} Products
-                  </h3>
+            {/* Header Section */}
+            {!loading && !error && (
+              <div className="mb-6">
+                <h2 className="text-2xl font-bold text-[#221c10] mb-2">Homepage Products Management</h2>
+                <p className="text-gray-600 mb-4">
+                  Toggle products to appear in Featured Pickles or Customer Favorites sections on the homepage. 
+                  Click the toggle buttons on each product card to manage their homepage visibility.
+                </p>
+                
+                {/* Filter Options */}
+                <div className="flex gap-4 mb-4">
                   <button
-                    onClick={() => setShowAddToHomepage(true)}
-                    className="px-4 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors"
+                    onClick={() => setSelectedSection('all')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      selectedSection === 'all'
+                        ? 'bg-[#ecab13] text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
                   >
-                    Add Product
+                    All Products ({products.length})
+                  </button>
+                  <button
+                    onClick={() => setSelectedSection('featured')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      selectedSection === 'featured'
+                        ? 'bg-yellow-500 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Featured ({products.filter(p => p.featured).length})
+                  </button>
+                  <button
+                    onClick={() => setSelectedSection('customerFavorites')}
+                    className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+                      selectedSection === 'customerFavorites'
+                        ? 'bg-pink-500 text-white'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Customer Favorites ({products.filter(p => p.customerFavorite).length})
                   </button>
                 </div>
-
-                {/* Products Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {(homepageSections[selectedSection]?.products || []).length > 0 ? (
-                    homepageSections[selectedSection].products.map((homepageProduct, index) => {
-                      const product = homepageProduct.productId;
-                      console.log('Rendering homepage product:', { homepageProduct, product }); // Debug log
-                      
-                      return (
-                        <div key={product._id || product.id || index} className="bg-white rounded-lg shadow-md border border-gray-200 p-4">
-                          {/* Product Image */}
-                          <div className="relative mb-4">
-                            <img
-                              src={homepageProduct.customImage || product.image || '/placeholder-pickle.jpg'}
-                              alt={homepageProduct.customTitle || product.name}
-                              className="w-full h-48 object-cover rounded-lg"
-                              onError={(e) => {
-                                e.target.src = '/placeholder-pickle.jpg';
-                              }}
-                            />
-                            <div className="absolute top-2 right-2">
-                              <span className="bg-[#ecab13] text-white px-2 py-1 rounded-full text-xs">
-                                #{index + 1}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Product Info */}
-                          <div className="space-y-3">
-                            <h4 className="font-semibold text-[#221c10] text-lg">
-                              {homepageProduct.customTitle || product.name}
-                            </h4>
-                            
-                            <p className="text-gray-600 text-sm line-clamp-2">
-                              {homepageProduct.customDescription || product.description}
-                            </p>
-
-                            <div className="text-lg font-bold text-[#ecab13]">
-                              ₹{product.price || (product.weights && product.weights[0]?.price) || 'N/A'}
-                            </div>
-
-                            {/* Action Buttons */}
-                            <div className="flex gap-2 pt-2">
-                              <button
-                                onClick={() => setEditingHomepageProduct({ ...homepageProduct, sectionType: selectedSection })}
-                                className="flex-1 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors text-sm"
-                              >
-                                Edit
-                              </button>
-                              <button
-                                onClick={() => removeProductFromHomepage(product._id || product.id, selectedSection)}
-                                className="flex-1 px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm"
-                              >
-                                Remove
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })
-                  ) : null}
-                </div>
-
-                {/* Empty State */}
-                {(!homepageSections[selectedSection]?.products || homepageSections[selectedSection].products.length === 0) && (
-                  <div className="text-center py-12">
-                    <div className="text-gray-400 text-6xl mb-4">🥒</div>
-                    <h3 className="text-xl font-semibold text-gray-600 mb-2">No products in this section</h3>
-                    <p className="text-gray-500 mb-4">
-                      Add products to the {selectedSection === 'featured' ? 'Featured Pickles' : 'Customer Favorites'} section to get started.
-                    </p>
-                    <button
-                      onClick={() => setShowAddToHomepage(true)}
-                      className="px-6 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors"
-                    >
-                      Add First Product
-                    </button>
-                  </div>
-                )}
               </div>
             )}
 
-            {/* Add Product Modal */}
-            {showAddToHomepage && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-                  <h3 className="text-xl font-semibold mb-4">Add Product to {selectedSection === 'featured' ? 'Featured Pickles' : 'Customer Favorites'}</h3>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Select Product</label>
-                      <select
-                        id="product-select"
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                        defaultValue=""
-                      >
-                        <option value="">Choose a product...</option>
-                        {products.filter(product => {
-                          // Filter out products already in this section
-                          const existingProductIds = homepageSections[selectedSection]?.products?.map(p => p.productId._id || p.productId.id) || [];
-                          return !existingProductIds.includes(product._id || product.id);
-                        }).map(product => (
-                          <option key={product._id || product.id} value={product._id || product.id}>
-                            {product.name}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2 mt-6">
-                    <button
-                      onClick={() => {
-                        const selectElement = document.getElementById('product-select');
-                        const productId = selectElement.value;
-                        if (productId) {
-                          addProductToHomepage(productId, selectedSection);
-                          setShowAddToHomepage(false);
-                        }
-                      }}
-                      className="flex-1 px-4 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors"
-                    >
-                      Add Product
-                    </button>
-                    <button
-                      onClick={() => setShowAddToHomepage(false)}
-                      className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* Edit Product Modal */}
-            {editingHomepageProduct && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-                  <h3 className="text-xl font-semibold mb-4">Edit Homepage Product</h3>
-                  
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Custom Title (optional)</label>
-                      <input
-                        type="text"
-                        defaultValue={editingHomepageProduct.customTitle || ''}
-                        id="custom-title"
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                        placeholder="Leave empty to use product name"
+            {/* Products Grid */}
+            {!loading && !error && products.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+                {products
+                  .filter(product => {
+                    if (selectedSection === 'all') return true;
+                    if (selectedSection === 'featured') return product.featured;
+                    if (selectedSection === 'customerFavorites') return product.customerFavorite;
+                    return true;
+                  })
+                  .map((product) => (
+                    <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden border-2 border-gray-200 hover:border-[#ecab13] transition-colors">
+                      <img
+                        src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : 'https://via.placeholder.com/300x200'}
+                        alt={product.name}
+                        className="w-full h-48 object-cover"
+                        onError={(e) => {
+                          e.target.src = 'https://via.placeholder.com/300x200';
+                        }}
                       />
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Custom Description (optional)</label>
-                      <textarea
-                        defaultValue={editingHomepageProduct.customDescription || ''}
-                        id="custom-description"
-                        rows="3"
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                        placeholder="Leave empty to use product description"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">Custom Image (optional)</label>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        id="custom-image"
-                        className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                      />
-                      <p className="text-xs text-gray-500 mt-1">Leave empty to use product image</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2 mt-6">
-                    <button
-                      onClick={() => {
-                        const customTitle = document.getElementById('custom-title').value;
-                        const customDescription = document.getElementById('custom-description').value;
-                        const customImageFile = document.getElementById('custom-image').files[0];
+                      <div className="p-4">
+                        <h3 className="font-semibold text-lg mb-2">{product.name}</h3>
+                        <p className="text-gray-600 text-sm mb-2 line-clamp-2">{product.description}</p>
                         
-                        updateHomepageProduct(
-                          editingHomepageProduct.productId._id || editingHomepageProduct.productId.id,
-                          editingHomepageProduct.sectionType,
-                          {
-                            customTitle: customTitle || null,
-                            customDescription: customDescription || null
-                          },
-                          customImageFile
-                        );
-                        setEditingHomepageProduct(null);
-                      }}
-                      className="flex-1 px-4 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors"
-                    >
-                      Update Product
-                    </button>
-                    <button
-                      onClick={() => setEditingHomepageProduct(null)}
-                      className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
+                        {/* Price Display */}
+                        <div className="mb-3">
+                          {product.weights && product.weights.length > 0 ? (
+                            <div className="text-sm text-gray-700">
+                              <span className="font-semibold">Prices: </span>
+                              {product.weights.slice(0, 2).map((w, idx) => (
+                                <span key={idx} className="text-[#ecab13] font-bold">
+                                  {w.weight}: ₹{w.price}{idx < Math.min(product.weights.length, 2) - 1 ? ', ' : ''}
+                                </span>
+                              ))}
+                              {product.weights.length > 2 && <span className="text-gray-500">...</span>}
+                            </div>
+                          ) : (
+                            <div className="text-lg font-bold text-[#ecab13]">
+                              ₹{product.price || 'N/A'}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Status Tags */}
+                        <div className="flex flex-wrap gap-1 text-xs mb-3">
+                          <span className="bg-blue-100 px-2 py-1 rounded text-blue-800">{product.productType || 'Pickles'}</span>
+                          <span className="bg-gray-100 px-2 py-1 rounded">{product.category}</span>
+                          {product.featured && <span className="bg-yellow-100 px-2 py-1 rounded text-yellow-800">Featured</span>}
+                          {product.customerFavorite && <span className="bg-pink-100 px-2 py-1 rounded text-pink-800">Customer Favorite</span>}
+                          {product.rating && <span className="bg-green-100 px-2 py-1 rounded text-green-800">★ {product.rating}</span>}
+                        </div>
+
+                        {/* Homepage Toggle Buttons */}
+                        <div className="space-y-2">
+                          <button
+                            onClick={() => toggleFeaturedStatus(product._id || product.id)}
+                            className={`w-full px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
+                              product.featured
+                                ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                                : 'bg-gray-200 text-gray-700 hover:bg-yellow-200'
+                            }`}
+                          >
+                            {product.featured ? '★ Remove from Featured' : '★ Add to Featured'}
+                          </button>
+                          <button
+                            onClick={() => toggleCustomerFavorite(product._id || product.id)}
+                            className={`w-full px-3 py-2 rounded-lg font-medium transition-colors text-sm ${
+                              product.customerFavorite
+                                ? 'bg-pink-500 text-white hover:bg-pink-600'
+                                : 'bg-gray-200 text-gray-700 hover:bg-pink-200'
+                            }`}
+                          >
+                            {product.customerFavorite ? '❤️ Remove from Favorites' : '❤️ Add to Favorites'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
               </div>
             )}
-          </div>
+          </>
         )}
 
       </div>
