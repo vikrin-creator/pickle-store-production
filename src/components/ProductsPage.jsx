@@ -669,14 +669,8 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                           }}
                           className="add-btn bg-[#ecab13] text-white px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg font-semibold hover:bg-[#d49c12] transition-colors duration-200 text-xs sm:text-sm md:text-base"
                         >
-                          {(product.weightOptions?.length > 0 || product.weights?.length > 0) 
-                            ? <span className="hidden sm:inline">Choose Size</span>
-                            : <span className="hidden sm:inline">Add</span>
-                          }
-                          {(product.weightOptions?.length > 0 || product.weights?.length > 0) 
-                            ? <span className="sm:hidden">Size</span>
-                            : <span className="sm:hidden">+</span>
-                          }
+                          <span className="hidden sm:inline">Add</span>
+                          <span className="sm:hidden">+</span>
                         </button>
                       </div>
                     </div>
