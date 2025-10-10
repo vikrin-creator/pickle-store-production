@@ -23,6 +23,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     { weight: '500g', price: 280 },
     { weight: '1kg', price: 520 }
   ]);
+  const [homepageFilter, setHomepageFilter] = useState('featured');
 
   // Default products for localhost development
   const defaultProducts = [
@@ -361,6 +362,31 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     } catch (error) {
       console.error('Error toggling featured status:', error);
       alert('Failed to update featured status. Please try again.');
+    }
+  };
+
+  const toggleCustomerFavorite = async (productId) => {
+    try {
+      const product = products.find(p => (p._id || p.id) === productId);
+      if (!product) return;
+
+      const updatedFavoriteStatus = !product.customerFavorite;
+      
+      // Update local state
+      const updatedProducts = products.map(p => 
+        (p._id || p.id) === productId 
+          ? { ...p, customerFavorite: updatedFavoriteStatus }
+          : p
+      );
+      
+      setProducts(updatedProducts);
+      
+      // TODO: Add API call to update customer favorite status on backend when available
+      
+      alert(`Product ${updatedFavoriteStatus ? 'added to' : 'removed from'} customer favorites!`);
+    } catch (error) {
+      console.error('Error toggling customer favorite status:', error);
+      alert('Failed to update customer favorite status. Please try again.');
     }
   };
 
@@ -737,170 +763,130 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           <div className="space-y-8">
             <h2 className="text-2xl font-bold text-[#221c10] mb-6">Homepage Sections Management</h2>
             
-            {/* Featured Pickles Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-semibold text-[#221c10] mb-4">Featured Pickles Section</h3>
-              <p className="text-gray-600 mb-6">Select which products appear in the Featured Pickles section on the homepage. These products are categorized by type.</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {/* Pickles Category */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-[#221c10] border-b pb-2">🥒 Pickles (Veg & Non-Veg)</h4>
-                  <select 
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                    defaultValue=""
-                  >
-                    <option value="">Select a pickle product...</option>
-                    {products.filter(p => p.category === 'Vegetarian' || p.category === 'Non-Vegetarian').map(product => (
-                      <option key={product._id || product.id} value={product._id || product.id}>
-                        {product.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Spices Category */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-[#221c10] border-b pb-2">🌶 Spices</h4>
-                  <select 
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                    defaultValue=""
-                  >
-                    <option value="">Select a spice product...</option>
-                    {products.filter(p => p.category === 'Spices').map(product => (
-                      <option key={product._id || product.id} value={product._id || product.id}>
-                        {product.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Podi Category */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-[#221c10] border-b pb-2">🍃 Podi Varieties</h4>
-                  <select 
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                    defaultValue=""
-                  >
-                    <option value="">Select a podi product...</option>
-                    {products.filter(p => p.category === "Podi's" || p.category === 'Podi').map(product => (
-                      <option key={product._id || product.id} value={product._id || product.id}>
-                        {product.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Seafood Category */}
-                <div className="space-y-4">
-                  <h4 className="font-medium text-[#221c10] border-b pb-2">🐟 Dry Seafood</h4>
-                  <select 
-                    className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                    defaultValue=""
-                  >
-                    <option value="">Select a seafood product...</option>
-                    {products.filter(p => p.category === 'Seafood').map(product => (
-                      <option key={product._id || product.id} value={product._id || product.id}>
-                        {product.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="mt-6 flex justify-end">
-                <button className="px-6 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors">
-                  Update Featured Pickles
-                </button>
-              </div>
+            {/* Management Buttons */}
+            <div className="flex gap-4 mb-6">
+              <button
+                onClick={() => setHomepageFilter('featured')}
+                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                  homepageFilter === 'featured'
+                    ? 'bg-[#ecab13] text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Manage Featured Pickles
+              </button>
+              <button
+                onClick={() => setHomepageFilter('favorites')}
+                className={`px-6 py-2 rounded-lg font-medium transition-colors ${
+                  homepageFilter === 'favorites'
+                    ? 'bg-[#ecab13] text-white'
+                    : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Manage Customer Favorites
+              </button>
             </div>
 
-            {/* Customer Favorites Section */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-semibold text-[#221c10] mb-4">Customer Favorites Section</h3>
-              <p className="text-gray-600 mb-6">Select 3 products to display in the Customer Favorites section.</p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {[1, 2, 3].map((index) => (
-                  <div key={index} className="space-y-4">
-                    <h4 className="font-medium text-[#221c10] border-b pb-2">Favorite Product #{index}</h4>
-                    <select 
-                      className="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                      defaultValue=""
-                    >
-                      <option value="">Select a product...</option>
-                      {products.map(product => (
-                        <option key={product._id || product.id} value={product._id || product.id}>
-                          {product.name}
-                        </option>
-                      ))}
-                    </select>
+            {/* Instructions */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-blue-800">
+                {homepageFilter === 'featured' 
+                  ? 'Click the "Featured" button on product cards to toggle their featured status. Featured products appear in the homepage Featured Pickles section.'
+                  : 'Click the "Favorite" button on product cards to toggle their customer favorite status. Customer favorite products appear in the homepage Customer Favorites section.'
+                }
+              </p>
+            </div>
+
+            {/* Products Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {products.map((product) => (
+                <div key={product._id || product.id} className="bg-white rounded-lg shadow-md border border-gray-200 p-4 hover:shadow-lg transition-shadow">
+                  {/* Product Image */}
+                  <div className="relative mb-4">
+                    <img
+                      src={product.image || '/placeholder-pickle.jpg'}
+                      alt={product.name}
+                      className="w-full h-48 object-cover rounded-lg"
+                      onError={(e) => {
+                        e.target.src = '/placeholder-pickle.jpg';
+                      }}
+                    />
+                    <div className="absolute top-2 right-2">
+                      <span className="bg-[#ecab13] text-white px-2 py-1 rounded-full text-xs font-medium">
+                        {product.category}
+                      </span>
+                    </div>
                   </div>
-                ))}
-              </div>
 
-              <div className="mt-6 flex justify-end">
-                <button className="px-6 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors">
-                  Update Customer Favorites
-                </button>
-              </div>
-            </div>
+                  {/* Product Info */}
+                  <div className="space-y-3">
+                    <h3 className="font-semibold text-[#221c10] text-lg leading-tight">{product.name}</h3>
+                    
+                    {/* Price */}
+                    <div className="text-lg font-bold text-[#ecab13]">
+                      ₹{product.price}
+                    </div>
 
-            {/* Featured Products Toggle */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h3 className="text-xl font-semibold text-[#221c10] mb-4">Manage Featured Status</h3>
-              <p className="text-gray-600 mb-6">Toggle featured status for products to control their visibility on the homepage.</p>
-              
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Featured Status</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {products.map((product) => (
-                      <tr key={product._id || product.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex items-center">
-                            <img className="h-10 w-10 rounded-full object-cover" src={product.image || '/assets/placeholder.png'} alt={product.name} />
-                            <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{product.name}</div>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {product.category}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            product.featured 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-gray-100 text-gray-800'
-                          }`}>
-                            {product.featured ? 'Featured' : 'Not Featured'}
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button
-                            onClick={() => toggleFeaturedStatus(product._id || product.id)}
-                            className={`px-3 py-1 rounded-lg transition-colors ${
-                              product.featured
-                                ? 'bg-red-100 text-red-800 hover:bg-red-200'
-                                : 'bg-green-100 text-green-800 hover:bg-green-200'
-                            }`}
-                          >
-                            {product.featured ? 'Remove from Featured' : 'Make Featured'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    {/* Spice Level */}
+                    {product.spiceLevel && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-sm text-gray-600">Spice:</span>
+                        <div className="flex">
+                          {[...Array(5)].map((_, i) => (
+                            <span
+                              key={i}
+                              className={i < product.spiceLevel ? 'text-red-500' : 'text-gray-300'}
+                            >
+                              🌶️
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Status Indicators */}
+                    <div className="flex gap-2 text-xs">
+                      {product.featured && (
+                        <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                          Featured
+                        </span>
+                      )}
+                      {product.customerFavorite && (
+                        <span className="bg-pink-100 text-pink-800 px-2 py-1 rounded-full">
+                          Customer Favorite
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 pt-2">
+                      {homepageFilter === 'featured' ? (
+                        <button
+                          onClick={() => toggleFeaturedStatus(product._id || product.id)}
+                          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                            product.featured
+                              ? 'bg-yellow-500 text-white hover:bg-yellow-600'
+                              : 'bg-gray-200 text-gray-700 hover:bg-yellow-200'
+                          }`}
+                        >
+                          {product.featured ? 'Remove Featured' : 'Make Featured'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => toggleCustomerFavorite(product._id || product.id)}
+                          className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors ${
+                            product.customerFavorite
+                              ? 'bg-pink-500 text-white hover:bg-pink-600'
+                              : 'bg-gray-200 text-gray-700 hover:bg-pink-200'
+                          }`}
+                        >
+                          {product.customerFavorite ? 'Remove Favorite' : 'Make Favorite'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}

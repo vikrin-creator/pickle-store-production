@@ -239,19 +239,19 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist }) =
 
             {/* Weight/Size Selection */}
             {(product.weights || product.weightOptions) && (product.weights || product.weightOptions).length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-2">
                 <label className="block text-xs font-medium text-[#221c10]">
                   Weight & Size
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1">
+                <div className="flex flex-wrap gap-1">
                   {(product.weights || product.weightOptions).map((option, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedWeight(option)}
-                      className={`px-1 py-1 rounded border transition-all duration-200 text-center text-xs ${
+                      className={`px-2 py-1 rounded text-xs transition-all duration-200 min-w-0 ${
                         selectedWeight?.weight === option.weight
-                          ? 'border-[#ecab13] bg-[#ecab13] text-white'
-                          : 'border-[#ecab13]/30 text-[#221c10] hover:border-[#ecab13]/60'
+                          ? 'border border-[#ecab13] bg-[#ecab13] text-white'
+                          : 'border border-[#ecab13]/30 text-[#221c10] hover:border-[#ecab13]/60'
                       }`}
                     >
                       <div className="font-medium">{option.weight}</div>
