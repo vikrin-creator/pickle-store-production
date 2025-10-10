@@ -107,15 +107,56 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </nav>
 
         {/* Mobile Menu Button - Only visible on mobile */}
-        <button 
-          onClick={toggleMobileMenu}
-          className="lg:hidden text-white hover:text-[#ecab13] transition-colors duration-300"
-          aria-label="Toggle mobile menu"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showMobileMenu ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-          </svg>
-        </button>
+        <div className="lg:hidden relative">
+          <button 
+            onClick={toggleMobileMenu}
+            className="text-white hover:text-[#ecab13] transition-colors duration-300"
+            aria-label="Toggle mobile menu"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showMobileMenu ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+            </svg>
+          </button>
+
+          {/* Mobile Menu Dropdown */}
+          {showMobileMenu && (
+            <div 
+              className="absolute top-full right-0 z-40 bg-white border border-gray-200 shadow-lg rounded-lg mt-2 w-48"
+              data-mobile-menu
+            >
+              <nav className="py-2">
+                <a 
+                  href="#shop" 
+                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Shop
+                </a>
+                <a 
+                  href="#recipes" 
+                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Recipes
+                </a>
+                <a 
+                  href="#about" 
+                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  About
+                </a>
+                <a 
+                  href="#contact" 
+                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  Contact
+                </a>
+              </nav>
+            </div>
+          )}
+        </div>
 
         {/* Header Actions */}
         <div className="hidden lg:flex items-center gap-2 animate-fade-in-delay-2">
@@ -166,45 +207,6 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           </button>
         </div>
       </header>
-
-      {/* Mobile Menu Dropdown */}
-      {showMobileMenu && (
-        <div 
-          className="lg:hidden absolute top-full right-4 z-40 bg-white border border-gray-200 shadow-lg rounded-lg mt-1 w-48"
-          data-mobile-menu
-        >
-          <nav className="py-2">
-            <a 
-              href="#shop" 
-              className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              Shop
-            </a>
-            <a 
-              href="#recipes" 
-              className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              Recipes
-            </a>
-            <a 
-              href="#about" 
-              className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              About
-            </a>
-            <a 
-              href="#contact" 
-              className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200"
-              onClick={() => setShowMobileMenu(false)}
-            >
-              Contact
-            </a>
-          </nav>
-        </div>
-      )}
 
       <main role="main">
         {/* Hero Section */}
