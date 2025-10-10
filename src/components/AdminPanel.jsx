@@ -13,9 +13,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     category: 'Vegetarian',
     productType: 'Pickles',
     spiceLevel: 'Medium',
-    featured: false,
-    rating: 0,
-    reviews: 0,
     image: ''
   });
   const [selectedImageFile, setSelectedImageFile] = useState(null);
@@ -220,9 +217,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       formDataToSend.append('productType', formData.productType);
       formDataToSend.append('spiceLevel', formData.spiceLevel || 'Medium');
       formDataToSend.append('weights', JSON.stringify(weightOptions));
-      formDataToSend.append('featured', formData.featured || false);
-      formDataToSend.append('rating', formData.rating || 0);
-      formDataToSend.append('reviews', formData.reviews || 0);
       
       if (selectedImageFile) {
         formDataToSend.append('image', selectedImageFile);
@@ -268,9 +262,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           category: 'Vegetarian',
           productType: 'Pickles',
           spiceLevel: 'Medium',
-          featured: false,
-          rating: 0,
-          reviews: 0,
           image: ''
         });
         setWeightOptions([
@@ -302,9 +293,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       category: product.category,
       productType: product.productType || 'Pickles', // Default to Pickles if not set
       spiceLevel: product.spiceLevel || 'Medium',
-      featured: product.featured,
-      rating: product.rating,
-      reviews: product.reviews,
       image: product.image
     });
     // Set weight options from the product weights - strip _id fields for frontend use
@@ -560,19 +548,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1">Price ($)</label>
-                    <input
-                      type="number"
-                      name="price"
-                      value={formData.price}
-                      onChange={handleInputChange}
-                      step="0.01"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                      required
-                    />
-                  </div>
-                  
-                  <div>
                     <label className="block text-sm font-medium mb-1">Product Type</label>
                     <select
                       name="productType"
@@ -697,7 +672,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 <div className="flex gap-3 mt-6">
                   <button
                     onClick={handleSaveProduct}
-                    disabled={!formData.name || !formData.description || !formData.price}
+                    disabled={!formData.name || !formData.description}
                     className="flex-1 px-4 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {editingProduct ? 'Update Product' : 'Add Product'}
