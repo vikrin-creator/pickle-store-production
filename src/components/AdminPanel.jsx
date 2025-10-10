@@ -204,7 +204,17 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       
       formDataToSend.append('name', formData.name);
       formDataToSend.append('description', formData.description);
-      formDataToSend.append('category', formData.category);
+      
+      // Map productType to category for backend compatibility
+      let categoryToSend = formData.category; // Default to dietary category
+      if (formData.productType === 'Seafood') {
+        categoryToSend = 'Seafood';
+      } else if (formData.productType === 'Podi') {
+        categoryToSend = "Podi's";
+      }
+      // For Pickles and Spices, use the dietary category (Vegetarian/Non-Vegetarian)
+      
+      formDataToSend.append('category', categoryToSend);
       formDataToSend.append('productType', formData.productType);
       formDataToSend.append('spiceLevel', formData.spiceLevel);
       formDataToSend.append('weights', JSON.stringify(weightOptions));
