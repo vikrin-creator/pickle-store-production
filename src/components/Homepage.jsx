@@ -150,11 +150,20 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 </a>
                 <a 
                   href="#contact" 
-                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200"
+                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
                   onClick={() => setShowMobileMenu(false)}
                 >
                   Contact
                 </a>
+                <button 
+                  onClick={() => {
+                    window.navigateToWishlist && window.navigateToWishlist();
+                    setShowMobileMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200"
+                >
+                  My Wishlist
+                </button>
               </nav>
             </div>
           )}
@@ -192,6 +201,17 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               <span className="hidden lg:block text-sm font-medium">Login</span>
             </button>
           )}
+
+          {/* Wishlist Button */}
+          <button 
+            onClick={() => window.navigateToWishlist && window.navigateToWishlist()}
+            className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-110 group"
+            title="View Wishlist"
+          >
+            <svg fill="none" stroke="currentColor" height="20px" viewBox="0 0 24 24" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
 
           {/* Cart Button */}
           <button 
