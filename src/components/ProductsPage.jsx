@@ -4,6 +4,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
     spice: '',
     diet: '',
@@ -301,6 +302,18 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
 
         {/* Header Actions */}
         <div className="flex items-center gap-2">
+          {/* Mobile Filter Button */}
+          <button 
+            onClick={() => setShowMobileFilters(!showMobileFilters)}
+            className={`lg:hidden w-10 h-10 flex items-center justify-center rounded-full text-white transition-colors duration-200 ${
+              showMobileFilters ? 'bg-[#ecab13]' : 'bg-white/20 hover:bg-[#ecab13]/20'
+            }`}
+          >
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+          </button>
+
           {/* Search Button */}
           <button 
             onClick={() => setShowSearch(!showSearch)}
@@ -371,13 +384,114 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
         </div>
       )}
 
+      {/* Mobile Filters Overlay */}
+      {showMobileFilters && (
+        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setShowMobileFilters(false)}>
+          <div className="fixed inset-y-0 left-0 w-80 max-w-full bg-white shadow-xl z-50" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold text-[#221c10]">Filters</h2>
+              <button 
+                onClick={() => setShowMobileFilters(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100"
+              >
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" className="w-5 h-5">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div className="p-4 overflow-y-auto h-full pb-20">
+              {/* Spice Level Filter */}
+              <div className="filter-group mb-6">
+                <h3 className="filter-label text-base font-semibold mb-3 text-[#221c10]">Spice Level</h3>
+                <div className="filter-options space-y-2">
+                  {['Mild', 'Medium', 'Hot', 'Extra Hot'].map((level) => (
+                    <label key={level} className="flex items-center cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="spice-mobile" 
+                        checked={selectedFilters.spice === level}
+                        onChange={() => handleFilterChange('spice', level)}
+                        className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
+                      />
+                      <span className="text-gray-700">{level}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Category Filter */}
+              <div className="filter-group mb-6">
+                <h3 className="filter-label text-base font-semibold mb-3 text-[#221c10]">Category</h3>
+                <div className="filter-options space-y-2">
+                  {[
+                    { name: 'Pickles', emoji: '🥒' },
+                    { name: 'Seafood', emoji: '🐟' },
+                    { name: 'Podi', emoji: '🍃' },
+                    { name: 'Spices', emoji: '🌶️' }
+                  ].map((category) => (
+                    <label key={category.name} className="flex items-center cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="category-mobile" 
+                        checked={selectedFilters.category === category.name}
+                        onChange={() => handleFilterChange('category', category.name)}
+                        className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
+                      />
+                      <span className="text-gray-700">{category.emoji} {category.name}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              {/* Dietary Filter */}
+              <div className="filter-group mb-6">
+                <h3 className="filter-label text-base font-semibold mb-3 text-[#221c10]">Dietary</h3>
+                <div className="filter-options space-y-2">
+                  {['Vegetarian', 'Non-Vegetarian'].map((diet) => (
+                    <label key={diet} className="flex items-center cursor-pointer">
+                      <input 
+                        type="radio" 
+                        name="diet-mobile" 
+                        checked={selectedFilters.diet === diet}
+                        onChange={() => handleFilterChange('diet', diet)}
+                        className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
+                      />
+                      <span className="text-gray-700">{diet}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t border-gray-200">
+                <div className="flex gap-3">
+                  <button 
+                    onClick={clearAllFilters}
+                    className="flex-1 bg-gray-200 text-gray-800 py-3 px-4 rounded-lg font-medium hover:bg-gray-300 transition-colors duration-200"
+                  >
+                    Clear All
+                  </button>
+                  <button 
+                    onClick={() => setShowMobileFilters(false)}
+                    className="flex-1 bg-[#ecab13] text-white py-3 px-4 rounded-lg font-medium hover:bg-[#d49c12] transition-colors duration-200"
+                  >
+                    Apply Filters
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="products-main">
-        <div className="products-content flex align-start max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Sidebar Filters */}
-          <aside className="products-filters sticky top-28 z-5 hidden lg:block">
-            <div className="filters-container w-64 bg-white rounded-lg shadow-md p-6 mr-6">
-              <h2 className="filters-title text-xl font-bold mb-6 text-[#221c10]">Filters</h2>
+        <div className="products-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="lg:flex lg:align-start">
+            {/* Sidebar Filters - Desktop */}
+            <aside className="products-filters sticky top-28 z-5 hidden lg:block">
+              <div className="filters-container w-64 bg-white rounded-lg shadow-md p-6 mr-6">
+                <h2 className="filters-title text-xl font-bold mb-6 text-[#221c10]">Filters</h2>
               
               {/* Spice Level Filter */}
               <div className="filter-group mb-6">
@@ -453,9 +567,9 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
           {/* Products Section */}
           <section className="products-list-section flex-1">
             {/* Products Header */}
-            <div className="products-list-header flex justify-between items-center mb-6">
+            <div className="products-list-header flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4">
               <div>
-                <h1 className="products-list-title text-3xl font-bold text-[#221c10]">Shop All Pickles</h1>
+                <h1 className="products-list-title text-2xl sm:text-3xl font-bold text-[#221c10]">Shop All Pickles</h1>
                 <p className="text-gray-600 mt-1">
                   {searchQuery ? (
                     <>Showing {sortedProducts.length} result{sortedProducts.length !== 1 ? 's' : ''} for "<span className="font-semibold">{searchQuery}</span>"</>
@@ -465,11 +579,11 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                 </p>
               </div>
               <div className="products-sort flex items-center gap-2">
-                <span className="text-gray-700">Sort by:</span>
+                <span className="text-gray-700 text-sm sm:text-base">Sort by:</span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13] text-sm sm:text-base"
                 >
                   <option value="Popularity">Popularity</option>
                   <option value="Price: Low to High">Price: Low to High</option>
@@ -480,7 +594,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
             </div>
 
             {/* Products Grid */}
-            <div className="products-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-h-[calc(100vh-120px)] overflow-y-auto">
+            <div className="products-grid grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 max-h-[calc(100vh-120px)] overflow-y-auto">
               {sortedProducts.length > 0 ? (
                 sortedProducts.map((product) => (
                   <div 
@@ -515,10 +629,10 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                     </div>
                     <div className="product-details p-4">
                       <h3 className="font-semibold text-lg mb-2 text-[#221c10]">{product.name}</h3>
-                      <p className="text-gray-600 text-sm mb-3">{product.description}</p>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{product.description}</p>
                       
                       <div className="product-actions flex justify-between items-center">
-                        <span className="product-price text-[#ecab13] font-bold text-xl">
+                        <span className="product-price text-[#ecab13] font-bold text-lg sm:text-xl">
                           {(product.weightOptions?.length > 0 || product.weights?.length > 0)
                             ? `₹${Math.min(...(product.weightOptions || product.weights).map(opt => opt.price))}` 
                             : `₹${product.price || 'N/A'}`
@@ -529,7 +643,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                             e.stopPropagation();
                             onProductClick && onProductClick(product);
                           }}
-                          className="add-btn bg-[#ecab13] text-white px-4 py-2 rounded-lg font-semibold hover:bg-[#d49c12] transition-colors duration-200"
+                          className="add-btn bg-[#ecab13] text-white px-3 sm:px-4 py-2 rounded-lg font-semibold hover:bg-[#d49c12] transition-colors duration-200 text-sm sm:text-base"
                         >
                           {(product.weightOptions?.length > 0 || product.weights?.length > 0) ? 'Choose Size' : 'Add'}
                         </button>
@@ -568,6 +682,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
               )}
             </div>
           </section>
+          </div>
         </div>
       </main>
     </div>

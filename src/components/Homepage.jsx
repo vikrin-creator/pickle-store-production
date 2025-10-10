@@ -169,7 +169,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Our Specialties Section */}
         <section className="py-12 sm:py-16 px-3 sm:px-6 animate-fade-in-up" id="specialties" aria-labelledby="specialties-heading">
-          <h2 id="specialties-heading" className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-4 animate-slide-down">Today, we proudly specialize in:</h2>
+          <h2 id="specialties-heading" className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-4 animate-slide-down">Featured Pickles</h2>
           <p className="text-center text-base sm:text-lg text-gray-600 mb-8 sm:mb-12 max-w-3xl mx-auto animate-fade-in-delay-1 px-4">
             Every product carries the richness of Indian kitchens straight to your plate
           </p>
@@ -244,7 +244,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Traditional Favorites Section */}
         <section className="py-12 sm:py-16 px-3 sm:px-6 animate-fade-in-up">
-          <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 animate-slide-down">Traditional Favorites</h2>
+          <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 animate-slide-down">Customer Favorites</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
             {[
               {
