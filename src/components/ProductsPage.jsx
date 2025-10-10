@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import Footer from './Footer';
 
-const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart, onNavigateHome }) => {
+const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart, onNavigateHome, categoryFilter = 'all' }) => {
   const [products, setProducts] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [showSearch, setShowSearch] = useState(false);
@@ -9,7 +9,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   const [selectedFilters, setSelectedFilters] = useState({
     spice: '',
     diet: '',
-    category: ''
+    category: categoryFilter === 'all' ? '' : categoryFilter
   });
   const [sortBy, setSortBy] = useState('Popularity');
 
@@ -171,6 +171,14 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   useEffect(() => {
     loadProducts();
   }, []);
+
+  // Update filters when categoryFilter prop changes
+  useEffect(() => {
+    setSelectedFilters(prev => ({
+      ...prev,
+      category: categoryFilter === 'all' ? '' : categoryFilter
+    }));
+  }, [categoryFilter]);
 
   const loadProducts = async () => {
     try {

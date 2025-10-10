@@ -157,7 +157,7 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
             {/* Price */}
             <div className="border-t border-b border-[#ecab13]/20 py-6">
               <div className="text-3xl font-bold text-[#ecab13]">₹{selectedWeight?.price?.toFixed(2) || '150.00'}</div>
-              <p className="text-sm text-[#221c10]/60 mt-1">
+              <p className="text-xs text-[#221c10]/60 mt-1">
                 {selectedWeight?.weight || '250g'}
               </p>
             </div>
@@ -190,22 +190,22 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
             {/* Weight/Size Selection */}
             {(product.weights || product.weightOptions) && (product.weights || product.weightOptions).length > 0 && (
               <div className="space-y-3">
-                <label className="block text-sm font-medium text-[#221c10]">
+                <label className="block text-xs font-medium text-[#221c10]">
                   Weight & Size
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                   {(product.weights || product.weightOptions).map((option, index) => (
                     <button
                       key={index}
                       onClick={() => setSelectedWeight(option)}
-                      className={`p-4 rounded-lg border-2 transition-all duration-200 text-center ${
+                      className={`p-2 rounded-lg border-2 transition-all duration-200 text-center ${
                         selectedWeight?.weight === option.weight
                           ? 'border-[#ecab13] bg-[#ecab13] text-white'
                           : 'border-[#ecab13]/30 text-[#221c10] hover:border-[#ecab13]/60'
                       }`}
                     >
-                      <div className="font-semibold">{option.weight}</div>
-                      <div className="text-sm opacity-80">₹{option.price?.toFixed(2) || '150.00'}</div>
+                      <div className="text-sm font-semibold">{option.weight}</div>
+                      <div className="text-xs opacity-80">₹{option.price?.toFixed(2) || '150.00'}</div>
                     </button>
                   ))}
                 </div>
@@ -282,8 +282,8 @@ const ProductDetail = ({ product, onBack, onAddToCart }) => {
                   <span className="font-medium">12 months</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-[#221c10]/60">Weight:</span>
-                  <span className="font-medium">{selectedWeight?.weight || '250g'}</span>
+                  <span className="text-xs text-[#221c10]/60">Weight:</span>
+                  <span className="text-xs font-medium">{selectedWeight?.weight || '250g'}</span>
                 </div>
               </div>
             </div>
