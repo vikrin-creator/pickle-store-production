@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            width: 1200px;
+            height: 630px;
+            background: linear-gradient(135deg, #f8f7f6 0%, #ecab13 100%);
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .container {
+            text-align: center;
+            z-index: 2;
+            color: #221c10;
+        }
+        .logo {
+            font-size: 72px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .tagline {
+            font-size: 32px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+        .description {
+            font-size: 24px;
+            opacity: 0.9;
+            max-width: 800px;
+        }
+        .pickle-jar {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: #2d6700;
+            border-radius: 20px;
+            opacity: 0.1;
+        }
+        .jar1 { top: 50px; left: 100px; transform: rotate(15deg); }
+        .jar2 { bottom: 100px; right: 150px; transform: rotate(-20deg); }
+        .jar3 { top: 200px; right: 50px; transform: rotate(10deg); width: 100px; height: 100px; }
+    </style>
+</head>
+<body>
+    <div class="pickle-jar jar1"></div>
+    <div class="pickle-jar jar2"></div>
+    <div class="pickle-jar jar3"></div>
+    
+    <div class="container">
+        <div class="logo">Janiitra</div>
+        <div class="tagline">Authentic Indian Pickles</div>
+        <div class="description">Handcrafted with love, traditional flavours that dance on your tongue</div>
+    </div>
+</body>
+</html>

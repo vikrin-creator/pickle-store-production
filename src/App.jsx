@@ -8,6 +8,8 @@ import OrderConfirmation from './components/OrderConfirmation'
 import AdminPanel from './components/AdminPanel'
 import AdminLogin from './components/AdminLogin'
 import Wishlist from './components/Wishlist'
+import CustomerAuth from './components/CustomerAuth'
+import authService from './services/authService'
 import './App.css'
 
 function App() {
@@ -18,6 +20,12 @@ function App() {
   const [productsPageKey, setProductsPageKey] = useState(0);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [categoryFilter, setCategoryFilter] = useState('all');
+  
+  // Customer authentication state
+  const [isCustomerAuthenticated, setIsCustomerAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showCustomerAuth, setShowCustomerAuth] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState(null);
 
   // Initialize page from URL on mount
   useEffect(() => {
@@ -49,6 +57,18 @@ function App() {
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Initialize customer authentication on app start
+  useEffect(() => {
+    const initializeAuth = () => {
+      if (authService.isAuthenticated()) {
+        setIsCustomerAuthenticated(true);
+        setCurrentUser(authService.getCurrentUser());
+      }
+    };
+    
+    initializeAuth();
   }, []);
 
   // Update URL when page changes
@@ -195,6 +215,12 @@ function App() {
   };
 
   const navigateToCheckout = () => {
+    // Check if user is authenticated before allowing checkout
+    if (!isCustomerAuthenticated) {
+      setPendingNavigation('checkout');
+      setShowCustomerAuth(true);
+      return;
+    }
     setCurrentPage('checkout');
   };
 
@@ -254,6 +280,32 @@ function App() {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [navigateToAdmin]);
+
+  // Customer authentication functions
+  const handleCustomerLogin = (user) => {
+    setIsCustomerAuthenticated(true);
+    setCurrentUser(user);
+    setShowCustomerAuth(false);
+    
+    // If there was a pending navigation (like checkout), proceed with it
+    if (pendingNavigation) {
+      setCurrentPage(pendingNavigation);
+      setPendingNavigation(null);
+    }
+  };
+
+  const handleCustomerLogout = () => {
+    authService.logout();
+    setIsCustomerAuthenticated(false);
+    setCurrentUser(null);
+    // Navigate back to homepage after logout
+    setCurrentPage('home');
+  };
+
+  const closeCustomerAuth = () => {
+    setShowCustomerAuth(false);
+    setPendingNavigation(null);
+  };
 
   // Admin authentication functions
   const handleAdminLogin = () => {
@@ -328,6 +380,7 @@ function App() {
           <Checkout 
             onBack={() => setCurrentPage('cart')} 
             onOrderComplete={handleOrderComplete}
+            user={currentUser}
           />
         );
       case 'orderConfirmation':
@@ -345,13 +398,29 @@ function App() {
         );
       case 'home':
       default:
-        return <Homepage cartCount={cartCount} onNavigateToCart={handleNavigateToCart} />;
+        return (
+          <Homepage 
+            cartCount={cartCount} 
+            onNavigateToCart={handleNavigateToCart}
+            isAuthenticated={isCustomerAuthenticated}
+            user={currentUser}
+            onLogout={handleCustomerLogout}
+          />
+        );
     }
   };
 
   return (
     <div className="App">
       {renderPage()}
+      
+      {/* Customer Authentication Modal */}
+      {showCustomerAuth && (
+        <CustomerAuth 
+          onSuccess={handleCustomerLogin}
+          onClose={closeCustomerAuth}
+        />
+      )}
     </div>
   );
 }

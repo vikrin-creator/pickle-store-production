@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import authService from '../services/authService';
 
 const CustomerAuth = ({ onClose, onSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -75,39 +76,31 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
     setIsLoading(true);
 
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
-      const payload = isLogin 
-        ? { email: formData.email, password: formData.password }
-        : {
-            firstName: formData.firstName,
-            lastName: formData.lastName,
-            email: formData.email,
-            password: formData.password,
-            phone: formData.phone
-          };
+      let result;
+      
+      if (isLogin) {
+        // Use authService for login
+        result = await authService.login(formData.email, formData.password);
+      } else {
+        // Use authService for registration
+        const userData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone
+        };
+        result = await authService.register(userData);
+      }
 
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com'}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        // Store token and user data
-        localStorage.setItem('authToken', data.token);
-        localStorage.setItem('userData', JSON.stringify(data.user));
-        
-        // Call success callback
-        onSuccess(data.user);
+      if (result.success) {
+        // Call success callback with user data
+        onSuccess(result.user);
         
         // Close modal
         onClose();
       } else {
-        setErrors({ submit: data.message || 'Authentication failed' });
+        setErrors({ submit: result.message || 'Authentication failed' });
       }
     } catch (error) {
       console.error('Auth error:', error);

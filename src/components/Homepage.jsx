@@ -161,7 +161,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   };
 
   return (
-    <div className="min-h-screen w-full flex flex-col bg-[#f8f7f6] text-[#221c10] font-sans overflow-x-hidden">
+    <div className="min-h-screen w-full flex flex-col bg-[#f8f7f6] text-[#221c10] font-body overflow-x-hidden">
       {/* Header */}
       <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700]/90 px-3 sm:px-6 md:px-10 py-3 md:py-4 backdrop-blur-sm animate-slide-down">
         {/* Logo */}
@@ -332,14 +332,15 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           aria-label="Hero section showcasing authentic Indian pickles"
         >
           <div className="animate-slide-up max-w-6xl mx-auto">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold uppercase tracking-wide mb-4 text-white animate-fade-in-delay-1">
+            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold uppercase tracking-wide mb-4 text-white animate-fade-in-delay-1">
               AUTHENTIC INDIAN PICKLES
             </h1>
             <p className="mt-4 text-sm sm:text-base md:text-lg max-w-2xl lg:max-w-4xl mx-auto leading-relaxed animate-fade-in-delay-2 px-4">
-              Handcrafted with love, bursting with traditional flavours that dance on your tongue.
+              Handcrafted with love, bursting with traditional flavours that dance
+              on your tongue.
             </p>
             <button 
-              className="mt-6 sm:mt-8 bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-bold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1 hover:bg-[#d49811]"
+              className="font-body mt-6 sm:mt-8 bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-semibold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1 hover:bg-[#d49811]"
               onClick={() => window.navigateToProducts && window.navigateToProducts()}
               aria-label="Shop authentic Indian pickles now"
             >
@@ -350,7 +351,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Our Specialties Section */}
         <section className="py-12 sm:py-16 px-3 sm:px-6 animate-fade-in-up" id="specialties" aria-labelledby="specialties-heading">
-          <h2 id="specialties-heading" className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-4 animate-slide-down">
+          <h2 id="specialties-heading" className="font-display text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-4 animate-slide-down">
             {homepageData.featured?.title || 'Featured Pickles'}
           </h2>
           <p className="text-center text-base sm:text-lg text-gray-600 mb-8 sm:mb-12 max-w-3xl mx-auto animate-fade-in-delay-1 px-4">
@@ -378,20 +379,22 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                         window.navigateToProductDetail(product);
                       }
                     }}
-                    className={`rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger mx-2`}
+                    className={`h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
                     style={{ animationDelay: `${index * 0.2}s` }}
                   >
                     <div 
-                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
                       style={{ backgroundImage: `url('${homepageProduct.customImage || product.image || '/placeholder-pickle.jpg'}')` }}
                     ></div>
-                    <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300">
-                      <h3 className="text-lg sm:text-xl font-bold">
-                        {homepageProduct.customTitle || product.name}
-                      </h3>
-                      <p className="mt-2 text-sm sm:text-base text-[#221c10]/70">
-                        {homepageProduct.customDescription || product.description}
-                      </p>
+                    <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold line-clamp-2">
+                          {homepageProduct.customTitle || product.name}
+                        </h3>
+                        <p className="mt-2 text-sm sm:text-base text-[#221c10]/70 line-clamp-3">
+                          {homepageProduct.customDescription || product.description}
+                        </p>
+                      </div>
                       <div className="mt-3 text-lg font-bold text-[#ecab13]">
                         ₹{product.price}
                       </div>
@@ -434,16 +437,18 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                   <button 
                     key={index}
                     onClick={() => handleCategoryNavigate(item.category)}
-                    className={`rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger mx-2`}
+                    className={`h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
                     style={{ animationDelay: `${index * 0.2}s` }}
                   >
                     <div 
-                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2"
+                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
                       style={{ backgroundImage: `url('${item.image}')` }}
                     ></div>
-                    <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300">
-                      <h3 className="text-lg sm:text-xl font-bold">{item.title}</h3>
-                      <p className="mt-2 text-sm sm:text-base text-[#221c10]/70">{item.description}</p>
+                    <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold line-clamp-2">{item.title}</h3>
+                        <p className="mt-2 text-sm sm:text-base text-[#221c10]/70 line-clamp-3">{item.description}</p>
+                      </div>
                     </div>
                   </button>
                 ))}
@@ -453,7 +458,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Our Promise Section */}
         <section className="py-12 sm:py-16 px-3 sm:px-6 bg-[#ecab13]/10 text-center animate-fade-in-up">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 animate-bounce-in">🌱 Our Promise</h2>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 animate-bounce-in">🌱 Our Promise</h2>
           <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {[
               { icon: "✔", title: "Authenticity First", desc: "Recipes rooted in tradition" },
@@ -480,7 +485,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Traditional Favorites Section */}
         <section className="py-12 sm:py-16 px-3 sm:px-6 animate-fade-in-up">
-          <h2 className="text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 animate-slide-down">
+          <h2 className="font-display text-center text-2xl sm:text-3xl md:text-4xl font-bold mb-8 sm:mb-12 animate-slide-down">
             {homepageData.customerFavorites?.title || 'Customer Favorites'}
           </h2>
           
@@ -570,7 +575,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Newsletter Section */}
         <section className="bg-[#ecab13]/10 rounded-2xl py-12 sm:py-16 px-3 sm:px-6 text-center mx-3 sm:mx-6 animate-fade-in-up">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold animate-bounce-in">Stay Connected with Janiitra</h2>
+          <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold animate-bounce-in">Stay Connected with Janiitra</h2>
           <p className="mt-4 mx-auto max-w-2xl text-base sm:text-lg text-[#221c10]/80 animate-fade-in-delay-1 px-4">
             Get exclusive offers, traditional recipes, and authentic product updates straight from our kitchen to your inbox.
           </p>
@@ -588,7 +593,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             />
             <button 
               type="submit"
-              className="rounded-lg bg-[#ecab13] px-6 py-2.5 sm:py-2 font-bold text-sm sm:text-base text-[#221c10] transition-transform duration-200 hover:scale-105"
+              className="font-body rounded-lg bg-[#ecab13] px-6 py-2.5 sm:py-2 font-semibold text-sm sm:text-base text-[#221c10] transition-transform duration-200 hover:scale-105"
             >
               Subscribe
             </button>

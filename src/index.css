@@ -20,12 +20,14 @@ body {
   padding: 0;
   width: 100%;
   min-height: 100vh;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
 }
 
 code {
@@ -93,6 +95,62 @@ code {
   }
 }
 
+/* Custom Typography Classes */
+.font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.font-handwriting {
+  font-family: 'Dancing Script', cursive;
+  font-weight: 500;
+}
+
+.font-body {
+  font-family: 'Inter', sans-serif;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+}
+
+/* Enhanced Headings */
+h1, h2, h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #221c10;
+}
+
+h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 700;
+}
+
+h2 {
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+h3 {
+  font-size: clamp(1.5rem, 3vw, 2rem);
+}
+
+/* Enhanced Body Text */
+p, span, div {
+  font-family: 'Inter', sans-serif;
+  line-height: 1.7;
+  letter-spacing: -0.01em;
+}
+
+/* Enhanced Buttons */
+button {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
 /* Animation Classes */
 .animate-fade-in {
   animation: fadeIn 1s ease-out;
@@ -156,4 +214,21 @@ code {
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
+}
+
+/* Line clamp utilities for consistent text truncation */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
