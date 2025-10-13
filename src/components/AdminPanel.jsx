@@ -5,8 +5,23 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState('products');
+  const [activeTab, setActiveTab] = useState('dashboard');
   const [showAddForm, setShowAddForm] = useState(false);
+  
+  // Dashboard stats state
+  const [dashboardStats, setDashboardStats] = useState({
+    totalSales: 125400,
+    totalOrders: 1250,
+    pendingOrders: 45,
+    deliveredOrders: 1185,
+    lowStockProducts: 8,
+    newCustomers: 67,
+    returningCustomers: 183
+  });
+  
+  // Orders state
+  const [orders, setOrders] = useState([]);
+  const [orderLoading, setOrderLoading] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -575,22 +590,160 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         {/* Tab Navigation */}
         <div className="mb-8">
           <div className="border-b border-gray-200">
-            <nav className="-mb-px flex space-x-8">
-              <button
-                onClick={() => setActiveTab('products')}
-                className={`py-2 px-1 border-b-2 font-medium text-sm ${
-                  activeTab === 'products'
-                    ? 'border-orange-500 text-orange-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-              >
-                Products
-              </button>
+            <nav className="-mb-px flex flex-wrap space-x-2 sm:space-x-8">
+              {[
+                { id: 'dashboard', label: '🧂 Dashboard', icon: '📊' },
+                { id: 'products', label: '🛍 Products', icon: '📦' },
+                { id: 'orders', label: '📦 Orders', icon: '📋' },
+                { id: 'payments', label: '💳 Payments', icon: '💰' },
+                { id: 'shipping', label: '🚚 Shipping', icon: '🚛' },
+                { id: 'customers', label: '👥 Customers', icon: '👤' }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`py-2 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
+                    activeTab === tab.id
+                      ? 'border-orange-500 text-orange-600'
+                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+                >
+                  <span className="hidden sm:inline">{tab.label}</span>
+                  <span className="sm:hidden">{tab.icon}</span>
+                </button>
+              ))}
             </nav>
           </div>
         </div>
 
         {/* Tab Content */}
+        
+        {/* Dashboard Tab */}
+        {activeTab === 'dashboard' && (
+          <div className="space-y-8">
+            {/* Stats Overview */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
+                <div className="flex items-center">
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-gray-600">Total Sales</h3>
+                    <p className="text-2xl font-bold text-gray-900">₹{dashboardStats.totalSales.toLocaleString()}</p>
+                  </div>
+                  <div className="text-green-500 text-2xl">💰</div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
+                <div className="flex items-center">
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-gray-600">Total Orders</h3>
+                    <p className="text-2xl font-bold text-gray-900">{dashboardStats.totalOrders}</p>
+                  </div>
+                  <div className="text-blue-500 text-2xl">📦</div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
+                <div className="flex items-center">
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-gray-600">Pending Orders</h3>
+                    <p className="text-2xl font-bold text-gray-900">{dashboardStats.pendingOrders}</p>
+                  </div>
+                  <div className="text-yellow-500 text-2xl">⏳</div>
+                </div>
+              </div>
+              
+              <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
+                <div className="flex items-center">
+                  <div className="flex-1">
+                    <h3 className="text-sm font-medium text-gray-600">Low Stock Alert</h3>
+                    <p className="text-2xl font-bold text-gray-900">{dashboardStats.lowStockProducts}</p>
+                  </div>
+                  <div className="text-red-500 text-2xl">⚠️</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Top Selling Products */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold text-gray-800 mb-4">🏆 Top Selling Pickles</h3>
+              <div className="space-y-3">
+                {products.slice(0, 5).map((product, index) => (
+                  <div key={product._id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
+                    <div className="flex items-center space-x-3">
+                      <span className="text-lg font-bold text-gray-400">#{index + 1}</span>
+                      <img src={product.image} alt={product.name} className="w-10 h-10 rounded object-cover" />
+                      <div>
+                        <p className="font-medium text-gray-800">{product.name}</p>
+                        <p className="text-sm text-gray-600">{product.category}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold text-green-600">₹{product.weights?.[0]?.price || 150}</p>
+                      <p className="text-sm text-gray-500">Sales: {Math.floor(Math.random() * 200) + 50}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">📈 Customer Statistics</h3>
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">New Customers (This Month)</span>
+                    <span className="font-bold text-blue-600">{dashboardStats.newCustomers}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Returning Customers</span>
+                    <span className="font-bold text-green-600">{dashboardStats.returningCustomers}</span>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-600">Customer Retention</span>
+                    <span className="font-bold text-purple-600">73%</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-lg font-semibold text-gray-800 mb-4">📊 Quick Actions</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <button 
+                    onClick={() => setActiveTab('products')}
+                    className="p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
+                  >
+                    <div className="text-2xl mb-1">➕</div>
+                    <div className="text-sm font-medium">Add Product</div>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('orders')}
+                    className="p-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
+                  >
+                    <div className="text-2xl mb-1">📋</div>
+                    <div className="text-sm font-medium">View Orders</div>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('customers')}
+                    className="p-3 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors"
+                  >
+                    <div className="text-2xl mb-1">👥</div>
+                    <div className="text-sm font-medium">Customers</div>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('shipping')}
+                    className="p-3 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors"
+                  >
+                    <div className="text-2xl mb-1">🚚</div>
+                    <div className="text-sm font-medium">Shipping</div>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {activeTab === 'products' && (
           <>
             {/* Loading State */}
@@ -870,6 +1023,288 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
         </>
+        )}
+
+        {/* Orders Tab */}
+        {activeTab === 'orders' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <h2 className="text-2xl font-bold text-gray-800">📦 Order Management</h2>
+              <div className="flex gap-2">
+                <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
+                  <option>All Orders</option>
+                  <option>Pending</option>
+                  <option>Processing</option>
+                  <option>Shipped</option>
+                  <option>Delivered</option>
+                  <option>Cancelled</option>
+                </select>
+              </div>
+            </div>
+
+            {/* Orders List */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {[
+                      { id: 'ORD001', customer: 'John Doe', items: 'Mango Tango x2, Lime Zest x1', amount: 580, status: 'Pending', date: '2025-10-13' },
+                      { id: 'ORD002', customer: 'Sarah Smith', items: 'Chilli Kick x1, Garlic Pickle x1', amount: 520, status: 'Processing', date: '2025-10-12' },
+                      { id: 'ORD003', customer: 'Mike Johnson', items: 'Seafood Special x2', amount: 760, status: 'Shipped', date: '2025-10-11' },
+                      { id: 'ORD004', customer: 'Lisa Brown', items: 'Curry Leaf Podi x3', amount: 660, status: 'Delivered', date: '2025-10-10' }
+                    ].map((order) => (
+                      <tr key={order.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.id}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customer}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{order.items}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{order.amount}</td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                            order.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
+                            order.status === 'Shipped' ? 'bg-purple-100 text-purple-800' :
+                            order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {order.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.date}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button className="text-orange-600 hover:text-orange-900 mr-2">View</button>
+                          <button className="text-blue-600 hover:text-blue-900">Update</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Payments Tab */}
+        {activeTab === 'payments' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800">💳 Payment & Transactions</h2>
+            
+            {/* Payment Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Total Revenue</h3>
+                <p className="text-2xl font-bold text-green-600">₹1,25,400</p>
+                <p className="text-sm text-gray-500">+12% from last month</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Online Payments</h3>
+                <p className="text-2xl font-bold text-blue-600">₹89,200</p>
+                <p className="text-sm text-gray-500">71% of total</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">COD Orders</h3>
+                <p className="text-2xl font-bold text-orange-600">₹36,200</p>
+                <p className="text-sm text-gray-500">29% of total</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Failed Payments</h3>
+                <p className="text-2xl font-bold text-red-600">₹4,500</p>
+                <p className="text-sm text-gray-500">3.6% failure rate</p>
+              </div>
+            </div>
+
+            {/* Transaction List */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold">Recent Transactions</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Transaction ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Amount</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Method</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {[
+                      { id: 'TXN001', customer: 'John Doe', amount: 580, method: 'UPI', status: 'Success', date: '2025-10-13 10:30' },
+                      { id: 'TXN002', customer: 'Sarah Smith', amount: 520, method: 'Credit Card', status: 'Success', date: '2025-10-12 15:45' },
+                      { id: 'TXN003', customer: 'Mike Johnson', amount: 760, method: 'COD', status: 'Pending', date: '2025-10-11 09:20' }
+                    ].map((txn) => (
+                      <tr key={txn.id}>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{txn.id}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{txn.customer}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">₹{txn.amount}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{txn.method}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            txn.status === 'Success' ? 'bg-green-100 text-green-800' : 
+                            txn.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {txn.status}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{txn.date}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Shipping Tab */}
+        {activeTab === 'shipping' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800">🚚 Delivery & Shipping Management</h2>
+            
+            {/* Shipping Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Orders in Transit</h3>
+                <p className="text-2xl font-bold text-blue-600">23</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Delivered Today</h3>
+                <p className="text-2xl font-bold text-green-600">8</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Avg. Delivery Time</h3>
+                <p className="text-2xl font-bold text-orange-600">2.3 days</p>
+              </div>
+            </div>
+
+            {/* Delivery Zones */}
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h3 className="text-lg font-semibold mb-4">Delivery Zones & Charges</h3>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Zone</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pincodes</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Delivery Charge</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Free Delivery Above</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Delivery Time</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    <tr>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">Local</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">500001-500099</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">₹50</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">₹500</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">1-2 days</td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">Regional</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">500100-599999</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">₹80</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">₹800</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">2-3 days</td>
+                    </tr>
+                    <tr>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">National</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">All India</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">₹120</td>
+                      <td className="px-6 py-4 text-sm text-gray-900">₹1200</td>
+                      <td className="px-6 py-4 text-sm text-gray-500">3-5 days</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Customers Tab */}
+        {activeTab === 'customers' && (
+          <div className="space-y-6">
+            <h2 className="text-2xl font-bold text-gray-800">👥 Customer Management</h2>
+            
+            {/* Customer Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Total Customers</h3>
+                <p className="text-2xl font-bold text-blue-600">1,250</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">New This Month</h3>
+                <p className="text-2xl font-bold text-green-600">67</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Active Customers</h3>
+                <p className="text-2xl font-bold text-orange-600">892</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Avg. Order Value</h3>
+                <p className="text-2xl font-bold text-purple-600">₹485</p>
+              </div>
+            </div>
+
+            {/* Customer List */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="p-6 border-b border-gray-200">
+                <h3 className="text-lg font-semibold">Recent Customers</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Email</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Orders</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total Spent</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Last Order</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {[
+                      { name: 'John Doe', email: 'john@email.com', orders: 5, spent: 2400, lastOrder: '2025-10-13', status: 'Active' },
+                      { name: 'Sarah Smith', email: 'sarah@email.com', orders: 12, spent: 5800, lastOrder: '2025-10-12', status: 'VIP' },
+                      { name: 'Mike Johnson', email: 'mike@email.com', orders: 3, spent: 1200, lastOrder: '2025-10-10', status: 'Active' },
+                      { name: 'Lisa Brown', email: 'lisa@email.com', orders: 8, spent: 3600, lastOrder: '2025-10-09', status: 'Regular' }
+                    ].map((customer, index) => (
+                      <tr key={index}>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{customer.name}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{customer.email}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{customer.orders}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">₹{customer.spent.toLocaleString()}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{customer.lastOrder}</td>
+                        <td className="px-6 py-4">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            customer.status === 'VIP' ? 'bg-purple-100 text-purple-800' : 
+                            customer.status === 'Active' ? 'bg-green-100 text-green-800' :
+                            'bg-blue-100 text-blue-800'
+                          }`}>
+                            {customer.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         )}
 
       </div>
