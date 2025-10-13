@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Footer from './Footer';
+import AdminService from '../services/adminService';
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [products, setProducts] = useState([]);
@@ -8,20 +9,24 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showAddForm, setShowAddForm] = useState(false);
   
-  // Dashboard stats state
+  // Dashboard stats state  
   const [dashboardStats, setDashboardStats] = useState({
-    totalSales: 125400,
-    totalOrders: 1250,
-    pendingOrders: 45,
-    deliveredOrders: 1185,
-    lowStockProducts: 8,
-    newCustomers: 67,
-    returningCustomers: 183
+    totalSales: 0,
+    totalOrders: 0,
+    pendingOrders: 0,
+    deliveredOrders: 0,
+    lowStockProducts: 0,
+    newCustomers: 0,
+    returningCustomers: 0
   });
   
   // Orders state
   const [orders, setOrders] = useState([]);
   const [orderLoading, setOrderLoading] = useState(false);
+  
+  // Customers and transactions state
+  const [customers, setCustomers] = useState([]);
+  const [transactions, setTransactions] = useState([]);
   
   // Product filtering state
   const [productFilter, setProductFilter] = useState('all'); // 'all', 'cod-enabled', 'cod-disabled'
@@ -44,155 +49,99 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     { weight: '1kg', price: 520 }
   ]);
 
-  // Default products for localhost development
-  const defaultProducts = [
-    {
-      _id: '1',
-      name: "Mango Tango",
-      description: "Traditional mango pickle made with organic ingredients and natural oils",
-      category: "Vegetarian",
-      spiceLevel: "Medium",
-      image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009352/pickle-store/MangoTango.png",
-      weights: [
-        { weight: '250g', price: 150, _id: '1a' },
-        { weight: '500g', price: 280, _id: '1b' },
-        { weight: '1kg', price: 520, _id: '1c' }
-      ],
-      inStock: true,
-      featured: true,
-      codAvailable: true,
-      rating: 4.5,
-      reviews: 123
-    },
-    {
-      _id: '2',
-      name: "Lime Zest",
-      description: "Zesty lime pickle with a hint of spice",
-      category: "Vegetarian",
-      spiceLevel: "Mild",
-      image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009347/pickle-store/Limezest.png",
-      weights: [
-        { weight: '250g', price: 140, _id: '2a' },
-        { weight: '500g', price: 260, _id: '2b' },
-        { weight: '1kg', price: 480, _id: '2c' }
-      ],
-      inStock: true,
-      featured: false,
-      codAvailable: true,
-      rating: 4.3,
-      reviews: 56
-    },
-    {
-      _id: '3',
-      name: "Chilli Kick",
-      description: "Extra spicy chilli pickle for the ultimate kick",
-      category: "Vegetarian",
-      spiceLevel: "Hot",
-      image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009338/pickle-store/Chillikick.png",
-      weights: [
-        { weight: '250g', price: 180, _id: '3a' },
-        { weight: '500g', price: 340, _id: '3b' },
-        { weight: '1kg', price: 650, _id: '3c' }
-      ],
-      inStock: true,
-      featured: false,
-      codAvailable: false,
-      rating: 4.8,
-      reviews: 145
-    },
-    {
-      _id: '4',
-      name: "Garlic Pickle",
-      description: "Spicy garlic pickle perfect for adding flavor to your meals",
-      category: "Vegetarian",
-      spiceLevel: "Medium",
-      image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009343/pickle-store/Garlic.png",
-      weights: [
-        { weight: '250g', price: 180, _id: '4a' },
-        { weight: '500g', price: 340, _id: '4b' },
-        { weight: '1kg', price: 650, _id: '4c' }
-      ],
-      inStock: true,
-      featured: false,
-      codAvailable: true,
-      rating: 4.7,
-      reviews: 156
-    },
-    {
-      _id: '5',
-      name: "Seafood Special",
-      description: "Premium seafood pickle with authentic spices",
-      category: "Seafood",
-      spiceLevel: "Medium",
-      image: "/assets/chicken.png",
-      weights: [
-        { weight: '250g', price: 200, _id: '5a' },
-        { weight: '500g', price: 380, _id: '5b' }
-      ],
-      inStock: true,
-      featured: false,
-      codAvailable: false,
-      rating: 4.6,
-      reviews: 89
-    },
-    {
-      _id: '6',
-      name: "Curry Leaf Podi",
-      description: "Traditional South Indian curry leaf powder",
-      category: "Podi's",
-      spiceLevel: "Medium",
-      image: "/assets/MangoJar.png",
-      weights: [
-        { weight: '250g', price: 120, _id: '6a' },
-        { weight: '500g', price: 220, _id: '6b' }
-      ],
-      inStock: true,
-      featured: false,
-      codAvailable: true,
-      rating: 4.4,
-      reviews: 78
-    }
-  ];
+  // Load all admin data on component mount
 
   useEffect(() => {
-    loadProducts();
+    loadAllAdminData();
   }, [activeTab]);
 
-  const loadProducts = async () => {
+  const loadAllAdminData = async () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('AdminPanel: Loading products from API');
       
-      // Check if running on localhost
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      
-      if (isLocalhost) {
-        // Use default products for localhost development
-        console.log('AdminPanel: Running on localhost, using default products');
-        setTimeout(() => {
-          setProducts(defaultProducts);
-          setLoading(false);
-        }, 500); // Simulate API delay
-        return;
-      }
-      
-      // Try to fetch from API for production
-      const response = await fetch('https://pickle-store-backend.onrender.com/api/products');
-      if (response.ok) {
-        const data = await response.json();
-        console.log('AdminPanel: Loaded products from API:', data.length);
-        setProducts(data);
-      } else {
-        console.log('AdminPanel: API failed, using default products');
-        setProducts(defaultProducts);
+      // Load data based on active tab
+      switch (activeTab) {
+        case 'dashboard':
+          await Promise.all([
+            loadProducts(),
+            loadDashboardStats(),
+            loadOrders()
+          ]);
+          break;
+        case 'products':
+          await loadProducts();
+          break;
+        case 'orders':
+          await loadOrders();
+          break;
+        case 'payments':
+          await loadTransactions();
+          break;
+        case 'customers':
+          await loadCustomers();
+          break;
+        default:
+          await loadProducts();
       }
     } catch (error) {
-      console.error('AdminPanel: Error loading products from API:', error);
-      console.log('AdminPanel: Using default products as fallback');
-      setProducts(defaultProducts);
+      console.error('Error loading admin data:', error);
+      setError('Failed to load admin data');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadProducts = async () => {
+    try {
+      const data = await AdminService.getAllProducts();
+      console.log('Loaded products from API:', data.length);
+      setProducts(data || []);
+    } catch (error) {
+      console.error('Error loading products:', error);
+      setProducts([]);
+    }
+  };
+
+  const loadDashboardStats = async () => {
+    try {
+      const stats = await AdminService.getDashboardStats();
+      setDashboardStats(stats);
+    } catch (error) {
+      console.error('Error loading dashboard stats:', error);
+    }
+  };
+
+  const loadOrders = async () => {
+    try {
+      setOrderLoading(true);
+      const data = await AdminService.getAllOrders();
+      setOrders(data || []);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      setOrders([]);
+    } finally {
+      setOrderLoading(false);
+    }
+  };
+
+  const loadCustomers = async () => {
+    try {
+      const data = await AdminService.getAllCustomers();
+      setCustomers(data || []);
+    } catch (error) {
+      console.error('Error loading customers:', error);
+      setCustomers([]);
+    }
+  };
+
+  const loadTransactions = async () => {
+    try {
+      const data = await AdminService.getTransactions();
+      setTransactions(data || []);
+    } catch (error) {
+      console.error('Error loading transactions:', error);
+      setTransactions([]);
     }
   };
 
@@ -346,89 +295,65 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     try {
       console.log('Form data before sending:', formData); // Debug log
       
-      const formDataToSend = new FormData();
-      
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('description', formData.description);
-      
-      // Map productType to category for backend compatibility
-      let categoryToSend = formData.category; // Default to dietary category
-      if (formData.productType === 'Seafood') {
-        categoryToSend = 'Seafood';
-      } else if (formData.productType === 'Podi') {
-        categoryToSend = "Podi's";
+      // Validate required fields
+      if (!formData.name || !formData.description) {
+        alert('Please fill in all required fields');
+        return;
       }
-      // For Pickles and Spices, use the dietary category (Vegetarian/Non-Vegetarian)
       
-      formDataToSend.append('category', categoryToSend);
-      formDataToSend.append('productType', formData.productType);
-      formDataToSend.append('spiceLevel', formData.spiceLevel || 'Medium');
-      formDataToSend.append('weights', JSON.stringify(weightOptions));
-      
-      if (selectedImageFile) {
-        formDataToSend.append('image', selectedImageFile);
-      } else if (!editingProduct && !selectedImageFile) {
+      if (!editingProduct && !selectedImageFile) {
         alert('Please select an image for the product');
         return;
       }
 
-      // Debug: Log what we're sending
-      console.log('FormData contents:');
-      for (let [key, value] of formDataToSend.entries()) {
-        console.log(key, value);
-      }
+      const productData = {
+        name: formData.name,
+        description: formData.description,
+        category: formData.category,
+        productType: formData.productType,
+        spiceLevel: formData.spiceLevel || 'Medium',
+        weights: weightOptions,
+        image: selectedImageFile,
+        codAvailable: formData.codAvailable || true
+      };
 
-      const url = editingProduct 
-        ? `https://pickle-store-backend.onrender.com/api/admin/products/${editingProduct._id}`
-        : 'https://pickle-store-backend.onrender.com/api/admin/products';
-      
-      const method = editingProduct ? 'PUT' : 'POST';
-
-      const response = await fetch(url, {
-        method: method,
-        body: formDataToSend
-      });
-
-      if (response.ok) {
-        const savedProduct = await response.json();
-        
-        if (editingProduct) {
-          // Update existing product in local state
-          setProducts(products.map(p => 
-            p._id === editingProduct._id ? savedProduct : p
-          ));
-        } else {
-          // Add new product to local state
-          setProducts([...products, savedProduct]);
-        }
-
-        // Reset form
-        setFormData({
-          name: '',
-          description: '',
-          category: 'Vegetarian',
-          productType: 'Pickles',
-          spiceLevel: 'Medium',
-          image: ''
-        });
-        setWeightOptions([
-          { weight: '250g', price: 150 },
-          { weight: '500g', price: 280 },
-          { weight: '1kg', price: 520 }
-        ]);
-        setSelectedImageFile(null);
-        setImagePreview('');
-        setShowAddForm(false);
-        setEditingProduct(null);
-
-        alert(editingProduct ? 'Product updated successfully!' : 'Product added successfully!');
+      let savedProduct;
+      if (editingProduct) {
+        savedProduct = await AdminService.updateProduct(editingProduct._id, productData);
+        // Update existing product in local state
+        setProducts(products.map(p => 
+          p._id === editingProduct._id ? savedProduct : p
+        ));
       } else {
-        const error = await response.json();
-        alert(`Failed to save product: ${error.error}`);
+        savedProduct = await AdminService.createProduct(productData);
+        // Add new product to local state
+        setProducts([...products, savedProduct]);
       }
+
+      // Reset form
+      setFormData({
+        name: '',
+        description: '',
+        category: 'Vegetarian',
+        productType: 'Pickles',
+        spiceLevel: 'Medium',
+        image: '',
+        codAvailable: true
+      });
+      setWeightOptions([
+        { weight: '250g', price: 150 },
+        { weight: '500g', price: 280 },
+        { weight: '1kg', price: 520 }
+      ]);
+      setSelectedImageFile(null);
+      setImagePreview('');
+      setShowAddForm(false);
+      setEditingProduct(null);
+
+      alert(editingProduct ? 'Product updated successfully!' : 'Product added successfully!');
     } catch (error) {
       console.error('Error saving product:', error);
-      alert('Failed to save product. Please try again.');
+      alert(`Failed to save product: ${error.message}`);
     }
   };
 
@@ -461,22 +386,14 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const handleDeleteProduct = async (productId) => {
     if (window.confirm('Are you sure you want to delete this product? This will also delete its image from the database.')) {
       try {
-        const response = await fetch(`https://pickle-store-backend.onrender.com/api/admin/products/${productId}`, {
-          method: 'DELETE'
-        });
-
-        if (response.ok) {
-          // Remove product from local state
-          const updatedProducts = products.filter(product => product._id !== productId);
-          setProducts(updatedProducts);
-          alert('Product and associated image deleted successfully!');
-        } else {
-          const error = await response.json();
-          alert(`Failed to delete product: ${error.error}`);
-        }
+        await AdminService.deleteProduct(productId);
+        // Remove product from local state
+        const updatedProducts = products.filter(product => product._id !== productId);
+        setProducts(updatedProducts);
+        alert('Product and associated image deleted successfully!');
       } catch (error) {
         console.error('Error deleting product:', error);
-        alert('Failed to delete product. Please try again.');
+        alert(`Failed to delete product: ${error.message}`);
       }
     }
   };
@@ -548,26 +465,22 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       const updatedCODStatus = !product.codAvailable;
       
-      // Update local state
+      // Use AdminService to update COD status
+      const updatedProduct = await AdminService.toggleCODStatus(productId, updatedCODStatus);
+      
+      // Update local state with response from API
       const updatedProducts = products.map(p => 
         (p._id || p.id) === productId 
-          ? { ...p, codAvailable: updatedCODStatus }
+          ? updatedProduct
           : p
       );
       
       setProducts(updatedProducts);
       
-      // TODO: Add API call to update COD status on backend when available
-      // const response = await fetch(`https://pickle-store-backend.onrender.com/api/admin/products/${productId}/cod-status`, {
-      //   method: 'PATCH',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify({ codAvailable: updatedCODStatus })
-      // });
-      
       alert(`COD ${updatedCODStatus ? 'enabled' : 'disabled'} for this product!`);
     } catch (error) {
       console.error('Error toggling COD status:', error);
-      alert('Failed to update COD status. Please try again.');
+      alert(`Failed to update COD status: ${error.message}`);
     }
   };
 
@@ -1181,17 +1094,14 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {[
-                      { id: 'ORD001', customer: 'John Doe', items: 'Mango Tango x2, Lime Zest x1', amount: 580, status: 'Pending', date: '2025-10-13' },
-                      { id: 'ORD002', customer: 'Sarah Smith', items: 'Chilli Kick x1, Garlic Pickle x1', amount: 520, status: 'Processing', date: '2025-10-12' },
-                      { id: 'ORD003', customer: 'Mike Johnson', items: 'Seafood Special x2', amount: 760, status: 'Shipped', date: '2025-10-11' },
-                      { id: 'ORD004', customer: 'Lisa Brown', items: 'Curry Leaf Podi x3', amount: 660, status: 'Delivered', date: '2025-10-10' }
-                    ].map((order) => (
-                      <tr key={order.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.id}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customer}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">{order.items}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{order.amount}</td>
+                    {orders.map((order) => (
+                      <tr key={order._id || order.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order._id || order.orderNumber || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customerDetails?.name || order.customer || 'N/A'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                          {order.products?.map(p => `${p.name} x${p.quantity}`).join(', ') || order.items || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{order.totalAmount || order.amount || 0}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -1203,7 +1113,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                             {order.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.date}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : order.date || 'N/A'}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                           <button className="text-orange-600 hover:text-orange-900 mr-2">View</button>
                           <button className="text-blue-600 hover:text-blue-900">Update</button>
@@ -1264,16 +1176,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {[
-                      { id: 'TXN001', customer: 'John Doe', amount: 580, method: 'UPI', status: 'Success', date: '2025-10-13 10:30' },
-                      { id: 'TXN002', customer: 'Sarah Smith', amount: 520, method: 'Credit Card', status: 'Success', date: '2025-10-12 15:45' },
-                      { id: 'TXN003', customer: 'Mike Johnson', amount: 760, method: 'COD', status: 'Pending', date: '2025-10-11 09:20' }
-                    ].map((txn) => (
-                      <tr key={txn.id}>
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{txn.id}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500">{txn.customer}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">₹{txn.amount}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500">{txn.method}</td>
+                    {transactions.map((txn) => (
+                      <tr key={txn._id || txn.id}>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{txn._id || txn.transactionId || 'N/A'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{txn.customerName || txn.customer || 'N/A'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">₹{txn.amount || 0}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{txn.paymentMethod || txn.method || 'N/A'}</td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             txn.status === 'Success' ? 'bg-green-100 text-green-800' : 
@@ -1283,7 +1191,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                             {txn.status}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-500">{txn.date}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {txn.createdAt ? new Date(txn.createdAt).toLocaleDateString() : txn.date || 'N/A'}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -1400,25 +1310,22 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {[
-                      { name: 'John Doe', email: 'john@email.com', orders: 5, spent: 2400, lastOrder: '2025-10-13', status: 'Active' },
-                      { name: 'Sarah Smith', email: 'sarah@email.com', orders: 12, spent: 5800, lastOrder: '2025-10-12', status: 'VIP' },
-                      { name: 'Mike Johnson', email: 'mike@email.com', orders: 3, spent: 1200, lastOrder: '2025-10-10', status: 'Active' },
-                      { name: 'Lisa Brown', email: 'lisa@email.com', orders: 8, spent: 3600, lastOrder: '2025-10-09', status: 'Regular' }
-                    ].map((customer, index) => (
-                      <tr key={index}>
-                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{customer.name}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500">{customer.email}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">{customer.orders}</td>
-                        <td className="px-6 py-4 text-sm text-gray-900">₹{customer.spent.toLocaleString()}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500">{customer.lastOrder}</td>
+                    {customers.map((customer, index) => (
+                      <tr key={customer._id || index}>
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900">{customer.name || customer.firstName + ' ' + customer.lastName || 'N/A'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">{customer.email || 'N/A'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">{customer.orderCount || customer.orders || 0}</td>
+                        <td className="px-6 py-4 text-sm text-gray-900">₹{(customer.totalSpent || customer.spent || 0).toLocaleString()}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          {customer.lastOrderDate ? new Date(customer.lastOrderDate).toLocaleDateString() : customer.lastOrder || 'N/A'}
+                        </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            customer.status === 'VIP' ? 'bg-purple-100 text-purple-800' : 
-                            customer.status === 'Active' ? 'bg-green-100 text-green-800' :
+                            (customer.status || customer.customerType) === 'VIP' ? 'bg-purple-100 text-purple-800' : 
+                            (customer.status || customer.customerType) === 'Active' ? 'bg-green-100 text-green-800' :
                             'bg-blue-100 text-blue-800'
                           }`}>
-                            {customer.status}
+                            {customer.status || customer.customerType || 'Regular'}
                           </span>
                         </td>
                       </tr>

@@ -339,7 +339,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               Handcrafted with love, bursting with traditional flavours that dance on your tongue.
             </p>
             <button 
-              className="mt-6 sm:mt-8 bg-[#2d6700] text-white px-6 sm:px-8 py-2.5 sm:py-3 font-bold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1 hover:bg-[#234d00]"
+              className="mt-6 sm:mt-8 bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-bold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1 hover:bg-[#d49811]"
               onClick={() => window.navigateToProducts && window.navigateToProducts()}
               aria-label="Shop authentic Indian pickles now"
             >

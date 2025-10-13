@@ -541,10 +541,10 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                 <h3 className="filter-label text-lg font-semibold mb-3 text-[#221c10]">Category</h3>
                 <div className="filter-options space-y-2">
                   {[
-                    { name: 'Pickles', emoji: '🥒' },
-                    { name: 'Seafood', emoji: '🐟' },
-                    { name: 'Podi', emoji: '🍃' },
-                    { name: 'Spices', emoji: '🌶️' }
+                    { name: 'Pickles'},
+                    { name: 'Seafood'},
+                    { name: 'Podi' },
+                    { name: 'Spices'}
                   ].map((category) => (
                     <label key={category.name} className="flex items-center cursor-pointer">
                       <input 
