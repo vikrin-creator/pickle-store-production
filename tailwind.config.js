@@ -7,10 +7,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'display': ['Playfair Display', 'Georgia', 'serif'],
+        'display': ['Space Grotesk', 'sans-serif'],
         'handwriting': ['Dancing Script', 'cursive'],
-        'body': ['Inter', 'sans-serif'],
-        'sans': ['Inter', 'sans-serif'],
+        'body': ['Space Grotesk', 'sans-serif'],
+        'sans': ['Space Grotesk', 'sans-serif'],
       },
       fontSize: {
         'xs': ['0.75rem', { lineHeight: '1rem' }],

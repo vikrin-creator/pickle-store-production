@@ -331,7 +331,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           }}
           aria-label="Hero section showcasing authentic Indian pickles"
         >
-          <div className="animate-slide-up max-w-6xl mx-auto">
+          <div className="animate-slide-up max-w-6xl mx-auto -mt-8 sm:-mt-12 lg:-mt-16">
             <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold uppercase tracking-wide mb-4 text-white animate-fade-in-delay-1">
               AUTHENTIC INDIAN PICKLES
             </h1>
@@ -631,7 +631,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Copyright */}
         <div className="mt-4 sm:mt-6 pb-8 sm:pb-10 text-xs sm:text-sm text-[#221c10]/60">
-          © 2024 janiitra Pickles. All rights reserved.
+          © 2025 janiitra Pickles. All rights reserved.
         </div>
       </footer>
 

@@ -20,7 +20,7 @@ body {
   padding: 0;
   width: 100%;
   min-height: 100vh;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -109,14 +109,14 @@ code {
 }
 
 .font-body {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   line-height: 1.6;
   letter-spacing: -0.01em;
 }
 
 /* Enhanced Headings */
 h1, h2, h3 {
-  font-family: 'Playfair Display', Georgia, serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -138,14 +138,14 @@ h3 {
 
 /* Enhanced Body Text */
 p, span, div {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   line-height: 1.7;
   letter-spacing: -0.01em;
 }
 
 /* Enhanced Buttons */
 button {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 600;
   letter-spacing: 0.02em;
   text-transform: none;
