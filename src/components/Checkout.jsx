@@ -137,14 +137,19 @@ const Checkout = ({ onBack, onOrderComplete }) => {
 
       // Prepare order data for backend
       const orderData = {
-        items: cartItems.map(item => ({
-          productId: item._id || item.id,
-          name: item.name,
-          weight: item.selectedWeight?.weight || '250g',
-          price: item.price,
-          quantity: item.quantity,
-          image: item.image
-        })),
+        items: cartItems.map(item => {
+          // Generate a valid ObjectId-like string if missing
+          const productId = item._id || item.id || `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+          
+          return {
+            productId: productId,
+            name: item.name || 'Unknown Product',
+            weight: item.selectedWeight?.weight || item.weight || '250g',
+            price: item.price || 0,
+            quantity: item.quantity || 1,
+            image: item.image || ''
+          };
+        }),
         customerInfo: {
           name: `${formData.firstName} ${formData.lastName}`,
           email: formData.email,
@@ -160,7 +165,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
         tax: tax,
         shipping: shipping,
         total: finalTotal,
-        paymentMethod: formData.paymentMethod, // Use selected payment method
+        paymentMethod: formData.paymentMethod === 'online' ? 'card' : 'cod', // Map online to card for backend
         paymentStatus: formData.paymentMethod === 'cod' ? 'pending' : 'pending',
         status: 'confirmed'
       };
@@ -177,7 +182,9 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create order');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Order creation failed:', response.status, errorData);
+        throw new Error(errorData.message || `Server error: ${response.status}`);
       }
 
       const savedOrder = await response.json();
@@ -198,7 +205,17 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     } catch (error) {
       console.error('Order creation failed:', error);
       setIsProcessing(false);
-      alert('Failed to create order. Please try again.');
+      
+      // Show more specific error message
+      if (error.message.includes('Server error: 401')) {
+        alert('Authentication error. Please log in again and try.');
+      } else if (error.message.includes('Server error: 500')) {
+        alert('Server error. Please try again in a few moments.');
+      } else if (error.message.includes('duplicate key')) {
+        alert('There was a database issue. Please try placing your order again.');
+      } else {
+        alert(`Failed to create order: ${error.message}`);
+      }
     }
   };
 
