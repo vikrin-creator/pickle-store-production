@@ -24,6 +24,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     country: 'India',
     
     // Payment Information
+    paymentMethod: 'cod', // 'cod' or 'online'
     cardNumber: '',
     expiryDate: '',
     cvv: '',
@@ -403,6 +404,51 @@ const Checkout = ({ onBack, onOrderComplete }) => {
               {/* Payment Information */}
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-lg font-semibold mb-4">Payment Information</h3>
+                
+                {/* Payment Method Selection */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 mb-3">Select Payment Method</label>
+                  <div className="space-y-3">
+                    <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="cod"
+                        checked={formData.paymentMethod === 'cod'}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 text-[#ecab13] border-gray-300 focus:ring-[#ecab13]"
+                      />
+                      <div className="ml-3 flex-1">
+                        <div className="flex items-center">
+                          <span className="text-2xl mr-2">💰</span>
+                          <span className="text-sm font-medium text-gray-900">Cash on Delivery (COD)</span>
+                        </div>
+                        <p className="text-xs text-gray-500">Pay when your order is delivered to your doorstep</p>
+                      </div>
+                    </label>
+                    
+                    <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                      <input
+                        type="radio"
+                        name="paymentMethod"
+                        value="online"
+                        checked={formData.paymentMethod === 'online'}
+                        onChange={handleInputChange}
+                        className="h-4 w-4 text-[#ecab13] border-gray-300 focus:ring-[#ecab13]"
+                      />
+                      <div className="ml-3 flex-1">
+                        <div className="flex items-center">
+                          <span className="text-2xl mr-2">💳</span>
+                          <span className="text-sm font-medium text-gray-900">Online Payment</span>
+                        </div>
+                        <p className="text-xs text-gray-500">Pay securely using UPI, Credit/Debit Card, Net Banking</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* Online Payment Form - Only show when online payment is selected */}
+                {formData.paymentMethod === 'online' && (
                 <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
@@ -456,6 +502,23 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                     />
                   </div>
                 </div>
+                )}
+                
+                {/* COD Information - Only show when COD is selected */}
+                {formData.paymentMethod === 'cod' && (
+                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <div className="flex items-center">
+                      <span className="text-green-500 text-xl mr-2">✅</span>
+                      <div>
+                        <h4 className="text-sm font-medium text-green-800">Cash on Delivery Selected</h4>
+                        <p className="text-xs text-green-600 mt-1">
+                          Pay ₹{total.toFixed(2)} in cash when your order is delivered. 
+                          Please keep exact change ready for a smooth delivery experience.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Special Instructions */}

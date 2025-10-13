@@ -22,6 +22,10 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   // Orders state
   const [orders, setOrders] = useState([]);
   const [orderLoading, setOrderLoading] = useState(false);
+  
+  // Product filtering state
+  const [productFilter, setProductFilter] = useState('all'); // 'all', 'cod-enabled', 'cod-disabled'
+  
   const [editingProduct, setEditingProduct] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -29,7 +33,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     category: 'Vegetarian',
     productType: 'Pickles',
     spiceLevel: 'Medium',
-    image: ''
+    image: '',
+    codAvailable: true
   });
   const [selectedImageFile, setSelectedImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -55,6 +60,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       ],
       inStock: true,
       featured: true,
+      codAvailable: true,
       rating: 4.5,
       reviews: 123
     },
@@ -72,6 +78,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       ],
       inStock: true,
       featured: false,
+      codAvailable: true,
       rating: 4.3,
       reviews: 56
     },
@@ -89,6 +96,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       ],
       inStock: true,
       featured: false,
+      codAvailable: false,
       rating: 4.8,
       reviews: 145
     },
@@ -106,6 +114,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       ],
       inStock: true,
       featured: false,
+      codAvailable: true,
       rating: 4.7,
       reviews: 156
     },
@@ -122,6 +131,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       ],
       inStock: true,
       featured: false,
+      codAvailable: false,
       rating: 4.6,
       reviews: 89
     },
@@ -138,6 +148,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       ],
       inStock: true,
       featured: false,
+      codAvailable: true,
       rating: 4.4,
       reviews: 78
     }
@@ -429,7 +440,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       category: product.category,
       productType: product.productType || 'Pickles', // Default to Pickles if not set
       spiceLevel: product.spiceLevel || 'Medium',
-      image: product.image
+      image: product.image,
+      codAvailable: product.codAvailable !== undefined ? product.codAvailable : true
     });
     // Set weight options from the product weights - strip _id fields for frontend use
     const cleanWeights = product.weights ? product.weights.map(w => ({
@@ -529,6 +541,36 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     }
   };
 
+  const toggleCODStatus = async (productId) => {
+    try {
+      const product = products.find(p => (p._id || p.id) === productId);
+      if (!product) return;
+
+      const updatedCODStatus = !product.codAvailable;
+      
+      // Update local state
+      const updatedProducts = products.map(p => 
+        (p._id || p.id) === productId 
+          ? { ...p, codAvailable: updatedCODStatus }
+          : p
+      );
+      
+      setProducts(updatedProducts);
+      
+      // TODO: Add API call to update COD status on backend when available
+      // const response = await fetch(`https://pickle-store-backend.onrender.com/api/admin/products/${productId}/cod-status`, {
+      //   method: 'PATCH',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ codAvailable: updatedCODStatus })
+      // });
+      
+      alert(`COD ${updatedCODStatus ? 'enabled' : 'disabled'} for this product!`);
+    } catch (error) {
+      console.error('Error toggling COD status:', error);
+      alert('Failed to update COD status. Please try again.');
+    }
+  };
+
   const handleCancelEdit = () => {
     setShowAddForm(false);
     setEditingProduct(null);
@@ -539,10 +581,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       description: '',
       category: 'Vegetarian',
       productType: 'Pickles',
+      spiceLevel: 'Medium',
       featured: false,
       rating: 0,
       reviews: 0,
-      image: ''
+      image: '',
+      codAvailable: true
     });
   };
 
@@ -788,10 +832,39 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
             )}
 
+            {/* Filter Controls */}
+            {!loading && !error && products.length > 0 && (
+              <div className="mb-6 flex flex-wrap gap-4 items-center">
+                <div className="flex items-center gap-2">
+                  <label className="text-sm font-medium text-gray-700">Filter by COD:</label>
+                  <select 
+                    value={productFilter} 
+                    onChange={(e) => setProductFilter(e.target.value)}
+                    className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm"
+                  >
+                    <option value="all">All Products</option>
+                    <option value="cod-enabled">COD Enabled</option>
+                    <option value="cod-disabled">COD Disabled</option>
+                  </select>
+                </div>
+                <div className="text-sm text-gray-600">
+                  Total: {products.filter(p => 
+                    productFilter === 'all' ? true : 
+                    productFilter === 'cod-enabled' ? p.codAvailable : 
+                    !p.codAvailable
+                  ).length} products
+                </div>
+              </div>
+            )}
+
             {/* Products Grid */}
             {!loading && !error && products.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-          {products.map((product) => (
+          {products.filter(product => 
+            productFilter === 'all' ? true : 
+            productFilter === 'cod-enabled' ? product.codAvailable : 
+            !product.codAvailable
+          ).map((product) => (
             <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden">
               <img
                 src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : 'https://via.placeholder.com/300x200'}
@@ -825,6 +898,30 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   <span className="bg-gray-100 px-2 py-1 rounded">{product.category}</span>
                   {product.featured && <span className="bg-yellow-100 px-2 py-1 rounded text-yellow-800">Featured</span>}
                   {product.rating && <span className="bg-green-100 px-2 py-1 rounded text-green-800">★ {product.rating}</span>}
+                  <span className={`px-2 py-1 rounded font-medium ${
+                    product.codAvailable 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {product.codAvailable ? '💰 COD' : '❌ No COD'}
+                  </span>
+                </div>
+                
+                {/* COD Toggle */}
+                <div className="flex items-center justify-between mb-3 p-2 bg-gray-50 rounded">
+                  <span className="text-sm font-medium text-gray-700">Cash on Delivery:</span>
+                  <button
+                    onClick={() => toggleCODStatus(product._id)}
+                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 ${
+                      product.codAvailable ? 'bg-green-600' : 'bg-gray-200'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                        product.codAvailable ? 'translate-x-6' : 'translate-x-1'
+                      }`}
+                    />
+                  </button>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -922,6 +1019,32 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       <option value="Hot">Hot</option>
                       <option value="Extra Hot">Extra Hot</option>
                     </select>
+                  </div>
+
+                  {/* COD Availability */}
+                  <div>
+                    <label className="block text-sm font-medium mb-3">Cash on Delivery (COD)</label>
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setFormData(prev => ({ ...prev, codAvailable: !prev.codAvailable }))}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 ${
+                          formData.codAvailable ? 'bg-green-600' : 'bg-gray-200'
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                            formData.codAvailable ? 'translate-x-6' : 'translate-x-1'
+                          }`}
+                        />
+                      </button>
+                      <span className="text-sm text-gray-600">
+                        {formData.codAvailable ? 'COD Enabled' : 'COD Disabled'}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enable this option to allow customers to pay cash on delivery for this product.
+                    </p>
                   </div>
 
                   {/* Weight Options Section */}
