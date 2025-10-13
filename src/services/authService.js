@@ -51,6 +51,8 @@ class AuthService {
   // Register new user
   async register(userData) {
     try {
+      console.log('Attempting registration with:', { ...userData, password: '[HIDDEN]' });
+      
       const response = await fetch(`${API_URL}/api/auth/register`, {
         method: 'POST',
         headers: {
@@ -59,18 +61,39 @@ class AuthService {
         body: JSON.stringify(userData),
       });
 
+      console.log('Registration response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Registration failed:', errorData);
+        return {
+          success: false,
+          message: errorData.message || `Server error: ${response.status}`
+        };
+      }
+
       const data = await response.json();
 
       if (data.success) {
         this.setAuth(data.token, data.user);
+        console.log('Registration successful');
       }
 
       return data;
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error('Registration network error:', error);
+      
+      // Check if it's a network connectivity issue
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        return {
+          success: false,
+          message: 'Unable to connect to server. Please check your internet connection and try again.'
+        };
+      }
+      
       return {
         success: false,
-        message: 'Network error. Please try again.'
+        message: 'Network error occurred. The server might be temporarily unavailable. Please try again in a few moments.'
       };
     }
   }
@@ -78,6 +101,8 @@ class AuthService {
   // Login user
   async login(email, password) {
     try {
+      console.log('Attempting login for:', email);
+      
       const response = await fetch(`${API_URL}/api/auth/login`, {
         method: 'POST',
         headers: {
@@ -86,18 +111,39 @@ class AuthService {
         body: JSON.stringify({ email, password }),
       });
 
+      console.log('Login response status:', response.status);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Login failed:', errorData);
+        return {
+          success: false,
+          message: errorData.message || `Server error: ${response.status}`
+        };
+      }
+
       const data = await response.json();
 
       if (data.success) {
         this.setAuth(data.token, data.user);
+        console.log('Login successful');
       }
 
       return data;
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('Login network error:', error);
+      
+      // Check if it's a network connectivity issue
+      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+        return {
+          success: false,
+          message: 'Unable to connect to server. Please check your internet connection and try again.'
+        };
+      }
+      
       return {
         success: false,
-        message: 'Network error. Please try again.'
+        message: 'Network error occurred. The server might be temporarily unavailable. Please try again in a few moments.'
       };
     }
   }

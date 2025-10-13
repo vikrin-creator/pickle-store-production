@@ -11,53 +11,78 @@
             font-family: 'Arial', sans-serif;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             position: relative;
             overflow: hidden;
+            padding: 60px;
+            box-sizing: border-box;
         }
-        .container {
-            text-align: center;
+        .left-content {
+            flex: 1;
             z-index: 2;
             color: #221c10;
         }
-        .logo {
-            font-size: 72px;
+        .logo-text {
+            font-size: 84px;
             font-weight: bold;
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-family: 'Playfair Display', serif;
         }
         .tagline {
-            font-size: 32px;
-            margin-bottom: 15px;
+            font-size: 36px;
+            margin-bottom: 20px;
             font-weight: 600;
+            color: #2d6700;
         }
         .description {
             font-size: 24px;
             opacity: 0.9;
-            max-width: 800px;
+            max-width: 500px;
+            line-height: 1.4;
         }
-        .pickle-jar {
-            position: absolute;
-            width: 150px;
-            height: 150px;
+        .right-content {
+            flex: 0 0 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-container {
+            width: 250px;
+            height: 250px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            border: 5px solid #ecab13;
+        }
+        .logo-placeholder {
+            width: 180px;
+            height: 180px;
             background: #2d6700;
-            border-radius: 20px;
-            opacity: 0.1;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+            font-weight: bold;
         }
-        .jar1 { top: 50px; left: 100px; transform: rotate(15deg); }
-        .jar2 { bottom: 100px; right: 150px; transform: rotate(-20deg); }
-        .jar3 { top: 200px; right: 50px; transform: rotate(10deg); width: 100px; height: 100px; }
     </style>
 </head>
 <body>
-    <div class="pickle-jar jar1"></div>
-    <div class="pickle-jar jar2"></div>
-    <div class="pickle-jar jar3"></div>
-    
-    <div class="container">
-        <div class="logo">Janiitra</div>
+    <div class="left-content">
+        <div class="logo-text">Janiitra</div>
         <div class="tagline">Authentic Indian Pickles</div>
         <div class="description">Handcrafted with love, traditional flavours that dance on your tongue</div>
+    </div>
+    
+    <div class="right-content">
+        <div class="logo-container">
+            <div class="logo-placeholder">LOGO</div>
+        </div>
     </div>
 </body>
 </html>
