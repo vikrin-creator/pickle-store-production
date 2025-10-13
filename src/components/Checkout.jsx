@@ -160,8 +160,8 @@ const Checkout = ({ onBack, onOrderComplete }) => {
         tax: tax,
         shipping: shipping,
         total: finalTotal,
-        paymentMethod: 'cod', // Cash on Delivery for now
-        paymentStatus: 'pending',
+        paymentMethod: formData.paymentMethod, // Use selected payment method
+        paymentStatus: formData.paymentMethod === 'cod' ? 'pending' : 'pending',
         status: 'confirmed'
       };
 
@@ -203,7 +203,13 @@ const Checkout = ({ onBack, onOrderComplete }) => {
   };
 
   const validateForm = () => {
-    const requiredFields = ['email', 'firstName', 'lastName', 'address', 'city', 'state', 'zipCode', 'cardNumber', 'expiryDate', 'cvv', 'cardName'];
+    // Base required fields for all orders
+    const baseRequiredFields = ['email', 'firstName', 'lastName', 'address', 'city', 'state', 'zipCode'];
+    
+    // Add card fields only if payment method is online
+    const requiredFields = formData.paymentMethod === 'online' 
+      ? [...baseRequiredFields, 'cardNumber', 'expiryDate', 'cvv', 'cardName']
+      : baseRequiredFields;
     
     for (let field of requiredFields) {
       if (!formData[field].trim()) {
@@ -217,6 +223,27 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     if (!emailRegex.test(formData.email)) {
       alert('Please enter a valid email address');
       return false;
+    }
+    
+    // Validate card details only for online payment
+    if (formData.paymentMethod === 'online') {
+      // Basic card number validation (should be 16 digits)
+      if (!/^\d{16}$/.test(formData.cardNumber.replace(/\s/g, ''))) {
+        alert('Please enter a valid 16-digit card number');
+        return false;
+      }
+      
+      // Basic expiry date validation (MM/YY format)
+      if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(formData.expiryDate)) {
+        alert('Please enter expiry date in MM/YY format');
+        return false;
+      }
+      
+      // Basic CVV validation (3-4 digits)
+      if (!/^\d{3,4}$/.test(formData.cvv)) {
+        alert('Please enter a valid CVV (3-4 digits)');
+        return false;
+      }
     }
     
     return true;
