@@ -631,7 +631,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Copyright */}
         <div className="mt-4 sm:mt-6 pb-8 sm:pb-10 text-xs sm:text-sm text-[#221c10]/60">
-          © 2024 Pickle Paradise. All rights reserved.
+          © 2024 janiitra Pickles. All rights reserved.
         </div>
       </footer>
 
