@@ -110,38 +110,20 @@ class AdminService {
   // Dashboard Stats API
   static async getDashboardStats() {
     try {
-      // Fetch real data from multiple endpoints
-      const [products, orders] = await Promise.all([
-        this.getAllProducts(),
-        this.getAllOrders()
-      ]);
-
-      // Calculate real stats from data
-      const totalOrders = orders.length;
-      const pendingOrders = orders.filter(o => o.status === 'pending').length;
-      const deliveredOrders = orders.filter(o => o.status === 'delivered').length;
-      const totalSales = orders
-        .filter(o => o.status === 'delivered')
-        .reduce((sum, order) => sum + order.total, 0);
+      // Fetch comprehensive stats from backend
+      const response = await fetch(`${API_BASE_URL}/admin/stats`);
+      if (!response.ok) throw new Error('Failed to fetch dashboard stats');
+      const stats = await response.json();
       
-      const lowStockProducts = products.filter(p => p.stock < 10).length;
-      
-      // Calculate date-based stats
-      const thisMonth = new Date();
-      thisMonth.setDate(1);
-      const newCustomers = orders
-        .filter(o => new Date(o.createdAt) >= thisMonth)
-        .map(o => o.customerEmail)
-        .filter((email, index, arr) => arr.indexOf(email) === index).length;
-
+      // Return backend stats directly with proper mapping
       return {
-        totalSales: Math.round(totalSales),
-        totalOrders,
-        pendingOrders,
-        deliveredOrders,
-        lowStockProducts,
-        newCustomers,
-        returningCustomers: totalOrders - newCustomers
+        totalSales: Math.round(stats.totalRevenue || 0),
+        totalOrders: stats.totalOrders || 0,
+        pendingOrders: stats.pendingOrders || 0,
+        deliveredOrders: stats.deliveredOrders || 0,
+        lowStockProducts: stats.lowStockProducts || 0,
+        newCustomers: stats.newCustomersThisMonth || 0,
+        returningCustomers: stats.returningCustomers || 0
       };
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
@@ -161,32 +143,9 @@ class AdminService {
   // Customer Management API
   static async getAllCustomers() {
     try {
-      // Extract unique customers from orders
-      const orders = await this.getAllOrders();
-      const customersMap = new Map();
-
-      orders.forEach(order => {
-        const customerKey = order.customerEmail;
-        if (!customersMap.has(customerKey)) {
-          customersMap.set(customerKey, {
-            name: `${order.shippingAddress?.firstName || ''} ${order.shippingAddress?.lastName || ''}`.trim(),
-            email: order.customerEmail,
-            orders: 1,
-            totalSpent: order.total,
-            lastOrder: order.createdAt,
-            status: order.total > 2000 ? 'VIP' : order.total > 1000 ? 'Regular' : 'Active'
-          });
-        } else {
-          const customer = customersMap.get(customerKey);
-          customer.orders += 1;
-          customer.totalSpent += order.total;
-          if (new Date(order.createdAt) > new Date(customer.lastOrder)) {
-            customer.lastOrder = order.createdAt;
-          }
-        }
-      });
-
-      return Array.from(customersMap.values());
+      const response = await fetch(`${API_BASE_URL}/admin/users`);
+      if (!response.ok) throw new Error('Failed to fetch customers');
+      return await response.json();
     } catch (error) {
       console.error('Error fetching customers:', error);
       return [];
@@ -199,14 +158,17 @@ class AdminService {
       const orders = await this.getAllOrders();
       
       return orders.map(order => ({
-        id: `TXN${order.orderNumber?.slice(-3) || Math.random().toString(36).substr(2, 3)}`,
+        _id: order._id,
+        transactionId: `TXN${order.orderNumber?.slice(-3) || Math.random().toString(36).substr(2, 3)}`,
         orderId: order._id,
-        customer: `${order.shippingAddress?.firstName || ''} ${order.shippingAddress?.lastName || ''}`.trim() || 'Anonymous',
-        amount: order.total,
+        customerName: order.customerInfo?.name || 'Anonymous',
+        customer: order.customerInfo?.name || 'Anonymous',
+        amount: order.total || 0,
         method: order.paymentMethod === 'cod' ? 'COD' : 'Online',
         status: order.paymentStatus === 'paid' ? 'Success' : 
                 order.paymentMethod === 'cod' ? 'Pending' : 'Failed',
-        date: new Date(order.createdAt).toLocaleString()
+        date: new Date(order.createdAt).toLocaleString(),
+        createdAt: order.createdAt
       }));
     } catch (error) {
       console.error('Error fetching transactions:', error);

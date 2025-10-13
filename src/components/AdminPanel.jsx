@@ -24,9 +24,34 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [orders, setOrders] = useState([]);
   const [orderLoading, setOrderLoading] = useState(false);
   
+
+  
   // Customers and transactions state
   const [customers, setCustomers] = useState([]);
   const [transactions, setTransactions] = useState([]);
+  
+  // Payment statistics state
+  const [paymentStats, setPaymentStats] = useState({
+    totalRevenue: 0,
+    onlinePayments: 0,
+    codOrders: 0,
+    failedPayments: 0
+  });
+
+  // Customer statistics state
+  const [customerStats, setCustomerStats] = useState({
+    totalCustomers: 0,
+    newThisMonth: 0,
+    activeCustomers: 0,
+    avgOrderValue: 0
+  });
+
+  // Shipping statistics state
+  const [shippingStats, setShippingStats] = useState({
+    ordersInTransit: 0,
+    deliveredToday: 0,
+    avgDeliveryTime: '0 days'
+  });
   
   // Product filtering state
   const [productFilter, setProductFilter] = useState('all'); // 'all', 'cod-enabled', 'cod-disabled'
@@ -117,6 +142,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       setOrderLoading(true);
       const data = await AdminService.getAllOrders();
       setOrders(data || []);
+      
+      // Calculate shipping statistics from orders
+      calculateShippingStats(data || []);
     } catch (error) {
       console.error('Error loading orders:', error);
       setOrders([]);
@@ -129,20 +157,110 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     try {
       const data = await AdminService.getAllCustomers();
       setCustomers(data || []);
+      
+      // Calculate customer statistics
+      calculateCustomerStats(data || []);
     } catch (error) {
       console.error('Error loading customers:', error);
       setCustomers([]);
     }
   };
 
+  const calculateCustomerStats = (customerData) => {
+    const totalCustomers = customerData.length;
+    
+    const thisMonth = new Date();
+    thisMonth.setDate(1);
+    const newThisMonth = customerData.filter(c => 
+      new Date(c.lastOrder) >= thisMonth
+    ).length;
+    
+    const activeCustomers = customerData.filter(c => 
+      c.orders > 0 && c.totalSpent > 0
+    ).length;
+    
+    const totalRevenue = customerData.reduce((sum, c) => sum + (c.totalSpent || 0), 0);
+    const avgOrderValue = totalCustomers > 0 ? Math.round(totalRevenue / totalCustomers) : 0;
+
+    setCustomerStats({
+      totalCustomers,
+      newThisMonth,
+      activeCustomers,
+      avgOrderValue
+    });
+  };
+
   const loadTransactions = async () => {
     try {
       const data = await AdminService.getTransactions();
       setTransactions(data || []);
+      
+      // Calculate payment statistics from transactions/orders
+      calculatePaymentStats(data || []);
     } catch (error) {
       console.error('Error loading transactions:', error);
       setTransactions([]);
     }
+  };
+
+  const calculatePaymentStats = (transactionData) => {
+    const totalRevenue = transactionData
+      .filter(t => t.status === 'Success' || (t.method === 'COD' && t.status === 'Pending'))
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
+    
+    const onlinePayments = transactionData
+      .filter(t => t.method !== 'COD' && t.status === 'Success')
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
+    
+    const codOrders = transactionData
+      .filter(t => t.method === 'COD')
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
+    
+    const failedPayments = transactionData
+      .filter(t => t.status === 'Failed')
+      .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+    setPaymentStats({
+      totalRevenue,
+      onlinePayments,
+      codOrders,
+      failedPayments
+    });
+  };
+
+  const calculateShippingStats = (orderData) => {
+    const ordersInTransit = orderData.filter(o => 
+      o.status === 'shipped' || o.status === 'processing'
+    ).length;
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deliveredToday = orderData.filter(o => {
+      if (o.status !== 'delivered') return false;
+      const orderDate = new Date(o.createdAt);
+      orderDate.setHours(0, 0, 0, 0);
+      return orderDate.getTime() === today.getTime();
+    }).length;
+    
+    // Calculate average delivery time for delivered orders
+    const deliveredOrders = orderData.filter(o => o.status === 'delivered');
+    let avgDeliveryDays = 0;
+    if (deliveredOrders.length > 0) {
+      const totalDays = deliveredOrders.reduce((sum, order) => {
+        const orderDate = new Date(order.createdAt);
+        const deliveryDate = new Date(order.updatedAt); // Assume updatedAt is delivery date
+        const diffTime = Math.abs(deliveryDate - orderDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return sum + diffDays;
+      }, 0);
+      avgDeliveryDays = Math.round(totalDays / deliveredOrders.length);
+    }
+
+    setShippingStats({
+      ordersInTransit,
+      deliveredToday,
+      avgDeliveryTime: `${avgDeliveryDays} days`
+    });
   };
 
   const loadHomepageSections = async () => {
@@ -637,7 +755,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-green-600">₹{product.weights?.[0]?.price || 150}</p>
-                      <p className="text-sm text-gray-500">Sales: {Math.floor(Math.random() * 200) + 50}</p>
+                      <p className="text-sm text-gray-500">Stock: {product.stock || 'N/A'}</p>
                     </div>
                   </div>
                 ))}
@@ -1094,14 +1212,26 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {orders.map((order) => (
-                      <tr key={order._id || order.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order._id || order.orderNumber || 'N/A'}</td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customerDetails?.name || order.customer || 'N/A'}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                          {order.products?.map(p => `${p.name} x${p.quantity}`).join(', ') || order.items || 'N/A'}
+                    {orderLoading ? (
+                      <tr>
+                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                          Loading orders...
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{order.totalAmount || order.amount || 0}</td>
+                      </tr>
+                    ) : orders.length === 0 ? (
+                      <tr>
+                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                          No orders found
+                        </td>
+                      </tr>
+                    ) : orders.map((order) => (
+                      <tr key={order._id || order.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.orderNumber || order._id || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customerInfo?.name || order.customer || 'N/A'}</td>
+                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                          {order.items?.map(item => `${item.name} x${item.quantity}`).join(', ') || 'N/A'}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{order.total || order.totalAmount || order.amount || 0}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -1138,23 +1268,32 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">Total Revenue</h3>
-                <p className="text-2xl font-bold text-green-600">₹1,25,400</p>
-                <p className="text-sm text-gray-500">+12% from last month</p>
+                <p className="text-2xl font-bold text-green-600">₹{paymentStats.totalRevenue.toLocaleString()}</p>
+                <p className="text-sm text-gray-500">From {transactions.length} transactions</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">Online Payments</h3>
-                <p className="text-2xl font-bold text-blue-600">₹89,200</p>
-                <p className="text-sm text-gray-500">71% of total</p>
+                <p className="text-2xl font-bold text-blue-600">₹{paymentStats.onlinePayments.toLocaleString()}</p>
+                <p className="text-sm text-gray-500">
+                  {paymentStats.totalRevenue > 0 ? 
+                    Math.round((paymentStats.onlinePayments / paymentStats.totalRevenue) * 100) : 0}% of total
+                </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">COD Orders</h3>
-                <p className="text-2xl font-bold text-orange-600">₹36,200</p>
-                <p className="text-sm text-gray-500">29% of total</p>
+                <p className="text-2xl font-bold text-orange-600">₹{paymentStats.codOrders.toLocaleString()}</p>
+                <p className="text-sm text-gray-500">
+                  {paymentStats.totalRevenue > 0 ? 
+                    Math.round((paymentStats.codOrders / paymentStats.totalRevenue) * 100) : 0}% of total
+                </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">Failed Payments</h3>
-                <p className="text-2xl font-bold text-red-600">₹4,500</p>
-                <p className="text-sm text-gray-500">3.6% failure rate</p>
+                <p className="text-2xl font-bold text-red-600">₹{paymentStats.failedPayments.toLocaleString()}</p>
+                <p className="text-sm text-gray-500">
+                  {transactions.length > 0 ? 
+                    Math.round((transactions.filter(t => t.status === 'Failed').length / transactions.length) * 100) : 0}% failure rate
+                </p>
               </div>
             </div>
 
@@ -1212,15 +1351,15 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">Orders in Transit</h3>
-                <p className="text-2xl font-bold text-blue-600">23</p>
+                <p className="text-2xl font-bold text-blue-600">{shippingStats.ordersInTransit}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">Delivered Today</h3>
-                <p className="text-2xl font-bold text-green-600">8</p>
+                <p className="text-2xl font-bold text-green-600">{shippingStats.deliveredToday}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">Avg. Delivery Time</h3>
-                <p className="text-2xl font-bold text-orange-600">2.3 days</p>
+                <p className="text-2xl font-bold text-orange-600">{shippingStats.avgDeliveryTime}</p>
               </div>
             </div>
 
@@ -1276,19 +1415,19 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">Total Customers</h3>
-                <p className="text-2xl font-bold text-blue-600">1,250</p>
+                <p className="text-2xl font-bold text-blue-600">{customerStats.totalCustomers.toLocaleString()}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">New This Month</h3>
-                <p className="text-2xl font-bold text-green-600">67</p>
+                <p className="text-2xl font-bold text-green-600">{customerStats.newThisMonth}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">Active Customers</h3>
-                <p className="text-2xl font-bold text-orange-600">892</p>
+                <p className="text-2xl font-bold text-orange-600">{customerStats.activeCustomers}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">Avg. Order Value</h3>
-                <p className="text-2xl font-bold text-purple-600">₹485</p>
+                <p className="text-2xl font-bold text-purple-600">₹{customerStats.avgOrderValue}</p>
               </div>
             </div>
 
@@ -1317,7 +1456,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                         <td className="px-6 py-4 text-sm text-gray-900">{customer.orderCount || customer.orders || 0}</td>
                         <td className="px-6 py-4 text-sm text-gray-900">₹{(customer.totalSpent || customer.spent || 0).toLocaleString()}</td>
                         <td className="px-6 py-4 text-sm text-gray-500">
-                          {customer.lastOrderDate ? new Date(customer.lastOrderDate).toLocaleDateString() : customer.lastOrder || 'N/A'}
+                          {customer.lastOrder ? new Date(customer.lastOrder).toLocaleDateString() : 'N/A'}
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
