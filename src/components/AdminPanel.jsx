@@ -640,7 +640,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       {/* Top Header - Fixed */}
       <header className="bg-white shadow-sm border-b border-gray-200 px-4 lg:px-8 py-4 z-50 fixed top-0 left-0 right-0">
         <div className="flex justify-between items-center">
-          {/* Left side - Logo, Mobile menu and Title */}
+          {/* Left side - Logo and Mobile menu */}
           <div className="flex items-center space-x-4">
             <button 
               className="lg:hidden p-2 rounded-lg hover:bg-gray-100"
@@ -655,9 +655,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               alt="Janiitra Pickles"
               className="h-12 w-12 lg:h-14 lg:w-14 rounded-lg bg-white p-1 shadow-md"
             />
-            <div>
-              <p className="text-sm lg:text-base text-gray-500 capitalize">{activeTab === 'dashboard' ? 'Admin Dashboard' : `${activeTab} Management`}</p>
-            </div>
           </div>
 
           {/* Right side - Actions and Navigation */}
