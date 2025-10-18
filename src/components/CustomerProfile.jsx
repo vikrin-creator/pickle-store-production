@@ -42,6 +42,7 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   // Orders state
   const [orders, setOrders] = useState([]);
   const [orderLoading, setOrderLoading] = useState(false);
+  const [orderFilter, setOrderFilter] = useState('all'); // 'all', 'confirmed', 'delivered', 'pending'
 
   useEffect(() => {
     const initializeData = async () => {
@@ -362,6 +363,33 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
     return `₹${parseFloat(price || 0).toFixed(2)}`;
   };
 
+  const getFilteredOrders = () => {
+    if (orderFilter === 'all') return orders;
+    return orders.filter(order => {
+      const status = order.status.toLowerCase();
+      if (orderFilter === 'delivered') {
+        return status === 'delivered';
+      } else if (orderFilter === 'confirmed') {
+        return status === 'confirmed' || status === 'processing' || status === 'pending';
+      } else if (orderFilter === 'shipped') {
+        return status === 'shipped';
+      }
+      return status === orderFilter;
+    });
+  };
+
+  const getOrderStatusText = (status) => {
+    const statusMap = {
+      'pending': 'Pending',
+      'confirmed': 'Confirmed',
+      'processing': 'Processing', 
+      'shipped': 'Shipped',
+      'delivered': 'Delivered',
+      'cancelled': 'Cancelled'
+    };
+    return statusMap[status.toLowerCase()] || status;
+  };
+
   if (loading) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -487,14 +515,39 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
             {activeTab === 'orders' && (
               <div>
                 <h3 className="text-xl font-semibold mb-4">My Orders</h3>
+                
+                {/* Order Status Filter Tabs */}
+                <div className="mb-6">
+                  <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+                    {[
+                      { key: 'all', label: 'All Orders' },
+                      { key: 'confirmed', label: 'Active' },
+                      { key: 'delivered', label: 'Delivered' },
+                      { key: 'shipped', label: 'Shipped' }
+                    ].map((filter) => (
+                      <button
+                        key={filter.key}
+                        onClick={() => setOrderFilter(filter.key)}
+                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                          orderFilter === filter.key
+                            ? 'bg-white text-green-600 shadow-sm'
+                            : 'text-gray-600 hover:text-gray-900'
+                        }`}
+                      >
+                        {filter.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 {orderLoading ? (
                   <div className="text-center py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-500 mx-auto"></div>
                     <p className="mt-2 text-gray-600">Loading orders...</p>
                   </div>
-                ) : orders.length > 0 ? (
+                ) : getFilteredOrders().length > 0 ? (
                   <div className="space-y-4">
-                    {orders.map((order) => (
+                    {getFilteredOrders().map((order) => (
                       <div key={order.id} className="border rounded-lg p-4 bg-gray-50">
                         <div className="flex justify-between items-start mb-2">
                           <div>
@@ -502,11 +555,13 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                             <p className="text-sm text-gray-600">{formatDate(order.date)}</p>
                           </div>
                           <span className={`px-3 py-1 rounded-full text-sm ${
-                            order.status === 'completed' ? 'bg-green-100 text-green-800' :
-                            order.status === 'processing' ? 'bg-blue-100 text-blue-800' :
+                            order.status === 'delivered' ? 'bg-green-100 text-green-800' :
+                            order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
+                            order.status === 'confirmed' ? 'bg-orange-100 text-orange-800' :
+                            order.status === 'processing' ? 'bg-purple-100 text-purple-800' :
                             'bg-yellow-100 text-yellow-800'
                           }`}>
-                            {order.status}
+                            {getOrderStatusText(order.status)}
                           </span>
                         </div>
                         <div className="space-y-1">
@@ -533,7 +588,9 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-gray-600 mb-4">No orders found</p>
+                    <p className="text-gray-600 mb-4">
+                      {orderFilter === 'all' ? 'No orders found' : `No ${orderFilter} orders found`}
+                    </p>
                     <button
                       onClick={onNavigateHome}
                       className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
@@ -617,8 +674,8 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
 
                 {/* Add/Edit Address Form */}
                 {showAddAddress && (
-                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-60">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
+                  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-60 p-4 overflow-y-auto">
+                    <div className="bg-white rounded-lg p-6 w-full max-w-md my-8 max-h-screen overflow-y-auto">
                       <h4 className="text-lg font-semibold mb-4">
                         {editingAddress ? 'Edit Address' : 'Add New Address'}
                       </h4>
@@ -735,7 +792,7 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                             <span className="text-sm text-gray-700">Set as default address</span>
                           </label>
                         </div>
-                        <div className="flex space-x-4">
+                        <div className="flex space-x-4 pt-4">
                           <button
                             type="submit"
                             className="flex-1 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 transition-colors"
