@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import authService from '../services/authService';
 import HomepageService from '../services/homepageService';
-import CategoryService from '../services/categoryService';
 import CustomerAuth from './CustomerAuth';
 import CustomerProfile from './CustomerProfile';
 
@@ -23,15 +22,12 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     customerFavorites: { products: [] }
   });
   const [homepageLoading, setHomepageLoading] = useState(true);
-  const [featuredCategories, setFeaturedCategories] = useState([]);
-  const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   // Check authentication status on component mount
   useEffect(() => {
     setIsAuthenticated(authService.isAuthenticated());
     setUser(authService.getCurrentUser());
     loadHomepageData();
-    loadFeaturedCategories();
   }, []);
 
   // Load homepage data from API
@@ -116,75 +112,6 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
       });
     } finally {
       setHomepageLoading(false);
-    }
-  };
-
-  // Load featured categories for the Featured Pickles section
-  const loadFeaturedCategories = async () => {
-    try {
-      setCategoriesLoading(true);
-      
-      // Check if running on localhost
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      
-      if (isLocalhost) {
-        // Use fallback categories for localhost development
-        setTimeout(() => {
-          setFeaturedCategories([
-            {
-              _id: '1',
-              title: '🥒 Pickles (Veg & Non-Veg)',
-              description: 'The heart of Janiitra – tangy, spicy, and full of flavor, prepared without preservatives for an authentic homemade experience.',
-              category: 'Pickles',
-              emoji: '🥒',
-              order: 1,
-              image: '/assets/MixedVegetablePickle.png',
-              isActive: true
-            },
-            {
-              _id: '2',
-              title: '🌶 Spices',
-              description: 'Pure Mirchi Powder and Haldi to enhance the flavor and aroma of your daily cooking.',
-              category: 'Spices',
-              emoji: '🌶',
-              order: 2,
-              image: '/assets/Neemjar.png',
-              isActive: true
-            },
-            {
-              _id: '3',
-              title: '🍃 Podi Varieties',
-              description: 'Quick, ready-to-mix powders like Curry Leaf Podi and Kandi Podi – simple, healthy, and tasty.',
-              category: 'Podi',
-              emoji: '🍃',
-              order: 3,
-              image: '/assets/MangoJar.png',
-              isActive: true
-            },
-            {
-              _id: '4',
-              title: '🐟 Dry Seafood',
-              description: 'Sun-dried prawns and fish sourced from the Godavari region, known for their superior quality and nutrition.',
-              category: 'Seafood',
-              emoji: '🐟',
-              order: 4,
-              image: '/assets/MixedVegetablePickle.png',
-              isActive: true
-            }
-          ]);
-          setCategoriesLoading(false);
-        }, 500);
-        return;
-      }
-
-      const categoriesData = await CategoryService.getAllCategories();
-      setFeaturedCategories(categoriesData || []);
-    } catch (error) {
-      console.error('Error loading featured categories:', error);
-      // Use fallback categories
-      setFeaturedCategories([]);
-    } finally {
-      setCategoriesLoading(false);
     }
   };
 
@@ -486,44 +413,92 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             </div>
           )}
 
-          {/* Featured Pickles - Dynamic Categories from Admin Panel */}
-          {!categoriesLoading && featuredCategories.length > 0 && (
+          {/* Dynamic Featured Products */}
+          {!homepageLoading && homepageData.featured?.products?.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
-              {featuredCategories.map((category, index) => (
-                <button 
-                  key={category._id || category.id || index}
-                  onClick={() => handleCategoryNavigate(category.category === 'Custom' ? category.customCategoryName : category.category)}
-                  className={`h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
-                  style={{ animationDelay: `${index * 0.2}s` }}
-                >
-                  <div 
-                    className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
-                    style={{ backgroundImage: `url('${category.image || '/placeholder-category.jpg'}')` }}
-                  ></div>
-                  <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold line-clamp-2">{category.title}</h3>
-                      <p className="mt-2 text-sm sm:text-base text-[#221c10]/70 line-clamp-3">{category.description}</p>
+              {homepageData.featured.products.map((homepageProduct, index) => {
+                const product = homepageProduct.productId;
+                return (
+                  <button 
+                    key={product._id || product.id || index}
+                    onClick={() => {
+                      if (window.navigateToProductDetail) {
+                        window.navigateToProductDetail(product);
+                      }
+                    }}
+                    className={`h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
+                    style={{ animationDelay: `${index * 0.2}s` }}
+                  >
+                    <div 
+                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
+                      style={{ backgroundImage: `url('${homepageProduct.customImage || product.image || '/placeholder-pickle.jpg'}')` }}
+                    ></div>
+                    <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold line-clamp-2">
+                          {homepageProduct.customTitle || product.name}
+                        </h3>
+                        <p className="mt-2 text-sm sm:text-base text-[#221c10]/70 line-clamp-3">
+                          {homepageProduct.customDescription || product.description}
+                        </p>
+                      </div>
+                      <div className="mt-3 text-lg font-bold text-[#ecab13]">
+                        ₹{product.price}
+                      </div>
                     </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                );
+              })}
             </div>
           )}
 
-          {/* Loading State for Featured Categories */}
-          {categoriesLoading && (
-            <div className="flex justify-center items-center py-12">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ecab13]"></div>
-              <span className="ml-3 text-gray-600">Loading featured categories...</span>
-            </div>
-          )}
-
-          {/* Fallback: Empty State */}
-          {!categoriesLoading && featuredCategories.length === 0 && (
-            <div className="text-center py-12">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Featured Categories Coming Soon</h3>
-              <p className="text-gray-500">Categories are being set up through the admin panel. Check back soon!</p>
+          {/* Fallback to static categories if no featured products */}
+          {!homepageLoading && (!homepageData.featured?.products || homepageData.featured.products.length === 0) && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
+              {[
+                {
+                  title: "🥒 Pickles (Veg & Non-Veg)",
+                  description: "The heart of Janiitra – tangy, spicy, and full of flavor, prepared without preservatives for an authentic homemade experience.",
+                  image: "/assets/MixedVegetablePickle.png",
+                  category: "Pickles"
+                },
+                {
+                  title: "🌶 Spices",
+                  description: "Pure Mirchi Powder and Haldi to enhance the flavor and aroma of your daily cooking.",
+                  image: "/assets/Neemjar.png",
+                  category: "Spices"
+                },
+                {
+                  title: "🍃 Podi Varieties",
+                  description: "Quick, ready-to-mix powders like Curry Leaf Podi and Kandi Podi – simple, healthy, and tasty.",
+                  image: "/assets/MangoJar.png",
+                  category: "Podi"
+                },
+                {
+                  title: "🐟 Dry Seafood",
+                  description: "Sun-dried prawns and fish sourced from the Godavari region, known for their superior quality and nutrition.",
+                  image: "/assets/MixedVegetablePickle.png",
+                  category: "Seafood"
+                }
+              ].map((item, index) => (
+                  <button 
+                    key={index}
+                    onClick={() => handleCategoryNavigate(item.category)}
+                    className={`h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
+                    style={{ animationDelay: `${index * 0.2}s` }}
+                  >
+                    <div 
+                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
+                      style={{ backgroundImage: `url('${item.image}')` }}
+                    ></div>
+                    <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold line-clamp-2">{item.title}</h3>
+                        <p className="mt-2 text-sm sm:text-base text-[#221c10]/70 line-clamp-3">{item.description}</p>
+                      </div>
+                    </div>
+                  </button>
+                ))}
             </div>
           )}
         </section>
