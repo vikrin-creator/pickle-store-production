@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Footer from './Footer';
 import AdminService from '../services/adminService';
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
@@ -621,10 +620,18 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     });
   };
 
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex font-sans">
-      {/* Modern Sidebar Navigation */}
-      <div className="w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl relative">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+      {/* Main Content Area */}
+      <div className="flex flex-1">
+        {/* Modern Sidebar Navigation */}
+        <div className="w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl relative">
         <div className="p-6">
           <div className="flex items-center mb-8">
             <img
@@ -670,23 +677,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </nav>
         </div>
         
-        {/* Sidebar Footer */}
+        {/* Sidebar Footer - Brand */}
         <div className="absolute bottom-0 w-64 p-6 border-t border-white/10">
-          <div className="space-y-2">
-            <button
-              onClick={onLogout}
-              className="w-full flex items-center px-4 py-3 text-white hover:bg-red-500/20 rounded-xl transition-colors"
-            >
-              <span className="mr-3">🚪</span>
-              Logout
-            </button>
-            <button
-              onClick={onBackToHome}
-              className="w-full flex items-center px-4 py-3 text-white hover:bg-blue-500/20 rounded-xl transition-colors"
-            >
-              <span className="mr-3">🏠</span>
-              Back to Home
-            </button>
+          <div className="text-center text-white/70 text-sm">
+            <div className="font-semibold text-orange-400">Janiitra Pickles</div>
+            <div className="text-xs mt-1">Admin Dashboard</div>
           </div>
         </div>
       </div>
@@ -694,29 +689,52 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col">
         {/* Top Header */}
-        <header className="bg-white shadow-sm border-b border-gray-200 px-8 py-6">
+        <header className="bg-white shadow-sm border-b border-gray-200 px-8 py-4">
           <div className="flex justify-between items-center">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-800 capitalize">{activeTab}</h1>
-              <p className="text-gray-500 mt-1">Manage your pickle store efficiently</p>
+            {/* Left side - Logo and Title */}
+            <div className="flex items-center space-x-4">
+              <img
+                src="/assets/logo.png"
+                alt="Janiitra Pickles"
+                className="h-12 w-12 rounded-lg bg-white p-1 shadow-md"
+              />
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">Janiitra Pickles</h1>
+                <p className="text-sm text-gray-500 capitalize">{activeTab} Dashboard</p>
+              </div>
             </div>
+
+            {/* Right side - Actions and Navigation */}
             <div className="flex items-center space-x-4">
               {activeTab === 'products' && (
                 <button
                   onClick={() => setShowAddForm(true)}
-                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
+                  className="px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg flex items-center gap-2"
                 >
                   <span>➕</span>
                   Add Product
                 </button>
               )}
-              <div className="text-right">
-                <p className="text-sm text-gray-500">Welcome back</p>
-                <p className="font-semibold text-gray-800">Admin</p>
-              </div>
-              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-lg">A</span>
-              </div>
+              
+              <button
+                onClick={() => window.location.href = '/'}
+                className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 flex items-center gap-2 shadow-md"
+              >
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
+                </svg>
+                Home
+              </button>
+              
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 flex items-center gap-2 shadow-md"
+              >
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M16 17V14H9V10H16V7L21 12L16 17M14 2A2 2 0 0 1 16 4V6H14V4H5V20H14V18H16V20A2 2 0 0 1 14 22H5A2 2 0 0 1 3 20V4A2 2 0 0 1 5 2H14Z" />
+                </svg>
+                Logout
+              </button>
             </div>
           </div>
         </header>
@@ -1575,10 +1593,20 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         )}
 
         </main>
+        </div>
       </div>
       
-      {/* Footer */}
-      <Footer />
+      {/* Admin Footer */}
+      <footer className="bg-white border-t border-gray-200 px-8 py-4">
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            © 2025 Janiitra Pickles Admin Dashboard. All rights reserved.
+          </div>
+          <div className="text-sm text-gray-500">
+            Made with ❤️ for authentic Indian pickles
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
