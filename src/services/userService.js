@@ -10,6 +10,31 @@ class UserService {
     };
   }
 
+  // Get user profile
+  async getProfile() {
+    try {
+      const response = await fetch(`${API_URL}/api/auth/profile`, {
+        method: 'GET',
+        headers: this.getAuthHeaders()
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch profile');
+      }
+
+      return data;
+
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      return {
+        success: false,
+        message: error.message || 'Failed to fetch profile'
+      };
+    }
+  }
+
   // Update user profile
   async updateProfile(profileData) {
     try {

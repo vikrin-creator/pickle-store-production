@@ -29,25 +29,41 @@ class OrderService {
         throw new Error(`Failed to fetch orders: ${response.status}`);
       }
 
-      const orders = await response.json();
-      console.log('Orders fetched successfully:', orders);
+      const data = await response.json();
+      console.log('Orders API response:', data);
       
-      // Transform the orders to match the expected format
-      return orders.map(order => ({
-        id: order._id,
-        orderNumber: order.orderNumber,
-        date: order.createdAt,
-        status: order.status || 'ongoing',
-        items: order.items.map(item => ({
-          name: item.name,
-          quantity: item.quantity,
-          price: item.price,
-          weight: item.weight
-        })),
-        total: order.total,
-        deliveryAddress: this.formatDeliveryAddress(order.customerInfo),
-        customerInfo: order.customerInfo
-      }));
+      // Handle the backend response structure
+      if (data.success) {
+        const orders = data.orders || [];
+        
+        // Transform the orders to match the expected format
+        const transformedOrders = orders.map(order => ({
+          id: order._id,
+          orderNumber: order.orderNumber,
+          date: order.createdAt,
+          status: order.status || 'ongoing',
+          items: order.items.map(item => ({
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            weight: item.weight
+          })),
+          total: order.total,
+          deliveryAddress: this.formatDeliveryAddress(order.customerInfo),
+          customerInfo: order.customerInfo
+        }));
+
+        return {
+          success: true,
+          orders: transformedOrders
+        };
+      } else {
+        return {
+          success: false,
+          message: data.message || 'Failed to fetch orders',
+          orders: []
+        };
+      }
       
     } catch (error) {
       console.error('Error fetching user orders:', error);
