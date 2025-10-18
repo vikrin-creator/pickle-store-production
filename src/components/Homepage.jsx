@@ -23,7 +23,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     customerFavorites: { products: [] }
   });
   const [homepageLoading, setHomepageLoading] = useState(true);
-  const [categories, setCategories] = useState([]);
+  const [featuredCategories, setFeaturedCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
 
   // Check authentication status on component mount
@@ -31,7 +31,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     setIsAuthenticated(authService.isAuthenticated());
     setUser(authService.getCurrentUser());
     loadHomepageData();
-    loadCategories();
+    loadFeaturedCategories();
   }, []);
 
   // Load homepage data from API
@@ -119,8 +119,8 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     }
   };
 
-  // Load categories from API
-  const loadCategories = async () => {
+  // Load featured categories for the Featured Pickles section
+  const loadFeaturedCategories = async () => {
     try {
       setCategoriesLoading(true);
       
@@ -130,7 +130,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
       if (isLocalhost) {
         // Use fallback categories for localhost development
         setTimeout(() => {
-          setCategories([
+          setFeaturedCategories([
             {
               _id: '1',
               title: '🥒 Pickles (Veg & Non-Veg)',
@@ -178,11 +178,11 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
       }
 
       const categoriesData = await CategoryService.getAllCategories();
-      setCategories(categoriesData || []);
+      setFeaturedCategories(categoriesData || []);
     } catch (error) {
-      console.error('Error loading categories:', error);
+      console.error('Error loading featured categories:', error);
       // Use fallback categories
-      setCategories([]);
+      setFeaturedCategories([]);
     } finally {
       setCategoriesLoading(false);
     }
@@ -486,49 +486,10 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             </div>
           )}
 
-          {/* Dynamic Featured Products */}
-          {!homepageLoading && homepageData.featured?.products?.length > 0 && (
+          {/* Featured Pickles - Dynamic Categories from Admin Panel */}
+          {!categoriesLoading && featuredCategories.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
-              {homepageData.featured.products.map((homepageProduct, index) => {
-                const product = homepageProduct.productId;
-                return (
-                  <button 
-                    key={product._id || product.id || index}
-                    onClick={() => {
-                      if (window.navigateToProductDetail) {
-                        window.navigateToProductDetail(product);
-                      }
-                    }}
-                    className={`h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
-                    style={{ animationDelay: `${index * 0.2}s` }}
-                  >
-                    <div 
-                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
-                      style={{ backgroundImage: `url('${homepageProduct.customImage || product.image || '/placeholder-pickle.jpg'}')` }}
-                    ></div>
-                    <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-lg sm:text-xl font-bold line-clamp-2">
-                          {homepageProduct.customTitle || product.name}
-                        </h3>
-                        <p className="mt-2 text-sm sm:text-base text-[#221c10]/70 line-clamp-3">
-                          {homepageProduct.customDescription || product.description}
-                        </p>
-                      </div>
-                      <div className="mt-3 text-lg font-bold text-[#ecab13]">
-                        ₹{product.price}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          )}
-
-          {/* Dynamic Categories Section */}
-          {!categoriesLoading && categories.length > 0 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
-              {categories.map((category, index) => (
+              {featuredCategories.map((category, index) => (
                 <button 
                   key={category._id || category.id || index}
                   onClick={() => handleCategoryNavigate(category.category === 'Custom' ? category.customCategoryName : category.category)}
@@ -550,19 +511,19 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             </div>
           )}
 
-          {/* Categories Loading State */}
+          {/* Loading State for Featured Categories */}
           {categoriesLoading && (
             <div className="flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ecab13]"></div>
-              <span className="ml-3 text-gray-600">Loading categories...</span>
+              <span className="ml-3 text-gray-600">Loading featured categories...</span>
             </div>
           )}
 
-          {/* Fallback if no categories */}
-          {!categoriesLoading && categories.length === 0 && (!homepageData.featured?.products || homepageData.featured.products.length === 0) && (
+          {/* Fallback: Empty State */}
+          {!categoriesLoading && featuredCategories.length === 0 && (
             <div className="text-center py-12">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Categories Coming Soon</h3>
-              <p className="text-gray-500">Our admin team is setting up product categories. Check back soon!</p>
+              <h3 className="text-lg font-medium text-gray-900 mb-2">Featured Categories Coming Soon</h3>
+              <p className="text-gray-500">Categories are being set up through the admin panel. Check back soon!</p>
             </div>
           )}
         </section>
