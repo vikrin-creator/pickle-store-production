@@ -652,8 +652,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             </button>
             <img
               src="/assets/logo.png"
-              alt="Janiitra Pickles"
-              className="h-12 w-12 lg:h-14 lg:w-14 rounded-lg bg-white p-1 shadow-md"
+              alt="Janiitra - Authentic Indian Pickles Logo"
+              className="h-6 w-32 sm:h-7 sm:w-40 md:h-8 md:w-48 object-contain hover:scale-105 transition-transform duration-300 cursor-pointer"
+              onClick={() => window.location.href = '/'}
             />
           </div>
 
