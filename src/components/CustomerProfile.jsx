@@ -133,10 +133,28 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
       console.log('Addresses API result:', result);
       
       if (result.success) {
-        const formattedAddresses = result.addresses.map(addr => ({
+        let formattedAddresses = result.addresses.map(addr => ({
           ...addr,
           id: addr._id || addr.id
         }));
+        
+        // If no addresses found, automatically try to import from orders
+        if (formattedAddresses.length === 0) {
+          console.log('No addresses found, attempting to import from orders...');
+          const migrationResult = await autoMigrateAddresses();
+          if (migrationResult.success && migrationResult.addressesAdded > 0) {
+            // Reload addresses after migration
+            const updatedResult = await userService.getAddresses();
+            if (updatedResult.success) {
+              formattedAddresses = updatedResult.addresses.map(addr => ({
+                ...addr,
+                id: addr._id || addr.id
+              }));
+              console.log('Successfully imported', migrationResult.addressesAdded, 'addresses from orders');
+            }
+          }
+        }
+        
         setAddresses(formattedAddresses);
       } else {
         console.error('Failed to load addresses:', result.message);
@@ -300,9 +318,9 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
     }
   };
 
-  const handleMigrateAddresses = async () => {
+  const autoMigrateAddresses = async () => {
     try {
-      console.log('Migrating addresses from orders...');
+      console.log('Auto-migrating addresses from orders...');
       const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com'}/api/auth/migrate-addresses`, {
         method: 'POST',
         headers: {
@@ -312,25 +330,23 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
       });
 
       const result = await response.json();
+      console.log('Migration result:', result);
       
-      if (result.success) {
-        alert(`${result.message}\nAdded ${result.addressesAdded} new addresses.`);
-        // Refresh addresses list
-        await loadAddresses();
-      } else {
-        alert(result.message || 'Error migrating addresses. Please try again.');
-      }
+      return result;
     } catch (error) {
-      console.error('Error migrating addresses:', error);
-      alert('Error migrating addresses. Please try again.');
+      console.error('Error auto-migrating addresses:', error);
+      return { success: false, addressesAdded: 0 };
     }
   };
 
   const handleTabSwitch = (tab) => {
     setActiveTab(tab);
-    // Refresh data when switching to orders tab
+    // Refresh data when switching to specific tabs
     if (tab === 'orders' && user) {
       loadOrders();
+    } else if (tab === 'addresses') {
+      // Reload addresses when switching to addresses tab (includes auto-migration)
+      loadAddresses();
     }
   };
 
@@ -534,34 +550,26 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-xl font-semibold">My Addresses</h3>
-                  <div className="space-x-2">
-                    <button
-                      onClick={handleMigrateAddresses}
-                      className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
-                    >
-                      Import from Orders
-                    </button>
-                    <button
-                      onClick={() => {
-                        setEditingAddress(null);
-                        setAddressForm({
-                          label: '',
-                          firstName: '',
-                          lastName: '',
-                          phone: '',
-                          address: '',
-                          city: '',
-                          state: '',
-                          pincode: '',
-                          isDefault: false
-                        });
-                        setShowAddAddress(true);
-                      }}
-                      className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-                    >
-                      Add New Address
-                    </button>
-                  </div>
+                  <button
+                    onClick={() => {
+                      setEditingAddress(null);
+                      setAddressForm({
+                        label: '',
+                        firstName: '',
+                        lastName: '',
+                        phone: '',
+                        address: '',
+                        city: '',
+                        state: '',
+                        pincode: '',
+                        isDefault: false
+                      });
+                      setShowAddAddress(true);
+                    }}
+                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    Add New Address
+                  </button>
                 </div>
 
                 {addresses.length > 0 ? (
@@ -600,15 +608,9 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <p className="text-gray-600 mb-4">No addresses saved</p>
-                    <button
-                      onClick={handleMigrateAddresses}
-                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors mb-2"
-                    >
-                      Import Addresses from Orders
-                    </button>
+                    <p className="text-gray-600 mb-4">No addresses found</p>
                     <p className="text-sm text-gray-500">
-                      Click above to import addresses from your previous orders
+                      Addresses from your orders will appear here automatically
                     </p>
                   </div>
                 )}
