@@ -68,8 +68,11 @@ class OrderService {
     } catch (error) {
       console.error('Error fetching user orders:', error);
       
-      // Return empty array on error instead of throwing
-      return [];
+      return {
+        success: false,
+        message: error.message || 'Failed to fetch orders',
+        orders: []
+      };
     }
   }
 
