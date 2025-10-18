@@ -4,6 +4,7 @@ class OrderService {
   // Get authentication headers
   getAuthHeaders() {
     const token = localStorage.getItem('authToken');
+    console.log('OrderService using token:', token ? 'Token exists' : 'No token found');
     return {
       'Content-Type': 'application/json',
       'Authorization': token ? `Bearer ${token}` : ''

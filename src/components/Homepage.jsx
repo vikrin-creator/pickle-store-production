@@ -3,6 +3,7 @@ import authService from '../services/authService';
 import HomepageService from '../services/homepageService';
 import CustomerAuth from './CustomerAuth';
 import CustomerProfile from './CustomerProfile';
+import DebugAuth from './DebugAuth';
 
 const Homepage = ({ cartCount, onNavigateToCart }) => {
   // Helper for category navigation
@@ -706,6 +707,9 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
       
       {/* Debug info */}
       {console.log('Homepage render - showProfile:', showProfile, 'isAuthenticated:', isAuthenticated)}
+      
+      {/* Temporary debug component */}
+      <DebugAuth />
     </div>
   );
 };
