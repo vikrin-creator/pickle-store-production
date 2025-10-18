@@ -2177,34 +2177,25 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
 
-        {/* Categories Tab - Featured Pickles Categories (Same as Homepage) */}
+        {/* Categories Tab - Featured Pickles Categories */}
         {activeTab === 'categories' && (
           <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-800">🥒 Featured Pickles Categories</h2>
-              <div className="text-sm text-gray-600">
-                Manage categories displayed on homepage
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">🥒 Featured Pickles Categories</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Manage categories displayed on homepage ({categories.length} categories)
+                </p>
               </div>
-            </div>
-
-            {/* Category Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Total Categories</h3>
-                <p className="text-2xl font-bold text-blue-600">{categories.length}</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Active Categories</h3>
-                <p className="text-2xl font-bold text-green-600">{categories.filter(cat => cat.isActive).length}</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Database Stored</h3>
-                <p className="text-2xl font-bold text-orange-600">✓</p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Cloudinary Images</h3>
-                <p className="text-2xl font-bold text-purple-600">✓</p>
-              </div>
+              <button
+                onClick={() => setShowCategoryForm(true)}
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add New Category
+              </button>
             </div>
 
             {/* Categories Loading */}
@@ -2214,8 +2205,15 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 <p className="text-gray-600">Loading categories from database...</p>
               </div>
             ) : (
-              /* Featured Categories Grid (From Database) */
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              /* Featured Categories Grid (Auto-adjusting based on count) */
+              <div className={`grid gap-6 ${
+                categories.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
+                categories.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto' :
+                categories.length === 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' :
+                categories.length === 4 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4' :
+                categories.length === 5 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5' :
+                'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
+              }`}>
                 {categories
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
                   .map((category) => (
@@ -2263,7 +2261,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 mb-3">
                         <button
                           onClick={() => openCategoryEditModal(category)}
                           className="flex-1 bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
@@ -2282,6 +2280,19 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                         </button>
                       </div>
 
+                      {/* Delete Button */}
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() => handleDeleteCategory(category._id || category.id)}
+                          className="w-full bg-red-100 hover:bg-red-200 text-red-700 px-3 py-2 rounded-md text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          Remove Category
+                        </button>
+                      </div>
+
                       {/* Info */}
                       <div className="bg-gray-50 p-3 rounded-lg mt-3">
                         <p className="text-xs text-gray-600 text-center">
@@ -2293,30 +2304,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 ))}
               </div>
             )}
-
-            {/* Info Section */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-blue-800">Featured Categories Overview</h3>
-                  <p className="text-sm text-blue-700 mt-1">
-                    These are the exact same 4 categories that appear in the "Featured Pickles" section on your homepage. 
-                    They are currently displayed as static content with local images from the assets folder.
-                  </p>
-                  <ul className="text-sm text-blue-700 mt-2 list-disc list-inside">
-                    <li>Categories are displayed in the order shown above</li>
-                    <li>Images are loaded from the local assets folder</li>
-                    <li>Each category links to the products page with category filter</li>
-                    <li>Content matches exactly what customers see on the homepage</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
           </div>
         )}
 
