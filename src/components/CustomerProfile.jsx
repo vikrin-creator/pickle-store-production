@@ -107,15 +107,13 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   const loadOrders = async () => {
     setOrderLoading(true);
     try {
-      console.log('Loading orders for authenticated user');
-      console.log('Current user email:', user?.email);
-      console.log('Auth token user:', authService.getCurrentUser()?.email);
+      console.log('Loading orders for authenticated user email:', user?.email);
       
       const result = await orderService.getUserOrders();
       console.log('Orders API result:', result);
       
       if (result.success) {
-        console.log('Number of orders found:', result.orders.length);
+        console.log('Orders found:', result.orders.length);
         setOrders(result.orders || []);
       } else {
         console.error('Failed to load orders:', result.message);
