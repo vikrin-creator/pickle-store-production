@@ -138,7 +138,12 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   };
 
   const handleProfileClick = () => {
+    console.log('Profile clicked, current auth status:', isAuthenticated);
+    console.log('Current user:', user);
+    console.log('Current showProfile state:', showProfile);
+    alert('Profile button clicked! Auth: ' + isAuthenticated + ', User: ' + (user?.firstName || 'None'));
     setShowProfile(true);
+    console.log('Profile state set to true');
   };
 
   const handleProfileClose = () => {
@@ -685,16 +690,22 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         />
       )}
 
-      {/* Customer Profile */}
+      {/* Customer Profile Modal */}
       {showProfile && (
-        <CustomerProfile 
-          onClose={handleProfileClose}
-          onNavigateHome={() => {
-            setShowProfile(false);
-            // Could add any additional navigation logic here
-          }}
-        />
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-50">
+          {console.log('Rendering CustomerProfile component')}
+          <CustomerProfile 
+            onClose={handleProfileClose}
+            onNavigateHome={() => {
+              setShowProfile(false);
+              // Could add any additional navigation logic here
+            }}
+          />
+        </div>
       )}
+      
+      {/* Debug info */}
+      {console.log('Homepage render - showProfile:', showProfile, 'isAuthenticated:', isAuthenticated)}
     </div>
   );
 };
