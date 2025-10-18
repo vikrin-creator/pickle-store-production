@@ -470,14 +470,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
           {/* Display categories from database or fallback to static */}
           {!homepageLoading && (!homepageData.featured?.products || homepageData.featured.products.length === 0) && (
-            <div className={`grid gap-6 sm:gap-8 max-w-7xl mx-auto ${
-              (categories.length > 0 ? categories : []).length === 1 ? 'grid-cols-1 max-w-md' :
-              (categories.length > 0 ? categories : []).length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-4xl' :
-              (categories.length > 0 ? categories : []).length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
-              (categories.length > 0 ? categories : []).length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
-              (categories.length > 0 ? categories : []).length === 5 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5' :
-              'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
-            }`}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
               {(categories.length > 0 ? categories : [
                 {
                   title: "🥒 Pickles (Veg & Non-Veg)",

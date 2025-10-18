@@ -2205,15 +2205,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 <p className="text-gray-600">Loading categories from database...</p>
               </div>
             ) : (
-              /* Featured Categories Grid (Auto-adjusting based on count) */
-              <div className={`grid gap-6 ${
-                categories.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
-                categories.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto' :
-                categories.length === 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' :
-                categories.length === 4 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4' :
-                categories.length === 5 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5' :
-                'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-6'
-              }`}>
+              /* Featured Categories Grid (4 columns max, wraps to new rows) */
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {categories
                   .sort((a, b) => (a.order || 0) - (b.order || 0))
                   .map((category) => (
@@ -2293,12 +2286,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                         </button>
                       </div>
 
-                      {/* Info */}
-                      <div className="bg-gray-50 p-3 rounded-lg mt-3">
-                        <p className="text-xs text-gray-600 text-center">
-                          Stored in database with Cloudinary images
-                        </p>
-                      </div>
                     </div>
                   </div>
                 ))}
