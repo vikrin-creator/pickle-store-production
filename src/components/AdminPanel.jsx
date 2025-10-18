@@ -657,7 +657,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             />
             <div>
               <h1 className="text-xl lg:text-2xl font-bold text-gray-800">Janiitra Pickles</h1>
-              <p className="text-xs lg:text-sm text-gray-500 capitalize">{activeTab} Dashboard</p>
+              <p className="text-xs lg:text-sm text-gray-500 capitalize">{activeTab === 'dashboard' ? 'Admin Dashboard' : `${activeTab} Management`}</p>
             </div>
           </div>
 
@@ -698,16 +698,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Middle Section with Sidebar and Content */}
       <div className="flex flex-1">
-        {/* Category Section (Sidebar Navigation) */}
+        {/* Category Section (Sidebar Navigation) - Fixed Position */}
         <div className={`w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed h-full z-40 lg:relative lg:translate-x-0 transition-transform duration-300 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        } lg:h-auto`}>
-        <div className="p-6">
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-white">Navigation</h2>
-            <p className="text-green-100 text-sm">Admin Categories</p>
-          </div>
-          
+        }`}>
+        <div className="p-6">          
           <nav className="space-y-3">
             {[
               { id: 'dashboard', label: 'Dashboard', icon: '📊' },
@@ -743,12 +738,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </nav>
         </div>
         
-        {/* Sidebar Footer - Brand */}
+        {/* Sidebar Footer */}
         <div className="absolute bottom-0 w-64 p-6 border-t border-white/10 lg:relative lg:bottom-auto lg:border-t-0 lg:mt-auto">
-          <div className="text-center text-white/70 text-sm">
-            <div className="font-semibold text-orange-400">Janiitra Pickles</div>
-            <div className="text-xs mt-1">Admin Dashboard</div>
-          </div>
         </div>
         </div>
 
