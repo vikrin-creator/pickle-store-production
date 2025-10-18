@@ -891,11 +891,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       {/* Middle Section with Sidebar and Content */}
       <div className="flex flex-1 pt-20">
         {/* Category Section (Sidebar Navigation) - Fixed Position */}
-        <div className={`w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed top-20 bottom-0 z-40 transition-transform duration-300 ${
+        <div className={`w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed top-20 bottom-0 z-40 transition-transform duration-300 flex flex-col ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}>
-        <div className="p-6">          
-          <nav className="space-y-3">
+        <div className="p-4 flex-1 overflow-y-auto">          
+          <nav className="space-y-2">
             {[
               { id: 'dashboard', label: 'Dashboard', icon: '📊' },
               { id: 'products', label: 'Products', icon: '🛍️' },
@@ -912,16 +912,16 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   setActiveTab(tab.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${
+                className={`w-full flex items-center px-3 py-2 rounded-xl transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-white/20 shadow-lg border-l-4 border-orange-400 transform scale-105'
                     : 'hover:bg-white/10 hover:transform hover:scale-102'
                 }`}
               >
-                <div className={`w-10 h-10 ${activeTab === tab.id ? 'bg-orange-400' : 'bg-white/20'} rounded-lg flex items-center justify-center mr-3 shadow-sm`}>
-                  <span className="text-lg">{tab.icon}</span>
+                <div className={`w-8 h-8 ${activeTab === tab.id ? 'bg-orange-400' : 'bg-white/20'} rounded-lg flex items-center justify-center mr-3 shadow-sm`}>
+                  <span className="text-sm">{tab.icon}</span>
                 </div>
-                <span className="text-white font-medium">{tab.label}</span>
+                <span className="text-white font-medium text-sm">{tab.label}</span>
                 {activeTab === tab.id && (
                   <div className="ml-auto">
                     <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
@@ -933,7 +933,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         </div>
         
         {/* Sidebar Footer */}
-        <div className="absolute bottom-0 w-64 p-6 border-t border-white/10">
+        <div className="p-4 border-t border-white/10 bg-green-800/50">
         </div>
         </div>
 
