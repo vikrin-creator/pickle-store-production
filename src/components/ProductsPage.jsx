@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Footer from './Footer';
+import CategoryService from '../services/categoryService';
 
 const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart, onNavigateHome, categoryFilter = 'all' }) => {
   const [products, setProducts] = useState([]);
@@ -11,6 +12,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
     category: categoryFilter === 'all' ? '' : categoryFilter
   });
   const [sortBy, setSortBy] = useState('Popularity');
+  const [categories, setCategories] = useState([]);
 
   // Default products data (fallback if localStorage is empty)
   const defaultProducts = [
@@ -169,6 +171,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   // Load products from API on component mount
   useEffect(() => {
     loadProducts();
+    loadCategories();
   }, []);
 
   // Update filters when categoryFilter prop changes
@@ -194,6 +197,24 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
     } catch (error) {
       console.error('ProductsPage: Error loading products from API:', error);
       setProducts(defaultProducts);
+    }
+  };
+
+  // Load categories from database
+  const loadCategories = async () => {
+    try {
+      const data = await CategoryService.getAllCategories();
+      console.log('ProductsPage: Loaded categories from API:', data.length);
+      setCategories(data || []);
+    } catch (error) {
+      console.error('ProductsPage: Error loading categories:', error);
+      // Fallback to static categories if API fails
+      setCategories([
+        { category: 'Pickles', emoji: '🥒' },
+        { category: 'Spices', emoji: '🌶' },
+        { category: 'Podi', emoji: '🍃' },
+        { category: 'Seafood', emoji: '🐟' }
+      ]);
     }
   };
 
@@ -421,21 +442,16 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
               <div className="filter-group mb-6">
                 <h3 className="filter-label text-base font-semibold mb-3 text-[#221c10]">Category</h3>
                 <div className="filter-options space-y-2">
-                  {[
-                    { name: 'Pickles'},
-                    { name: 'Seafood'},
-                    { name: 'Podi'},
-                    { name: 'Spices'}
-                  ].map((category) => (
-                    <label key={category.name} className="flex items-center cursor-pointer">
+                  {categories.map((category) => (
+                    <label key={category.category || category.name} className="flex items-center cursor-pointer">
                       <input 
                         type="radio" 
                         name="category-mobile" 
-                        checked={selectedFilters.category === category.name}
-                        onChange={() => handleFilterChange('category', category.name)}
+                        checked={selectedFilters.category === (category.category || category.name)}
+                        onChange={() => handleFilterChange('category', category.category || category.name)}
                         className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
                       />
-                      <span className="text-gray-700">{category.emoji} {category.name}</span>
+                      <span className="text-gray-700">{category.emoji} {category.category || category.name}</span>
                     </label>
                   ))}
                 </div>
@@ -494,21 +510,16 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
               <div className="filter-group mb-6">
                 <h3 className="filter-label text-lg font-semibold mb-3 text-[#221c10]">Category</h3>
                 <div className="filter-options space-y-2">
-                  {[
-                    { name: 'Pickles'},
-                    { name: 'Seafood'},
-                    { name: 'Podi' },
-                    { name: 'Spices'}
-                  ].map((category) => (
-                    <label key={category.name} className="flex items-center cursor-pointer">
+                  {categories.map((category) => (
+                    <label key={category.category || category.name} className="flex items-center cursor-pointer">
                       <input 
                         type="radio" 
                         name="category" 
-                        checked={selectedFilters.category === category.name}
-                        onChange={() => handleFilterChange('category', category.name)}
+                        checked={selectedFilters.category === (category.category || category.name)}
+                        onChange={() => handleFilterChange('category', category.category || category.name)}
                         className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
                       />
-                      <span className="text-gray-700">{category.emoji} {category.name}</span>
+                      <span className="text-gray-700">{category.emoji} {category.category || category.name}</span>
                     </label>
                   ))}
                 </div>
