@@ -300,6 +300,32 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
     }
   };
 
+  const handleMigrateAddresses = async () => {
+    try {
+      console.log('Migrating addresses from orders...');
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com'}/api/auth/migrate-addresses`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authService.getToken()}`
+        }
+      });
+
+      const result = await response.json();
+      
+      if (result.success) {
+        alert(`${result.message}\nAdded ${result.addressesAdded} new addresses.`);
+        // Refresh addresses list
+        await loadAddresses();
+      } else {
+        alert(result.message || 'Error migrating addresses. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error migrating addresses:', error);
+      alert('Error migrating addresses. Please try again.');
+    }
+  };
+
   const handleTabSwitch = (tab) => {
     setActiveTab(tab);
     // Refresh data when switching to orders tab
@@ -508,26 +534,34 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
               <div>
                 <div className="flex justify-between items-center mb-4">
                   <h3 className="text-xl font-semibold">My Addresses</h3>
-                  <button
-                    onClick={() => {
-                      setEditingAddress(null);
-                      setAddressForm({
-                        label: '',
-                        firstName: '',
-                        lastName: '',
-                        phone: '',
-                        address: '',
-                        city: '',
-                        state: '',
-                        pincode: '',
-                        isDefault: false
-                      });
-                      setShowAddAddress(true);
-                    }}
-                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
-                  >
-                    Add New Address
-                  </button>
+                  <div className="space-x-2">
+                    <button
+                      onClick={handleMigrateAddresses}
+                      className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm"
+                    >
+                      Import from Orders
+                    </button>
+                    <button
+                      onClick={() => {
+                        setEditingAddress(null);
+                        setAddressForm({
+                          label: '',
+                          firstName: '',
+                          lastName: '',
+                          phone: '',
+                          address: '',
+                          city: '',
+                          state: '',
+                          pincode: '',
+                          isDefault: false
+                        });
+                        setShowAddAddress(true);
+                      }}
+                      className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                    >
+                      Add New Address
+                    </button>
+                  </div>
                 </div>
 
                 {addresses.length > 0 ? (
@@ -567,6 +601,15 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                 ) : (
                   <div className="text-center py-8">
                     <p className="text-gray-600 mb-4">No addresses saved</p>
+                    <button
+                      onClick={handleMigrateAddresses}
+                      className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors mb-2"
+                    >
+                      Import Addresses from Orders
+                    </button>
+                    <p className="text-sm text-gray-500">
+                      Click above to import addresses from your previous orders
+                    </p>
                   </div>
                 )}
 
