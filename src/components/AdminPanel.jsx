@@ -696,7 +696,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       {/* Middle Section with Sidebar and Content */}
       <div className="flex flex-1 pt-20">
         {/* Category Section (Sidebar Navigation) - Fixed Position */}
-        <div className={`w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed top-20 bottom-0 z-40 lg:relative lg:top-0 lg:translate-x-0 transition-transform duration-300 ${
+        <div className={`w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed top-20 bottom-0 z-40 transition-transform duration-300 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}>
         <div className="p-6">          
@@ -736,12 +736,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         </div>
         
         {/* Sidebar Footer */}
-        <div className="absolute bottom-0 w-64 p-6 border-t border-white/10 lg:relative lg:bottom-auto lg:border-t-0 lg:mt-auto">
+        <div className="absolute bottom-0 w-64 p-6 border-t border-white/10">
         </div>
         </div>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-4 lg:p-8 overflow-auto bg-gray-50 lg:ml-0">
+        <main className="flex-1 p-4 lg:p-8 overflow-auto bg-gray-50 lg:ml-64">
           {/* Tab Content */}
         
         {/* Dashboard Tab */}
