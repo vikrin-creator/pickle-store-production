@@ -218,6 +218,22 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
     }
   };
 
+  // Helper function to get display name for categories
+  const getCategoryDisplayName = (category) => {
+    if (category.category === 'Custom' && category.customCategoryName) {
+      return category.customCategoryName;
+    }
+    return category.category || category.name;
+  };
+
+  // Helper function to get category value for filtering
+  const getCategoryValue = (category) => {
+    if (category.category === 'Custom' && category.customCategoryName) {
+      return category.customCategoryName;
+    }
+    return category.category || category.name;
+  };
+
   const handleFilterChange = (filterType, value) => {
     setSelectedFilters(prev => ({
       ...prev,
@@ -267,7 +283,11 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
         case 'Spices':
           return product.category === 'Spices';
         default:
-          return true;
+          // For custom categories, check if product matches the custom category
+          // This can be enhanced based on how products are categorized
+          return product.category === selectedFilters.category || 
+                 product.name.toLowerCase().includes(selectedFilters.category.toLowerCase()) ||
+                 product.description.toLowerCase().includes(selectedFilters.category.toLowerCase());
       }
     })();
     
@@ -443,15 +463,15 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                 <h3 className="filter-label text-base font-semibold mb-3 text-[#221c10]">Category</h3>
                 <div className="filter-options space-y-2">
                   {categories.map((category) => (
-                    <label key={category.category || category.name} className="flex items-center cursor-pointer">
+                    <label key={getCategoryValue(category)} className="flex items-center cursor-pointer">
                       <input 
                         type="radio" 
                         name="category-mobile" 
-                        checked={selectedFilters.category === (category.category || category.name)}
-                        onChange={() => handleFilterChange('category', category.category || category.name)}
+                        checked={selectedFilters.category === getCategoryValue(category)}
+                        onChange={() => handleFilterChange('category', getCategoryValue(category))}
                         className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
                       />
-                      <span className="text-gray-700">{category.emoji} {category.category || category.name}</span>
+                      <span className="text-gray-700">{category.emoji} {getCategoryDisplayName(category)}</span>
                     </label>
                   ))}
                 </div>
@@ -511,15 +531,15 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                 <h3 className="filter-label text-lg font-semibold mb-3 text-[#221c10]">Category</h3>
                 <div className="filter-options space-y-2">
                   {categories.map((category) => (
-                    <label key={category.category || category.name} className="flex items-center cursor-pointer">
+                    <label key={getCategoryValue(category)} className="flex items-center cursor-pointer">
                       <input 
                         type="radio" 
                         name="category" 
-                        checked={selectedFilters.category === (category.category || category.name)}
-                        onChange={() => handleFilterChange('category', category.category || category.name)}
+                        checked={selectedFilters.category === getCategoryValue(category)}
+                        onChange={() => handleFilterChange('category', getCategoryValue(category))}
                         className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
                       />
-                      <span className="text-gray-700">{category.emoji} {category.category || category.name}</span>
+                      <span className="text-gray-700">{category.emoji} {getCategoryDisplayName(category)}</span>
                     </label>
                   ))}
                 </div>
