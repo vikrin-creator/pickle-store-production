@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import AdminService from '../services/adminService';
+import CategoryService from '../services/categoryService';
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [products, setProducts] = useState([]);
@@ -100,6 +101,22 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     category: 'General'
   });
 
+  // Category Management States
+  const [categories, setCategories] = useState([]);
+  const [showCategoryForm, setShowCategoryForm] = useState(false);
+  const [editingCategory, setEditingCategory] = useState(null);
+  const [categoryFormData, setCategoryFormData] = useState({
+    title: '',
+    description: '',
+    category: 'Pickles',
+    customCategoryName: '',
+    emoji: '🥒',
+    order: 0,
+    isActive: true
+  });
+  const [selectedCategoryImageFile, setSelectedCategoryImageFile] = useState(null);
+  const [categoryImagePreview, setCategoryImagePreview] = useState('');
+
   // Load all admin data on component mount
 
   useEffect(() => {
@@ -137,6 +154,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           break;
         case 'faq':
           await loadFaqs();
+          break;
+        case 'categories':
+          await loadCategories();
           break;
         default:
           await loadProducts();
@@ -217,6 +237,17 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     } catch (error) {
       console.error('Error loading FAQs:', error);
       setFaqs([]);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const data = await CategoryService.getAllCategoriesForAdmin();
+      console.log('Loaded categories from API:', data.length);
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Error loading categories:', error);
+      setCategories([]);
     }
   };
 
@@ -822,6 +853,108 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     }
   };
 
+  // Category Handler Functions
+  const handleCategoryImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedCategoryImageFile(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setCategoryImagePreview(e.target.result);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveCategory = async () => {
+    try {
+      if (!categoryFormData.title || !categoryFormData.description) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      if (editingCategory) {
+        // Update existing category
+        const updatedCategory = await CategoryService.updateCategory(
+          editingCategory._id || editingCategory.id, 
+          categoryFormData, 
+          selectedCategoryImageFile
+        );
+        const updatedCategories = categories.map(category => 
+          (category._id || category.id) === (editingCategory._id || editingCategory.id) 
+            ? updatedCategory
+            : category
+        );
+        setCategories(updatedCategories);
+        alert('Category updated successfully!');
+      } else {
+        // Add new category
+        const newCategory = await CategoryService.createCategory(categoryFormData, selectedCategoryImageFile);
+        setCategories([newCategory, ...categories]);
+        alert('Category added successfully!');
+      }
+
+      // Reset form
+      setShowCategoryForm(false);
+      setEditingCategory(null);
+      setCategoryFormData({
+        title: '',
+        description: '',
+        category: 'Pickles',
+        customCategoryName: '',
+        emoji: '🥒',
+        order: 0,
+        isActive: true
+      });
+      setSelectedCategoryImageFile(null);
+      setCategoryImagePreview('');
+    } catch (error) {
+      console.error('Error saving category:', error);
+      alert(`Failed to save category: ${error.message}`);
+    }
+  };
+
+  const handleEditCategory = (category) => {
+    setEditingCategory(category);
+    setCategoryFormData({
+      title: category.title || '',
+      description: category.description || '',
+      category: category.category || 'Pickles',
+      customCategoryName: category.customCategoryName || '',
+      emoji: category.emoji || '🥒',
+      order: category.order || 0,
+      isActive: category.isActive !== undefined ? category.isActive : true
+    });
+    setCategoryImagePreview(category.image || '');
+    setSelectedCategoryImageFile(null);
+    setShowCategoryForm(true);
+  };
+
+  const handleDeleteCategory = async (categoryId) => {
+    if (window.confirm('Are you sure you want to delete this category?')) {
+      try {
+        await CategoryService.deleteCategory(categoryId);
+        const updatedCategories = categories.filter(category => (category._id || category.id) !== categoryId);
+        setCategories(updatedCategories);
+        alert('Category deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting category:', error);
+        alert(`Failed to delete category: ${error.message}`);
+      }
+    }
+  };
+
+  const handleToggleCategoryStatus = async (categoryId) => {
+    try {
+      const updatedCategory = await CategoryService.toggleCategoryStatus(categoryId);
+      const updatedCategories = categories.map(category => 
+        (category._id || category.id) === categoryId ? updatedCategory : category
+      );
+      setCategories(updatedCategories);
+    } catch (error) {
+      console.error('Error toggling category status:', error);
+      alert(`Failed to toggle category status: ${error.message}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Mobile Menu Overlay */}
@@ -903,6 +1036,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               { id: 'customers', label: 'Users', icon: '👥' },
               { id: 'payments', label: 'Payments', icon: '💳' },
               { id: 'shipping', label: 'Shipping', icon: '🚚' },
+              { id: 'categories', label: 'Categories', icon: '🗂️' },
               { id: 'reviews', label: 'Reviews', icon: '⭐' },
               { id: 'faq', label: 'FAQ', icon: '❓' }
             ].map(tab => (
@@ -2012,6 +2146,124 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
 
+        {/* Categories Tab */}
+        {activeTab === 'categories' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">🗂️ Category Management</h2>
+              <button
+                onClick={() => setShowCategoryForm(true)}
+                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                + Add Category
+              </button>
+            </div>
+
+            {/* Category Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Total Categories</h3>
+                <p className="text-2xl font-bold text-blue-600">{categories.length}</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Active Categories</h3>
+                <p className="text-2xl font-bold text-green-600">
+                  {categories.filter(cat => cat.isActive).length}
+                </p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Pickles Categories</h3>
+                <p className="text-2xl font-bold text-orange-600">
+                  {categories.filter(cat => cat.category === 'Pickles').length}
+                </p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Custom Categories</h3>
+                <p className="text-2xl font-bold text-purple-600">
+                  {categories.filter(cat => cat.category === 'Custom').length}
+                </p>
+              </div>
+            </div>
+
+            {/* Categories Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {categories.length === 0 ? (
+                <div className="col-span-full text-center py-12 bg-white rounded-lg shadow-md">
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Categories Found</h3>
+                  <p className="text-gray-500">Add your first category to display on the homepage!</p>
+                </div>
+              ) : categories.map((category) => (
+                <div key={category._id || category.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                  {/* Category Image */}
+                  <div className="h-48 bg-cover bg-center relative" style={{ backgroundImage: `url('${category.image || '/placeholder-category.jpg'}')` }}>
+                    <div className="absolute top-2 right-2 flex gap-2">
+                      <button
+                        onClick={() => handleToggleCategoryStatus(category._id || category.id)}
+                        className={`px-2 py-1 text-xs font-medium rounded-full ${
+                          category.isActive 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
+                        {category.isActive ? 'Active' : 'Inactive'}
+                      </button>
+                    </div>
+                    <div className="absolute bottom-2 left-2">
+                      <span className="text-2xl bg-white bg-opacity-80 rounded-full p-1">
+                        {category.emoji || '🗂️'}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Category Info */}
+                  <div className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="text-lg font-semibold text-gray-900 truncate">
+                        {category.title}
+                      </h3>
+                      <span className="text-xs text-gray-500">#{category.order}</span>
+                    </div>
+                    
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                      {category.description}
+                    </p>
+
+                    <div className="flex items-center justify-between">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        category.category === 'Pickles' ? 'bg-green-100 text-green-800' :
+                        category.category === 'Spices' ? 'bg-red-100 text-red-800' :
+                        category.category === 'Podi' ? 'bg-yellow-100 text-yellow-800' :
+                        category.category === 'Seafood' ? 'bg-blue-100 text-blue-800' :
+                        'bg-purple-100 text-purple-800'
+                      }`}>
+                        {category.category === 'Custom' && category.customCategoryName 
+                          ? category.customCategoryName 
+                          : category.category}
+                      </span>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 mt-4">
+                      <button
+                        onClick={() => handleEditCategory(category)}
+                        className="flex-1 bg-blue-500 text-white text-sm py-2 px-3 rounded-md hover:bg-blue-600 transition-colors"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteCategory(category._id || category.id)}
+                        className="flex-1 bg-red-500 text-white text-sm py-2 px-3 rounded-md hover:bg-red-600 transition-colors"
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         </main>
       </div>
 
@@ -2190,6 +2442,186 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     setShowFaqForm(false);
                     setEditingFaq(null);
                     setFaqFormData({ question: '', answer: '', category: 'General' });
+                  }}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Category Form Modal */}
+      {showCategoryForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingCategory ? 'Edit Category' : 'Add New Category'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowCategoryForm(false);
+                    setEditingCategory(null);
+                    setCategoryFormData({
+                      title: '',
+                      description: '',
+                      category: 'Pickles',
+                      customCategoryName: '',
+                      emoji: '🥒',
+                      order: 0,
+                      isActive: true
+                    });
+                    setSelectedCategoryImageFile(null);
+                    setCategoryImagePreview('');
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category Title</label>
+                <input
+                  type="text"
+                  value={categoryFormData.title}
+                  onChange={(e) => setCategoryFormData({ ...categoryFormData, title: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="e.g., 🥒 Pickles (Veg & Non-Veg)"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category Type</label>
+                <select
+                  value={categoryFormData.category}
+                  onChange={(e) => setCategoryFormData({ ...categoryFormData, category: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="Pickles">Pickles</option>
+                  <option value="Spices">Spices</option>
+                  <option value="Podi">Podi Varieties</option>
+                  <option value="Seafood">Dry Seafood</option>
+                  <option value="Custom">Custom Category</option>
+                </select>
+              </div>
+
+              {categoryFormData.category === 'Custom' && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Custom Category Name</label>
+                  <input
+                    type="text"
+                    value={categoryFormData.customCategoryName}
+                    onChange={(e) => setCategoryFormData({ ...categoryFormData, customCategoryName: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    placeholder="Enter custom category name"
+                    required
+                  />
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Emoji</label>
+                <input
+                  type="text"
+                  value={categoryFormData.emoji}
+                  onChange={(e) => setCategoryFormData({ ...categoryFormData, emoji: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="🥒"
+                  maxLength="2"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <textarea
+                  value={categoryFormData.description}
+                  onChange={(e) => setCategoryFormData({ ...categoryFormData, description: e.target.value })}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Brief description of this category"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Order</label>
+                <input
+                  type="number"
+                  value={categoryFormData.order}
+                  onChange={(e) => setCategoryFormData({ ...categoryFormData, order: parseInt(e.target.value) || 0 })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="0"
+                  min="0"
+                />
+                <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Category Image</label>
+                <div className="space-y-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleCategoryImageChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                  {categoryImagePreview && (
+                    <div className="mt-2">
+                      <img
+                        src={categoryImagePreview}
+                        alt="Category preview"
+                        className="w-32 h-32 object-cover rounded-md border border-gray-200"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="categoryActive"
+                  checked={categoryFormData.isActive}
+                  onChange={(e) => setCategoryFormData({ ...categoryFormData, isActive: e.target.checked })}
+                  className="mr-2"
+                />
+                <label htmlFor="categoryActive" className="text-sm text-gray-700">
+                  Active (visible on homepage)
+                </label>
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <button
+                  onClick={handleSaveCategory}
+                  className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
+                >
+                  {editingCategory ? 'Update Category' : 'Add Category'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowCategoryForm(false);
+                    setEditingCategory(null);
+                    setCategoryFormData({
+                      title: '',
+                      description: '',
+                      category: 'Pickles',
+                      customCategoryName: '',
+                      emoji: '🥒',
+                      order: 0,
+                      isActive: true
+                    });
+                    setSelectedCategoryImageFile(null);
+                    setCategoryImagePreview('');
                   }}
                   className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
                 >

@@ -438,6 +438,7 @@ function App() {
             onBack={handleBackToProducts} 
             onAddToCart={addToCart}
             onNavigateToWishlist={navigateToWishlist}
+            onBuyNow={navigateToCheckout}
           />
         );
       case 'cart':

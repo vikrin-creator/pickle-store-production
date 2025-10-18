@@ -7,7 +7,6 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   const [showSearch, setShowSearch] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState({
-    spice: '',
     diet: '',
     category: categoryFilter === 'all' ? '' : categoryFilter
   });
@@ -207,7 +206,6 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
 
   const clearAllFilters = () => {
     setSelectedFilters({
-      spice: '',
       diet: '',
       category: ''
     });
@@ -226,18 +224,12 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
       const descriptionMatch = product.description.toLowerCase().includes(searchTerm);
       // Search in category
       const categoryMatch = product.category && product.category.toLowerCase().includes(searchTerm);
-      // Search in spice level
-      const spiceLevelMatch = product.spiceLevel && product.spiceLevel.toLowerCase().includes(searchTerm);
       // Search in individual words (for partial matching)
       const nameWords = product.name.toLowerCase().split(' ');
       const wordMatch = nameWords.some(word => word.startsWith(searchTerm));
       
-      return nameMatch || descriptionMatch || categoryMatch || spiceLevelMatch || wordMatch;
+      return nameMatch || descriptionMatch || categoryMatch || wordMatch;
     })();
-    
-    // Spice level filter - handle products without spiceLevel field
-    const productSpiceLevel = product.spiceLevel || 'Medium'; // Default to Medium if not set
-    const matchesSpice = !selectedFilters.spice || productSpiceLevel === selectedFilters.spice;
     
     // Dietary filter
     const matchesDiet = !selectedFilters.diet || product.category === selectedFilters.diet;
@@ -258,7 +250,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
       }
     })();
     
-    return matchesSearch && matchesSpice && matchesDiet && matchesCategory;
+    return matchesSearch && matchesDiet && matchesCategory;
   });
 
   // Sort filtered products
@@ -425,25 +417,6 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
             </div>
             
             <div className="p-4 overflow-y-auto h-full pb-20">
-              {/* Spice Level Filter */}
-              <div className="filter-group mb-6">
-                <h3 className="filter-label text-base font-semibold mb-3 text-[#221c10]">Spice Level</h3>
-                <div className="filter-options space-y-2">
-                  {['Mild', 'Medium', 'Hot', 'Extra Hot'].map((level) => (
-                    <label key={level} className="flex items-center cursor-pointer">
-                      <input 
-                        type="radio" 
-                        name="spice-mobile" 
-                        checked={selectedFilters.spice === level}
-                        onChange={() => handleFilterChange('spice', level)}
-                        className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
-                      />
-                      <span className="text-gray-700">{level}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
               {/* Category Filter */}
               <div className="filter-group mb-6">
                 <h3 className="filter-label text-base font-semibold mb-3 text-[#221c10]">Category</h3>
@@ -517,25 +490,6 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
               <div className="filters-container w-64 bg-white rounded-lg shadow-md p-6 mr-6">
                 <h2 className="filters-title text-xl font-bold mb-6 text-[#221c10]">Filters</h2>
               
-              {/* Spice Level Filter */}
-              <div className="filter-group mb-6">
-                <h3 className="filter-label text-lg font-semibold mb-3 text-[#221c10]">Spice Level</h3>
-                <div className="filter-options space-y-2">
-                  {['Mild', 'Medium', 'Hot', 'Extra Hot'].map((level) => (
-                    <label key={level} className="flex items-center cursor-pointer">
-                      <input 
-                        type="radio" 
-                        name="spice" 
-                        checked={selectedFilters.spice === level}
-                        onChange={() => handleFilterChange('spice', level)}
-                        className="mr-3 text-[#ecab13] focus:ring-[#ecab13]"
-                      />
-                      <span className="text-gray-700">{level}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
               {/* Category Filter */}
               <div className="filter-group mb-6">
                 <h3 className="filter-label text-lg font-semibold mb-3 text-[#221c10]">Category</h3>
