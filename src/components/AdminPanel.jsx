@@ -2146,157 +2146,138 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
 
-        {/* Categories Tab - Featured Pickles Products */}
+        {/* Categories Tab - Featured Pickles Categories (Same as Homepage) */}
         {activeTab === 'categories' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-800">🥒 Featured Pickles Products</h2>
+              <h2 className="text-2xl font-bold text-gray-800">🥒 Featured Pickles Categories</h2>
               <div className="text-sm text-gray-600">
-                Total Featured Products: {products.filter(p => p.featured).length}
+                Same categories as displayed on homepage
               </div>
             </div>
 
-            {/* Featured Products Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {/* Category Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
               <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Featured Products</h3>
-                <p className="text-2xl font-bold text-yellow-600">{products.filter(p => p.featured).length}</p>
+                <h3 className="text-sm font-medium text-gray-600">Total Categories</h3>
+                <p className="text-2xl font-bold text-blue-600">4</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Available Stock</h3>
-                <p className="text-2xl font-bold text-green-600">
-                  {products.filter(p => p.featured && p.inStock).length}
-                </p>
+                <h3 className="text-sm font-medium text-gray-600">Pickles & Spices</h3>
+                <p className="text-2xl font-bold text-green-600">2</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Average Rating</h3>
-                <p className="text-2xl font-bold text-blue-600">
-                  {products.filter(p => p.featured && p.rating).length > 0 
-                    ? (products.filter(p => p.featured && p.rating).reduce((sum, p) => sum + p.rating, 0) / products.filter(p => p.featured && p.rating).length).toFixed(1)
-                    : 'N/A'}
-                </p>
+                <h3 className="text-sm font-medium text-gray-600">Podi & Seafood</h3>
+                <p className="text-2xl font-bold text-orange-600">2</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">All Active</h3>
+                <p className="text-2xl font-bold text-purple-600">✓</p>
               </div>
             </div>
 
-            {/* Featured Products Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {products.filter(p => p.featured).length === 0 ? (
-                <div className="col-span-full text-center py-12 bg-white rounded-lg shadow-md">
-                  <div className="text-6xl mb-4">🥒</div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Featured Products Found</h3>
-                  <p className="text-gray-500 mb-4">Mark some products as featured to display them here!</p>
-                  <button
-                    onClick={() => setActiveTab('products')}
-                    className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
-                  >
-                    Go to Products
-                  </button>
-                </div>
-              ) : products.filter(p => p.featured).map((product) => (
-                <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                  {/* Product Image */}
+            {/* Featured Categories Grid (Same as Homepage) */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  title: "🥒 Pickles (Veg & Non-Veg)",
+                  description: "The heart of Janiitra – tangy, spicy, and full of flavor, prepared without preservatives for an authentic homemade experience.",
+                  image: "/assets/MixedVegetablePickle.png",
+                  category: "Pickles"
+                },
+                {
+                  title: "🌶 Spices",
+                  description: "Pure Mirchi Powder and Haldi to enhance the flavor and aroma of your daily cooking.",
+                  image: "/assets/Neemjar.png",
+                  category: "Spices"
+                },
+                {
+                  title: "🍃 Podi Varieties",
+                  description: "Quick, ready-to-mix powders like Curry Leaf Podi and Kandi Podi – simple, healthy, and tasty.",
+                  image: "/assets/MangoJar.png",
+                  category: "Podi"
+                },
+                {
+                  title: "🐟 Dry Seafood",
+                  description: "Sun-dried prawns and fish sourced from the Godavari region, known for their superior quality and nutrition.",
+                  image: "/assets/MixedVegetablePickle.png",
+                  category: "Seafood"
+                }
+              ].map((item, index) => (
+                <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                  {/* Category Image */}
                   <div className="h-48 relative">
-                    <img
-                      src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : 'https://via.placeholder.com/300x200'}
-                      alt={product.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.target.src = 'https://via.placeholder.com/300x200';
-                      }}
-                    />
+                    <div 
+                      className="w-full h-full bg-cover bg-center"
+                      style={{ backgroundImage: `url('${item.image}')` }}
+                    ></div>
                     <div className="absolute top-2 right-2 flex gap-2">
-                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 text-xs font-medium rounded-full">
-                        ⭐ Featured
+                      <span className="bg-green-100 text-green-800 px-2 py-1 text-xs font-medium rounded-full">
+                        ✓ Active
                       </span>
-                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                        product.inStock 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {product.inStock ? 'In Stock' : 'Out of Stock'}
+                      <span className="bg-blue-100 text-blue-800 px-2 py-1 text-xs font-medium rounded-full">
+                        Featured
                       </span>
                     </div>
                   </div>
 
-                  {/* Product Info */}
+                  {/* Category Info */}
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900 truncate">
-                        {product.name}
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {item.title}
                       </h3>
-                      {product.rating && (
-                        <div className="flex items-center text-sm text-gray-600">
-                          <span className="text-yellow-500">★</span>
-                          <span className="ml-1">{product.rating}</span>
-                        </div>
-                      )}
+                      <span className="text-xs text-gray-500">#{index + 1}</span>
                     </div>
                     
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {product.description}
+                    <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                      {item.description}
                     </p>
 
-                    <div className="mb-3">
-                      {product.weights && product.weights.length > 0 && (
-                        <div className="text-sm">
-                          <span className="font-semibold text-gray-700">Prices: </span>
-                          {product.weights.map((w, idx) => (
-                            <span key={idx} className="text-[#ecab13] font-bold">
-                              {w.weight}: ₹{w.price}{idx < product.weights.length - 1 ? ', ' : ''}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="flex flex-wrap gap-1 text-xs mb-3">
-                      <span className="bg-blue-100 px-2 py-1 rounded text-blue-800">{product.category}</span>
-                      <span className={`px-2 py-1 rounded font-medium ${
-                        product.codAvailable 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
+                    <div className="flex items-center justify-between mb-3">
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                        item.category === 'Pickles' ? 'bg-green-100 text-green-800' :
+                        item.category === 'Spices' ? 'bg-red-100 text-red-800' :
+                        item.category === 'Podi' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-blue-100 text-blue-800'
                       }`}>
-                        {product.codAvailable ? '💰 COD' : '❌ No COD'}
+                        {item.category}
                       </span>
-                      {product.reviews > 0 && (
-                        <span className="bg-purple-100 px-2 py-1 rounded text-purple-800">
-                          {product.reviews} reviews
-                        </span>
-                      )}
                     </div>
 
-                    {/* Action Buttons */}
-                    <div className="flex gap-2 mt-4">
-                      <button
-                        onClick={() => toggleFeaturedStatus(product._id)}
-                        className="flex-1 bg-yellow-500 text-white text-sm py-2 px-3 rounded-md hover:bg-yellow-600 transition-colors"
-                      >
-                        Remove Featured
-                      </button>
-                      <button
-                        onClick={() => {
-                          setEditingProduct(product);
-                          setFormData({
-                            name: product.name,
-                            description: product.description,
-                            category: product.category,
-                            weights: product.weights || [{ weight: '', price: '' }],
-                            productType: product.productType || 'Pickles',
-                            spiceLevel: product.spiceLevel || 'Medium',
-                            ingredients: product.ingredients || '',
-                            storageInstructions: product.storageInstructions || '',
-                            codAvailable: product.codAvailable || false
-                          });
-                          setShowAddForm(true);
-                        }}
-                        className="flex-1 bg-blue-500 text-white text-sm py-2 px-3 rounded-md hover:bg-blue-600 transition-colors"
-                      >
-                        Edit
-                      </button>
+                    {/* Info */}
+                    <div className="bg-gray-50 p-3 rounded-lg">
+                      <p className="text-xs text-gray-600 text-center">
+                        This category is displayed on the homepage Featured Pickles section
+                      </p>
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Info Section */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+              <div className="flex items-start">
+                <div className="flex-shrink-0">
+                  <svg className="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                  </svg>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-blue-800">Featured Categories Overview</h3>
+                  <p className="text-sm text-blue-700 mt-1">
+                    These are the exact same 4 categories that appear in the "Featured Pickles" section on your homepage. 
+                    They are currently displayed as static content with local images from the assets folder.
+                  </p>
+                  <ul className="text-sm text-blue-700 mt-2 list-disc list-inside">
+                    <li>Categories are displayed in the order shown above</li>
+                    <li>Images are loaded from the local assets folder</li>
+                    <li>Each category links to the products page with category filter</li>
+                    <li>Content matches exactly what customers see on the homepage</li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         )}
