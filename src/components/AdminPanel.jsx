@@ -74,6 +74,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     { weight: '1kg', price: 520 }
   ]);
 
+  // Order Modal States
+  const [showOrderViewModal, setShowOrderViewModal] = useState(false);
+  const [showOrderUpdateModal, setShowOrderUpdateModal] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
+
   // Load all admin data on component mount
 
   useEffect(() => {
@@ -624,6 +630,49 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const handleLogout = () => {
     if (onLogout) {
       onLogout();
+    }
+  };
+
+  // Order Modal Functions
+  const openOrderViewModal = (order) => {
+    setSelectedOrder(order);
+    setShowOrderViewModal(true);
+  };
+
+  const openOrderUpdateModal = (order) => {
+    setSelectedOrder(order);
+    setShowOrderUpdateModal(true);
+  };
+
+  const closeOrderModals = () => {
+    setShowOrderViewModal(false);
+    setShowOrderUpdateModal(false);
+    setSelectedOrder(null);
+  };
+
+  const handleOrderStatusUpdate = async (newStatus) => {
+    if (!selectedOrder) return;
+
+    setUpdatingOrderStatus(true);
+    try {
+      // Update order status via API
+      const updatedOrder = await AdminService.updateOrderStatus(selectedOrder._id || selectedOrder.id, newStatus);
+      
+      // Update local orders state
+      const updatedOrders = orders.map(order => 
+        (order._id || order.id) === (selectedOrder._id || selectedOrder.id) 
+          ? { ...order, status: newStatus }
+          : order
+      );
+      
+      setOrders(updatedOrders);
+      alert(`Order status updated to ${newStatus} successfully!`);
+      closeOrderModals();
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      alert(`Failed to update order status: ${error.message}`);
+    } finally {
+      setUpdatingOrderStatus(false);
     }
   };
 
@@ -1374,8 +1423,18 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : order.date || 'N/A'}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                          <button className="text-orange-600 hover:text-orange-900 mr-2">View</button>
-                          <button className="text-blue-600 hover:text-blue-900">Update</button>
+                          <button 
+                            onClick={() => openOrderViewModal(order)}
+                            className="text-orange-600 hover:text-orange-900 mr-2 px-3 py-1 border border-orange-600 rounded-md hover:bg-orange-50"
+                          >
+                            View
+                          </button>
+                          <button 
+                            onClick={() => openOrderUpdateModal(order)}
+                            className="text-blue-600 hover:text-blue-900 px-3 py-1 border border-blue-600 rounded-md hover:bg-blue-50"
+                          >
+                            Update
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -1605,6 +1664,195 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
         </main>
       </div>
+
+      {/* Order View Modal */}
+      {showOrderViewModal && selectedOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Order Details</h3>
+                <button
+                  onClick={closeOrderModals}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* Order Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Order ID</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedOrder.orderNumber || selectedOrder._id || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Status</label>
+                  <span className={`mt-1 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    selectedOrder.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                    selectedOrder.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
+                    selectedOrder.status === 'Shipped' ? 'bg-purple-100 text-purple-800' :
+                    selectedOrder.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    {selectedOrder.status}
+                  </span>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Customer</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedOrder.customerInfo?.name || selectedOrder.customer || 'N/A'}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Total Amount</label>
+                  <p className="mt-1 text-sm text-gray-900">₹{selectedOrder.total || selectedOrder.totalAmount || selectedOrder.amount || 0}</p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Order Date</label>
+                  <p className="mt-1 text-sm text-gray-900">
+                    {selectedOrder.createdAt ? new Date(selectedOrder.createdAt).toLocaleDateString() : selectedOrder.date || 'N/A'}
+                  </p>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Email</label>
+                  <p className="mt-1 text-sm text-gray-900">{selectedOrder.customerInfo?.email || 'N/A'}</p>
+                </div>
+              </div>
+
+              {/* Customer Address */}
+              {selectedOrder.customerInfo?.address && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Shipping Address</label>
+                  <div className="mt-1 p-3 bg-gray-50 rounded-md">
+                    <p className="text-sm text-gray-900">{selectedOrder.customerInfo.address.street}</p>
+                    <p className="text-sm text-gray-600">
+                      {selectedOrder.customerInfo.address.city}, {selectedOrder.customerInfo.address.state} {selectedOrder.customerInfo.address.zipCode}
+                    </p>
+                    <p className="text-sm text-gray-600">Phone: {selectedOrder.customerInfo.phone || 'N/A'}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Order Items */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Order Items</label>
+                <div className="space-y-2">
+                  {selectedOrder.items?.map((item, index) => (
+                    <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-md">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                        <p className="text-xs text-gray-600">Weight: {item.weight} | Quantity: {item.quantity}</p>
+                      </div>
+                      <p className="text-sm font-medium text-gray-900">₹{item.price * item.quantity}</p>
+                    </div>
+                  )) || <p className="text-sm text-gray-500">No items found</p>}
+                </div>
+              </div>
+
+              {/* Payment Method */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Payment Method</label>
+                <p className="mt-1 text-sm text-gray-900">{selectedOrder.paymentMethod || 'N/A'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Order Update Modal */}
+      {showOrderUpdateModal && selectedOrder && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Update Order Status</h3>
+                <button
+                  onClick={closeOrderModals}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Order ID</label>
+                <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded-md">
+                  {selectedOrder.orderNumber || selectedOrder._id || 'N/A'}
+                </p>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Customer</label>
+                <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded-md">
+                  {selectedOrder.customerInfo?.name || selectedOrder.customer || 'N/A'}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Current Status</label>
+                <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                  selectedOrder.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                  selectedOrder.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
+                  selectedOrder.status === 'Shipped' ? 'bg-purple-100 text-purple-800' :
+                  selectedOrder.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                  'bg-red-100 text-red-800'
+                }`}>
+                  {selectedOrder.status}
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Update Status To</label>
+                <div className="space-y-2">
+                  {['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => handleOrderStatusUpdate(status)}
+                      disabled={updatingOrderStatus || selectedOrder.status === status}
+                      className={`w-full text-left px-3 py-2 rounded-md border transition-colors ${
+                        selectedOrder.status === status 
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                          : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
+                      } ${updatingOrderStatus ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full mr-2 ${
+                        status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                        status === 'Processing' ? 'bg-blue-100 text-blue-800' :
+                        status === 'Shipped' ? 'bg-purple-100 text-purple-800' :
+                        status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                        status === 'Cancelled' ? 'bg-red-100 text-red-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {status}
+                      </span>
+                      {selectedOrder.status === status && '(Current)'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {updatingOrderStatus && (
+                <div className="text-center py-2">
+                  <div className="inline-flex items-center text-sm text-gray-600">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-gray-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Updating status...
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       
       {/* Footer */}
       <footer className="bg-white border-t border-gray-200 px-4 lg:px-8 py-4 lg:ml-64">

@@ -340,6 +340,15 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
     }
   };
 
+  const handleLogout = () => {
+    if (confirm('Are you sure you want to logout?')) {
+      authService.logout();
+      onClose(); // Close the profile modal
+      // Refresh the page to update authentication state
+      window.location.reload();
+    }
+  };
+
   const handleTabSwitch = (tab) => {
     setActiveTab(tab);
     // Refresh data when switching to specific tabs
@@ -440,6 +449,17 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                   {tab.label}
                 </button>
               ))}
+              
+              {/* Logout Button */}
+              <div className="pt-4 border-t border-gray-200">
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left p-3 rounded-lg transition-colors text-red-600 hover:bg-red-50"
+                >
+                  <span className="mr-2">🚪</span>
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
 
