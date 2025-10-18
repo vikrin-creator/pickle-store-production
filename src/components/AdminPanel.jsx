@@ -541,7 +541,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       const productData = {
         name: formData.name,
         description: formData.description,
-        category: formData.dietaryCategory, // Backend expects Vegetarian/Non-Vegetarian in category field
+        category: formData.dietaryCategory, // Dietary category (Vegetarian/Non-Vegetarian)
+        productCategory: formData.category, // Dynamic category from Categories collection
         spiceLevel: formData.spiceLevel || 'Medium',
         weights: weightOptions,
         image: selectedImageFile, // This should be a File object, not base64

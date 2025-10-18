@@ -275,25 +275,12 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
     // Dietary filter
     const matchesDiet = !selectedFilters.diet || product.category === selectedFilters.diet;
     
-    // Category filter - map categories appropriately
-    const matchesCategory = !selectedFilters.category || (() => {
-      switch (selectedFilters.category) {
-        case 'Pickles':
-          return product.category === 'Vegetarian' || product.category === 'Non-Vegetarian';
-        case 'Seafood':
-          return product.category === 'Seafood';
-        case 'Podi':
-          return product.category === "Podi's";
-        case 'Spices':
-          return product.category === 'Spices';
-        default:
-          // For custom categories, check if product matches the custom category
-          // This can be enhanced based on how products are categorized
-          return product.category === selectedFilters.category || 
-                 product.name.toLowerCase().includes(selectedFilters.category.toLowerCase()) ||
-                 product.description.toLowerCase().includes(selectedFilters.category.toLowerCase());
-      }
-    })();
+    // Category filter - use productCategory field for dynamic categories
+    const matchesCategory = !selectedFilters.category || 
+      product.productCategory === selectedFilters.category ||
+      // Fallback for old products without productCategory field
+      (selectedFilters.category === 'Pickles' && (product.category === 'Vegetarian' || product.category === 'Non-Vegetarian')) ||
+      product.category === selectedFilters.category;
     
     return matchesSearch && matchesDiet && matchesCategory;
   });

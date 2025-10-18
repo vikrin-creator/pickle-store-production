@@ -22,6 +22,7 @@ class AdminService {
       formData.append('name', productData.name);
       formData.append('description', productData.description);
       formData.append('category', productData.category);
+      formData.append('productCategory', productData.productCategory);
       formData.append('spiceLevel', productData.spiceLevel || 'Medium');
       formData.append('weights', JSON.stringify(productData.weights || []));
       formData.append('featured', productData.featured || false);
@@ -58,6 +59,7 @@ class AdminService {
       formData.append('name', productData.name);
       formData.append('description', productData.description);
       formData.append('category', productData.category);
+      formData.append('productCategory', productData.productCategory);
       formData.append('spiceLevel', productData.spiceLevel || 'Medium');
       formData.append('weights', JSON.stringify(productData.weights || []));
       formData.append('featured', productData.featured || false);
