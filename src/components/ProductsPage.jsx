@@ -189,6 +189,16 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
       if (response.ok) {
         const data = await response.json();
         console.log('ProductsPage: Loaded products from API:', data.length);
+        if (data && data.length > 0) {
+          console.log('ProductsPage: Sample product structure:', data[0]);
+          // Log all product categories for debugging
+          const productCategories = data.map(p => ({
+            name: p.name,
+            category: p.category,
+            productCategory: p.productCategory
+          }));
+          console.log('ProductsPage: All product categories:', productCategories);
+        }
         setProducts(data);
       } else {
         console.error('ProductsPage: Failed to load products from API, using defaults');
@@ -204,11 +214,17 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   const loadCategories = async () => {
     try {
       const data = await CategoryService.getAllCategories();
-      console.log('ProductsPage: Loaded categories from API:', data.length);
+      console.log('ProductsPage: Loaded categories from API:', data.length, data);
+      if (data && data.length > 0) {
+        console.log('ProductsPage: Category structure sample:', data[0]);
+      }
+      
+      console.log('ProductsPage: Final categories list:', (data || []).map(cat => getCategoryValue(cat)));
       setCategories(data || []);
     } catch (error) {
       console.error('ProductsPage: Error loading categories:', error);
       // Fallback to static categories if API fails
+      console.log('ProductsPage: Using fallback categories');
       setCategories([
         { category: 'Pickles', emoji: '🥒' },
         { category: 'Spices', emoji: '🌶' },
@@ -239,10 +255,15 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   };
 
   const handleFilterChange = (filterType, value) => {
-    setSelectedFilters(prev => ({
-      ...prev,
-      [filterType]: prev[filterType] === value ? '' : value
-    }));
+    console.log('ProductsPage: Filter change -', filterType, ':', value);
+    setSelectedFilters(prev => {
+      const newFilters = {
+        ...prev,
+        [filterType]: prev[filterType] === value ? '' : value
+      };
+      console.log('ProductsPage: New filters:', newFilters);
+      return newFilters;
+    });
   };
 
   const clearAllFilters = () => {
@@ -275,12 +296,49 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
     // Dietary filter
     const matchesDiet = !selectedFilters.diet || product.category === selectedFilters.diet;
     
-    // Category filter - use productCategory field for dynamic categories
-    const matchesCategory = !selectedFilters.category || 
-      product.productCategory === selectedFilters.category ||
-      // Fallback for old products without productCategory field
-      (selectedFilters.category === 'Pickles' && (product.category === 'Vegetarian' || product.category === 'Non-Vegetarian')) ||
-      product.category === selectedFilters.category;
+    // Category filter - match products to selected category
+    const matchesCategory = !selectedFilters.category || (() => {
+      const selectedCategory = selectedFilters.category;
+      
+      // Debug logging
+      console.log('ProductsPage Filter Debug:', {
+        productName: product.name,
+        productCategory: product.productCategory,
+        productDietaryCategory: product.category,
+        selectedCategory: selectedCategory,
+        productObject: product
+      });
+      
+      // For products with new structure (has productCategory field)
+      if (product.productCategory) {
+        const matches = product.productCategory === selectedCategory;
+        console.log(`Product ${product.name}: productCategory="${product.productCategory}" matches selectedCategory="${selectedCategory}": ${matches}`);
+        return matches;
+      }
+      
+      // For old products without productCategory, map based on original logic
+      let matches = false;
+      switch (selectedCategory) {
+        case 'Pickles':
+          matches = product.category === 'Vegetarian' || product.category === 'Non-Vegetarian';
+          break;
+        case 'Seafood':
+          matches = product.category === 'Seafood';
+          break;
+        case 'Podi':
+          matches = product.category === "Podi's" || product.category === 'Podi';
+          break;
+        case 'Spices':
+          matches = product.category === 'Spices';
+          break;
+        default:
+          // For any custom categories, try to match against category field
+          matches = product.category === selectedCategory;
+      }
+      
+      console.log(`Product ${product.name}: old structure matches selectedCategory="${selectedCategory}": ${matches} (category="${product.category}")`);
+      return matches;
+    })();
     
     return matchesSearch && matchesDiet && matchesCategory;
   });
