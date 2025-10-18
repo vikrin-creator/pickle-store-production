@@ -955,6 +955,37 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     }
   };
 
+  // Functions for new Categories tab
+  const openCategoryEditModal = (category) => {
+    setEditingCategory(category);
+    setCategoryFormData({
+      title: category.title || '',
+      description: category.description || '',
+      category: category.category || 'Pickles',
+      customCategoryName: category.customCategoryName || '',
+      emoji: category.emoji || '🥒',
+      order: category.order || 0,
+      isActive: category.isActive !== undefined ? category.isActive : true
+    });
+    setCategoryImagePreview(category.image || '');
+    setSelectedCategoryImageFile(null);
+    setShowCategoryForm(true);
+  };
+
+  const toggleCategoryStatus = async (categoryId) => {
+    try {
+      const updatedCategory = await CategoryService.toggleCategoryStatus(categoryId);
+      const updatedCategories = categories.map(category => 
+        (category._id || category.id) === categoryId ? updatedCategory : category
+      );
+      setCategories(updatedCategories);
+      alert(`Category ${updatedCategory.isActive ? 'activated' : 'deactivated'} successfully!`);
+    } catch (error) {
+      console.error('Error toggling category status:', error);
+      alert(`Failed to update category status: ${error.message}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Mobile Menu Overlay */}
@@ -2152,7 +2183,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             <div className="flex justify-between items-center">
               <h2 className="text-2xl font-bold text-gray-800">🥒 Featured Pickles Categories</h2>
               <div className="text-sm text-gray-600">
-                Same categories as displayed on homepage
+                Manage categories displayed on homepage
               </div>
             </div>
 
@@ -2160,101 +2191,108 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
               <div className="bg-white p-6 rounded-lg shadow-md">
                 <h3 className="text-sm font-medium text-gray-600">Total Categories</h3>
-                <p className="text-2xl font-bold text-blue-600">4</p>
+                <p className="text-2xl font-bold text-blue-600">{categories.length}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Pickles & Spices</h3>
-                <p className="text-2xl font-bold text-green-600">2</p>
+                <h3 className="text-sm font-medium text-gray-600">Active Categories</h3>
+                <p className="text-2xl font-bold text-green-600">{categories.filter(cat => cat.isActive).length}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Podi & Seafood</h3>
-                <p className="text-2xl font-bold text-orange-600">2</p>
+                <h3 className="text-sm font-medium text-gray-600">Database Stored</h3>
+                <p className="text-2xl font-bold text-orange-600">✓</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">All Active</h3>
+                <h3 className="text-sm font-medium text-gray-600">Cloudinary Images</h3>
                 <p className="text-2xl font-bold text-purple-600">✓</p>
               </div>
             </div>
 
-            {/* Featured Categories Grid (Same as Homepage) */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                {
-                  title: "🥒 Pickles (Veg & Non-Veg)",
-                  description: "The heart of Janiitra – tangy, spicy, and full of flavor, prepared without preservatives for an authentic homemade experience.",
-                  image: "/assets/MixedVegetablePickle.png",
-                  category: "Pickles"
-                },
-                {
-                  title: "🌶 Spices",
-                  description: "Pure Mirchi Powder and Haldi to enhance the flavor and aroma of your daily cooking.",
-                  image: "/assets/Neemjar.png",
-                  category: "Spices"
-                },
-                {
-                  title: "🍃 Podi Varieties",
-                  description: "Quick, ready-to-mix powders like Curry Leaf Podi and Kandi Podi – simple, healthy, and tasty.",
-                  image: "/assets/MangoJar.png",
-                  category: "Podi"
-                },
-                {
-                  title: "🐟 Dry Seafood",
-                  description: "Sun-dried prawns and fish sourced from the Godavari region, known for their superior quality and nutrition.",
-                  image: "/assets/MixedVegetablePickle.png",
-                  category: "Seafood"
-                }
-              ].map((item, index) => (
-                <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                  {/* Category Image */}
-                  <div className="h-48 relative">
-                    <div 
-                      className="w-full h-full bg-cover bg-center"
-                      style={{ backgroundImage: `url('${item.image}')` }}
-                    ></div>
-                    <div className="absolute top-2 right-2 flex gap-2">
-                      <span className="bg-green-100 text-green-800 px-2 py-1 text-xs font-medium rounded-full">
-                        ✓ Active
-                      </span>
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 text-xs font-medium rounded-full">
-                        Featured
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Category Info */}
-                  <div className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {item.title}
-                      </h3>
-                      <span className="text-xs text-gray-500">#{index + 1}</span>
-                    </div>
-                    
-                    <p className="text-sm text-gray-600 mb-3 line-clamp-3">
-                      {item.description}
-                    </p>
-
-                    <div className="flex items-center justify-between mb-3">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        item.category === 'Pickles' ? 'bg-green-100 text-green-800' :
-                        item.category === 'Spices' ? 'bg-red-100 text-red-800' :
-                        item.category === 'Podi' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-blue-100 text-blue-800'
-                      }`}>
-                        {item.category}
-                      </span>
+            {/* Categories Loading */}
+            {categories.length === 0 ? (
+              <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading categories from database...</p>
+              </div>
+            ) : (
+              /* Featured Categories Grid (From Database) */
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {categories
+                  .sort((a, b) => (a.order || 0) - (b.order || 0))
+                  .map((category) => (
+                  <div key={category._id || category.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                    {/* Category Image */}
+                    <div className="h-48 relative">
+                      <div 
+                        className="w-full h-full bg-cover bg-center"
+                        style={{ backgroundImage: `url('${category.image}')` }}
+                      ></div>
+                      <div className="absolute top-2 right-2 flex gap-2">
+                        {category.isActive && (
+                          <span className="bg-green-100 text-green-800 px-2 py-1 text-xs font-medium rounded-full">
+                            ✓ Active
+                          </span>
+                        )}
+                        <span className="bg-blue-100 text-blue-800 px-2 py-1 text-xs font-medium rounded-full">
+                          Featured
+                        </span>
+                      </div>
                     </div>
 
-                    {/* Info */}
-                    <div className="bg-gray-50 p-3 rounded-lg">
-                      <p className="text-xs text-gray-600 text-center">
-                        This category is displayed on the homepage Featured Pickles section
+                    {/* Category Info */}
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {category.title}
+                        </h3>
+                        <span className="text-xs text-gray-500">#{category.order}</span>
+                      </div>
+                      
+                      <p className="text-sm text-gray-600 mb-3 line-clamp-3">
+                        {category.description}
                       </p>
+
+                      <div className="flex items-center justify-between mb-3">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          category.category === 'Pickles' ? 'bg-green-100 text-green-800' :
+                          category.category === 'Spices' ? 'bg-red-100 text-red-800' :
+                          category.category === 'Podi' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-blue-100 text-blue-800'
+                        }`}>
+                          {category.category}
+                        </span>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => openCategoryEditModal(category)}
+                          className="flex-1 bg-orange-500 hover:bg-orange-600 text-white px-3 py-2 rounded-md text-sm font-medium transition-colors"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => toggleCategoryStatus(category._id || category.id)}
+                          className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                            category.isActive 
+                              ? 'bg-yellow-100 hover:bg-yellow-200 text-yellow-800' 
+                              : 'bg-green-100 hover:bg-green-200 text-green-800'
+                          }`}
+                        >
+                          {category.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                      </div>
+
+                      {/* Info */}
+                      <div className="bg-gray-50 p-3 rounded-lg mt-3">
+                        <p className="text-xs text-gray-600 text-center">
+                          Stored in database with Cloudinary images
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
             {/* Info Section */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
