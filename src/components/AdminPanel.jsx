@@ -62,6 +62,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     name: '',
     description: '',
     category: '', // Will be set to first available category
+    dietaryCategory: 'Vegetarian', // Separate field for dietary classification
     spiceLevel: 'Medium',
     image: '',
     codAvailable: true
@@ -147,7 +148,10 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           ]);
           break;
         case 'products':
-          await loadProducts();
+          await Promise.all([
+            loadProducts(),
+            loadCategories()
+          ]);
           break;
         case 'orders':
           await loadOrders();
@@ -537,7 +541,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       const productData = {
         name: formData.name,
         description: formData.description,
-        category: formData.category,
+        category: formData.dietaryCategory, // Backend expects Vegetarian/Non-Vegetarian in category field
         spiceLevel: formData.spiceLevel || 'Medium',
         weights: weightOptions,
         image: selectedImageFile, // This should be a File object, not base64
@@ -564,6 +568,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         name: '',
         description: '',
         category: categories.length > 0 ? getCategoryValue(categories[0]) : '',
+        dietaryCategory: 'Vegetarian',
         spiceLevel: 'Medium',
         image: '',
         codAvailable: true
@@ -591,6 +596,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       name: product.name,
       description: product.description,
       category: product.category,
+      dietaryCategory: product.dietaryCategory || 'Vegetarian', // Default if not set
       spiceLevel: product.spiceLevel || 'Medium',
       image: product.image,
       codAvailable: product.codAvailable !== undefined ? product.codAvailable : true
@@ -720,6 +726,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       name: '',
       description: '',
       category: categories.length > 0 ? getCategoryValue(categories[0]) : '',
+      dietaryCategory: 'Vegetarian',
       spiceLevel: 'Medium',
       featured: false,
       rating: 0,
@@ -1519,19 +1526,23 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
                     >
-                      {categories.map((category) => (
-                        <option key={getCategoryValue(category)} value={getCategoryValue(category)}>
-                          {getCategoryDisplayName(category)}
-                        </option>
-                      ))}
+                      {categories.length === 0 ? (
+                        <option value="">Loading categories...</option>
+                      ) : (
+                        categories.map((category) => (
+                          <option key={getCategoryValue(category)} value={getCategoryValue(category)}>
+                            {getCategoryDisplayName(category)}
+                          </option>
+                        ))
+                      )}
                     </select>
                   </div>
 
                   <div>
                     <label className="block text-sm font-medium mb-1">Dietary Category</label>
                     <select
-                      name="category"
-                      value={formData.category}
+                      name="dietaryCategory"
+                      value={formData.dietaryCategory}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
                     >
