@@ -220,17 +220,21 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
 
   // Helper function to get display name for categories
   const getCategoryDisplayName = (category) => {
-    if (category.category === 'Custom' && category.customCategoryName) {
-      return category.customCategoryName;
+    // Use title field as the primary display name for all categories
+    if (category.title) {
+      return category.title;
     }
+    // Fallback to old logic for backward compatibility
     return category.category || category.name;
   };
 
   // Helper function to get category value for filtering
   const getCategoryValue = (category) => {
-    if (category.category === 'Custom' && category.customCategoryName) {
-      return category.customCategoryName;
+    // Use title field as the primary value for filtering
+    if (category.title) {
+      return category.title;
     }
+    // Fallback to old logic for backward compatibility
     return category.category || category.name;
   };
 
