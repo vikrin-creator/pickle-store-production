@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react';
 import authService from '../services/authService';
+import orderService from '../services/orderService';
+import userService from '../services/userService';
+import orderService from '../services/orderService';
 
 const CustomerProfile = ({ onNavigateHome, onClose }) => {
   const [user, setUser] = useState(null);
@@ -42,10 +45,19 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   const [orderLoading, setOrderLoading] = useState(false);
 
   useEffect(() => {
-    loadUserData();
-    loadOrders();
-    loadAddresses();
+    const initializeData = async () => {
+      loadUserData();
+      await loadAddresses();
+    };
+    initializeData();
   }, []);
+
+  // Load orders when user data is available
+  useEffect(() => {
+    if (user && user.email) {
+      loadOrders();
+    }
+  }, [user]);
 
   const loadUserData = () => {
     const currentUser = authService.getCurrentUser();
@@ -64,76 +76,64 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   const loadOrders = async () => {
     setOrderLoading(true);
     try {
-      // Mock orders data - replace with actual API call
-      const mockOrders = [
-        {
-          id: '1',
-          orderNumber: 'ORD-2025-001',
-          date: '2025-10-15',
-          status: 'delivered',
-          items: [
-            { name: 'Mango Tango', quantity: 2, price: 12.99 },
-            { name: 'Lime Zest', quantity: 1, price: 10.99 }
-          ],
-          total: 36.97,
-          deliveryAddress: '123 Main St, City, State 12345'
-        },
-        {
-          id: '2',
-          orderNumber: 'ORD-2025-002',
-          date: '2025-10-18',
-          status: 'ongoing',
-          items: [
-            { name: 'Chili Kick', quantity: 1, price: 15.99 }
-          ],
-          total: 15.99,
-          deliveryAddress: '456 Oak Ave, City, State 12345'
-        }
-      ];
-      setOrders(mockOrders);
+      console.log('Loading orders for authenticated user');
+      const result = await orderService.getUserOrders();
+      console.log('Orders API result:', result);
+      
+      if (result.success) {
+        const formattedOrders = result.orders.map(order => orderService.formatOrderForDisplay(order));
+        console.log('Formatted orders:', formattedOrders);
+        setOrders(formattedOrders);
+      } else {
+        console.error('Failed to load orders:', result.message);
+        setOrders([]);
+      }
     } catch (error) {
       console.error('Error loading orders:', error);
+      setOrders([]);
     }
     setOrderLoading(false);
   };
 
-  const loadAddresses = () => {
-    // Mock addresses data - replace with actual API call
-    const mockAddresses = [
-      {
-        id: '1',
-        label: 'Home',
-        firstName: 'John',
-        lastName: 'Doe',
-        phone: '+1234567890',
-        address: '123 Main Street',
-        city: 'Mumbai',
-        state: 'Maharashtra',
-        pincode: '400001',
-        isDefault: true
-      },
-      {
-        id: '2',
-        label: 'Office',
-        firstName: 'John',
-        lastName: 'Doe',
-        phone: '+1234567890',
-        address: '456 Business Center',
-        city: 'Mumbai',
-        state: 'Maharashtra',
-        pincode: '400002',
-        isDefault: false
+  const loadAddresses = async () => {
+    try {
+      console.log('Loading addresses for authenticated user');
+      const result = await userService.getAddresses();
+      console.log('Addresses API result:', result);
+      
+      if (result.success) {
+        // Format addresses with proper IDs
+        const formattedAddresses = result.addresses.map(addr => ({
+          ...addr,
+          id: addr._id || addr.id
+        }));
+        setAddresses(formattedAddresses);
+      } else {
+        console.error('Failed to load addresses:', result.message);
+        setAddresses([]);
       }
-    ];
-    setAddresses(mockAddresses);
+    } catch (error) {
+      console.error('Error loading addresses:', error);
+      setAddresses([]);
+    }
   };
 
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     try {
-      // API call to update profile - replace with actual implementation
       console.log('Updating profile:', profileForm);
-      alert('Profile updated successfully!');
+      const result = await userService.updateProfile(profileForm);
+      
+      if (result.success) {
+        // Update local user data
+        const updatedUser = result.user;
+        setUser(updatedUser);
+        // Also update auth service
+        authService.setAuth(authService.getToken(), updatedUser);
+        alert('Profile updated successfully!');
+      } else {
+        alert(result.message || 'Error updating profile. Please try again.');
+      }
     } catch (error) {
       console.error('Error updating profile:', error);
       alert('Error updating profile. Please try again.');
@@ -146,15 +146,24 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
       alert('New passwords do not match!');
       return;
     }
+    
     try {
-      // API call to change password - replace with actual implementation
       console.log('Changing password');
-      alert('Password changed successfully!');
-      setSettingsForm({
-        currentPassword: '',
-        newPassword: '',
-        confirmPassword: ''
+      const result = await userService.changePassword({
+        currentPassword: settingsForm.currentPassword,
+        newPassword: settingsForm.newPassword
       });
+      
+      if (result.success) {
+        alert('Password changed successfully!');
+        setSettingsForm({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+      } else {
+        alert(result.message || 'Error changing password. Please try again.');
+      }
     } catch (error) {
       console.error('Error changing password:', error);
       alert('Error changing password. Please try again.');
@@ -164,24 +173,31 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   const handleAddAddress = async (e) => {
     e.preventDefault();
     try {
-      const newAddress = {
-        id: Date.now().toString(),
-        ...addressForm
-      };
-      setAddresses([...addresses, newAddress]);
-      setAddressForm({
-        label: '',
-        firstName: '',
-        lastName: '',
-        phone: '',
-        address: '',
-        city: '',
-        state: '',
-        pincode: '',
-        isDefault: false
-      });
-      setShowAddAddress(false);
-      alert('Address added successfully!');
+      console.log('Adding address:', addressForm);
+      const result = await userService.addAddress(addressForm);
+      
+      if (result.success) {
+        // Update addresses list
+        const formattedAddresses = result.addresses.map(addr => ({
+          ...addr,
+          id: addr._id || addr.id
+        }));
+        setAddresses(formattedAddresses);
+        
+        // Reset form
+        setAddressForm({
+          label: '',
+          firstName: '',
+          lastName: '',
+          phone: '',
+          address: '',
+          city: '',
+          state: '',
+          pincode: '',
+          isDefault: false
+        });
+        setShowAddAddress(false);
+        alert('Address added successfully!');
     } catch (error) {
       console.error('Error adding address:', error);
       alert('Error adding address. Please try again.');
@@ -197,34 +213,62 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   const handleUpdateAddress = async (e) => {
     e.preventDefault();
     try {
-      const updatedAddresses = addresses.map(addr => 
-        addr.id === editingAddress ? { ...addressForm } : addr
-      );
-      setAddresses(updatedAddresses);
-      setEditingAddress(null);
-      setShowAddAddress(false);
-      setAddressForm({
-        label: '',
-        firstName: '',
-        lastName: '',
-        phone: '',
-        address: '',
-        city: '',
-        state: '',
-        pincode: '',
-        isDefault: false
-      });
-      alert('Address updated successfully!');
+      console.log('Updating address:', editingAddress, addressForm);
+      const result = await userService.updateAddress(editingAddress, addressForm);
+      
+      if (result.success) {
+        // Update addresses list
+        const formattedAddresses = result.addresses.map(addr => ({
+          ...addr,
+          id: addr._id || addr.id
+        }));
+        setAddresses(formattedAddresses);
+        
+        // Reset form
+        setEditingAddress(null);
+        setShowAddAddress(false);
+        setAddressForm({
+          label: '',
+          firstName: '',
+          lastName: '',
+          phone: '',
+          address: '',
+          city: '',
+          state: '',
+          pincode: '',
+          isDefault: false
+        });
+        alert('Address updated successfully!');
+      } else {
+        alert(result.message || 'Error updating address. Please try again.');
+      }
     } catch (error) {
       console.error('Error updating address:', error);
       alert('Error updating address. Please try again.');
     }
   };
 
-  const handleDeleteAddress = (addressId) => {
+  const handleDeleteAddress = async (addressId) => {
     if (confirm('Are you sure you want to delete this address?')) {
-      setAddresses(addresses.filter(addr => addr.id !== addressId));
-      alert('Address deleted successfully!');
+      try {
+        console.log('Deleting address:', addressId);
+        const result = await userService.deleteAddress(addressId);
+        
+        if (result.success) {
+          // Update addresses list
+          const formattedAddresses = result.addresses.map(addr => ({
+            ...addr,
+            id: addr._id || addr.id
+          }));
+          setAddresses(formattedAddresses);
+          alert('Address deleted successfully!');
+        } else {
+          alert(result.message || 'Error deleting address. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error deleting address:', error);
+        alert('Error deleting address. Please try again.');
+      }
     }
   };
 
