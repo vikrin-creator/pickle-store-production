@@ -61,8 +61,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    category: 'Vegetarian',
-    productType: 'Pickles',
+    category: '', // Will be set to first available category
     spiceLevel: 'Medium',
     image: '',
     codAvailable: true
@@ -122,6 +121,16 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   useEffect(() => {
     loadAllAdminData();
   }, [activeTab]);
+
+  // Set initial category when categories are loaded
+  useEffect(() => {
+    if (categories.length > 0 && !formData.category) {
+      setFormData(prev => ({
+        ...prev,
+        category: getCategoryValue(categories[0])
+      }));
+    }
+  }, [categories]);
 
   const loadAllAdminData = async () => {
     try {
@@ -249,6 +258,22 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       console.error('Error loading categories:', error);
       setCategories([]);
     }
+  };
+
+  // Helper function to get display name for categories (same as ProductsPage)
+  const getCategoryDisplayName = (category) => {
+    if (category.title) {
+      return category.title;
+    }
+    return category.category || category.name;
+  };
+
+  // Helper function to get category value for forms
+  const getCategoryValue = (category) => {
+    if (category.title) {
+      return category.title;
+    }
+    return category.category || category.name;
   };
 
   const calculateCustomerStats = (customerData) => {
@@ -538,8 +563,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       setFormData({
         name: '',
         description: '',
-        category: 'Vegetarian',
-        productType: 'Pickles',
+        category: categories.length > 0 ? getCategoryValue(categories[0]) : '',
         spiceLevel: 'Medium',
         image: '',
         codAvailable: true
@@ -567,7 +591,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       name: product.name,
       description: product.description,
       category: product.category,
-      productType: product.productType || 'Pickles', // Default to Pickles if not set
       spiceLevel: product.spiceLevel || 'Medium',
       image: product.image,
       codAvailable: product.codAvailable !== undefined ? product.codAvailable : true
@@ -696,8 +719,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     setFormData({
       name: '',
       description: '',
-      category: 'Vegetarian',
-      productType: 'Pickles',
+      category: categories.length > 0 ? getCategoryValue(categories[0]) : '',
       spiceLevel: 'Medium',
       featured: false,
       rating: 0,
@@ -1405,7 +1427,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   )}
                 </div>
                 <div className="flex flex-wrap gap-1 text-xs mb-3">
-                  <span className="bg-blue-100 px-2 py-1 rounded text-blue-800">{product.productType || 'Pickles'}</span>
+                  <span className="bg-blue-100 px-2 py-1 rounded text-blue-800">{product.category}</span>
                   <span className="bg-gray-100 px-2 py-1 rounded">{product.category}</span>
                   {product.featured && <span className="bg-yellow-100 px-2 py-1 rounded text-yellow-800">Featured</span>}
                   {product.rating && <span className="bg-green-100 px-2 py-1 rounded text-green-800">★ {product.rating}</span>}
@@ -1490,17 +1512,18 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1">Product Type</label>
+                    <label className="block text-sm font-medium mb-1">Category</label>
                     <select
-                      name="productType"
-                      value={formData.productType}
+                      name="category"
+                      value={formData.category}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
                     >
-                      <option value="Pickles">Pickles</option>
-                      <option value="Spices">Spices</option>
-                      <option value="Seafood">Seafood</option>
-                      <option value="Podi">Podi</option>
+                      {categories.map((category) => (
+                        <option key={getCategoryValue(category)} value={getCategoryValue(category)}>
+                          {getCategoryDisplayName(category)}
+                        </option>
+                      ))}
                     </select>
                   </div>
 
