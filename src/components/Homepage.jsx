@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import authService from '../services/authService';
 import HomepageService from '../services/homepageService';
+import CategoryService from '../services/categoryService';
 import CustomerAuth from './CustomerAuth';
 import CustomerProfile from './CustomerProfile';
 
@@ -21,6 +22,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     featured: { products: [] },
     customerFavorites: { products: [] }
   });
+  const [categories, setCategories] = useState([]);
   const [homepageLoading, setHomepageLoading] = useState(true);
 
   // Check authentication status on component mount
@@ -28,7 +30,21 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     setIsAuthenticated(authService.isAuthenticated());
     setUser(authService.getCurrentUser());
     loadHomepageData();
+    loadCategories();
   }, []);
+
+  // Load categories from database
+  const loadCategories = async () => {
+    try {
+      const data = await CategoryService.getAllCategories();
+      console.log('Homepage: Loaded categories from API:', data.length);
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Homepage: Error loading categories:', error);
+      // Keep static categories as fallback
+      setCategories([]);
+    }
+  };
 
   // Load homepage data from API
   const loadHomepageData = async () => {
@@ -452,10 +468,10 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             </div>
           )}
 
-          {/* Fallback to static categories if no featured products */}
+          {/* Display categories from database or fallback to static */}
           {!homepageLoading && (!homepageData.featured?.products || homepageData.featured.products.length === 0) && (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
-              {[
+              {(categories.length > 0 ? categories : [
                 {
                   title: "🥒 Pickles (Veg & Non-Veg)",
                   description: "The heart of Janiitra – tangy, spicy, and full of flavor, prepared without preservatives for an authentic homemade experience.",
@@ -480,7 +496,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                   image: "/assets/MixedVegetablePickle.png",
                   category: "Seafood"
                 }
-              ].map((item, index) => (
+              ]).sort((a, b) => (a.order || 0) - (b.order || 0)).map((item, index) => (
                   <button 
                     key={index}
                     onClick={() => handleCategoryNavigate(item.category)}
