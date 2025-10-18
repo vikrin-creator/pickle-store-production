@@ -16,14 +16,33 @@ class AdminService {
 
   static async createProduct(productData) {
     try {
+      const formData = new FormData();
+      
+      // Add text fields
+      formData.append('name', productData.name);
+      formData.append('description', productData.description);
+      formData.append('category', productData.category);
+      formData.append('spiceLevel', productData.spiceLevel || 'Medium');
+      formData.append('weights', JSON.stringify(productData.weights || []));
+      formData.append('featured', productData.featured || false);
+      formData.append('rating', productData.rating || 0);
+      formData.append('reviews', productData.reviews || 0);
+      
+      // Add image file if provided
+      if (productData.image) {
+        formData.append('image', productData.image);
+      }
+      
       const response = await fetch(`${API_BASE_URL}/admin/products`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productData)
+        body: formData // Don't set Content-Type header - let browser set it with boundary
       });
-      if (!response.ok) throw new Error('Failed to create product');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create product');
+      }
+      
       return await response.json();
     } catch (error) {
       console.error('Error creating product:', error);
@@ -33,14 +52,33 @@ class AdminService {
 
   static async updateProduct(productId, productData) {
     try {
+      const formData = new FormData();
+      
+      // Add text fields
+      formData.append('name', productData.name);
+      formData.append('description', productData.description);
+      formData.append('category', productData.category);
+      formData.append('spiceLevel', productData.spiceLevel || 'Medium');
+      formData.append('weights', JSON.stringify(productData.weights || []));
+      formData.append('featured', productData.featured || false);
+      formData.append('rating', productData.rating || 0);
+      formData.append('reviews', productData.reviews || 0);
+      
+      // Add image file if provided (only for updates with new image)
+      if (productData.image && productData.image instanceof File) {
+        formData.append('image', productData.image);
+      }
+      
       const response = await fetch(`${API_BASE_URL}/admin/products/${productId}`, {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productData)
+        body: formData // Don't set Content-Type header - let browser set it with boundary
       });
-      if (!response.ok) throw new Error('Failed to update product');
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update product');
+      }
+      
       return await response.json();
     } catch (error) {
       console.error('Error updating product:', error);

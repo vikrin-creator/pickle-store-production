@@ -513,11 +513,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         name: formData.name,
         description: formData.description,
         category: formData.category,
-        productType: formData.productType,
         spiceLevel: formData.spiceLevel || 'Medium',
         weights: weightOptions,
-        image: selectedImageFile,
-        codAvailable: formData.codAvailable || true
+        image: selectedImageFile, // This should be a File object, not base64
+        featured: formData.featured || false,
+        rating: formData.rating || 0,
+        reviews: formData.reviews || 0
       };
 
       let savedProduct;
