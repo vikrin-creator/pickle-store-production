@@ -637,8 +637,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         ></div>
       )}
 
-      {/* Top Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200 px-4 lg:px-8 py-4 z-50 relative">
+      {/* Top Header - Fixed */}
+      <header className="bg-white shadow-sm border-b border-gray-200 px-4 lg:px-8 py-4 z-50 fixed top-0 left-0 right-0">
         <div className="flex justify-between items-center">
           {/* Left side - Logo, Mobile menu and Title */}
           <div className="flex items-center space-x-4">
@@ -653,11 +653,10 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             <img
               src="/assets/logo.png"
               alt="Janiitra Pickles"
-              className="h-10 w-10 rounded-lg bg-white p-1 shadow-md"
+              className="h-12 w-12 lg:h-14 lg:w-14 rounded-lg bg-white p-1 shadow-md"
             />
             <div>
-              <h1 className="text-xl lg:text-2xl font-bold text-gray-800">Janiitra Pickles</h1>
-              <p className="text-xs lg:text-sm text-gray-500 capitalize">{activeTab === 'dashboard' ? 'Admin Dashboard' : `${activeTab} Management`}</p>
+              <p className="text-sm lg:text-base text-gray-500 capitalize">{activeTab === 'dashboard' ? 'Admin Dashboard' : `${activeTab} Management`}</p>
             </div>
           </div>
 
@@ -697,9 +696,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       </header>
 
       {/* Middle Section with Sidebar and Content */}
-      <div className="flex flex-1">
+      <div className="flex flex-1 pt-20">
         {/* Category Section (Sidebar Navigation) - Fixed Position */}
-        <div className={`w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed h-full z-40 lg:relative lg:translate-x-0 transition-transform duration-300 ${
+        <div className={`w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed top-20 bottom-0 z-40 lg:relative lg:top-0 lg:translate-x-0 transition-transform duration-300 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}>
         <div className="p-6">          
@@ -744,7 +743,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         </div>
 
         {/* Main Content Area */}
-        <main className="flex-1 p-4 lg:p-8 overflow-auto bg-gray-50">
+        <main className="flex-1 p-4 lg:p-8 overflow-auto bg-gray-50 lg:ml-0">
           {/* Tab Content */}
         
         {/* Dashboard Tab */}
