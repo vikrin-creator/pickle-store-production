@@ -2146,115 +2146,152 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
 
-        {/* Categories Tab */}
+        {/* Categories Tab - Featured Pickles Products */}
         {activeTab === 'categories' && (
           <div className="space-y-6">
             <div className="flex justify-between items-center">
-              <h2 className="text-2xl font-bold text-gray-800">🗂️ Category Management</h2>
-              <button
-                onClick={() => setShowCategoryForm(true)}
-                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
-              >
-                + Add Category
-              </button>
+              <h2 className="text-2xl font-bold text-gray-800">🥒 Featured Pickles Products</h2>
+              <div className="text-sm text-gray-600">
+                Total Featured Products: {products.filter(p => p.featured).length}
+              </div>
             </div>
 
-            {/* Category Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
+            {/* Featured Products Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Total Categories</h3>
-                <p className="text-2xl font-bold text-blue-600">{categories.length}</p>
+                <h3 className="text-sm font-medium text-gray-600">Featured Products</h3>
+                <p className="text-2xl font-bold text-yellow-600">{products.filter(p => p.featured).length}</p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Active Categories</h3>
+                <h3 className="text-sm font-medium text-gray-600">Available Stock</h3>
                 <p className="text-2xl font-bold text-green-600">
-                  {categories.filter(cat => cat.isActive).length}
+                  {products.filter(p => p.featured && p.inStock).length}
                 </p>
               </div>
               <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Pickles Categories</h3>
-                <p className="text-2xl font-bold text-orange-600">
-                  {categories.filter(cat => cat.category === 'Pickles').length}
-                </p>
-              </div>
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-sm font-medium text-gray-600">Custom Categories</h3>
-                <p className="text-2xl font-bold text-purple-600">
-                  {categories.filter(cat => cat.category === 'Custom').length}
+                <h3 className="text-sm font-medium text-gray-600">Average Rating</h3>
+                <p className="text-2xl font-bold text-blue-600">
+                  {products.filter(p => p.featured && p.rating).length > 0 
+                    ? (products.filter(p => p.featured && p.rating).reduce((sum, p) => sum + p.rating, 0) / products.filter(p => p.featured && p.rating).length).toFixed(1)
+                    : 'N/A'}
                 </p>
               </div>
             </div>
 
-            {/* Categories Grid */}
+            {/* Featured Products Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {categories.length === 0 ? (
+              {products.filter(p => p.featured).length === 0 ? (
                 <div className="col-span-full text-center py-12 bg-white rounded-lg shadow-md">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Categories Found</h3>
-                  <p className="text-gray-500">Add your first category to display on the homepage!</p>
+                  <div className="text-6xl mb-4">🥒</div>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No Featured Products Found</h3>
+                  <p className="text-gray-500 mb-4">Mark some products as featured to display them here!</p>
+                  <button
+                    onClick={() => setActiveTab('products')}
+                    className="bg-orange-500 text-white px-6 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+                  >
+                    Go to Products
+                  </button>
                 </div>
-              ) : categories.map((category) => (
-                <div key={category._id || category.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-                  {/* Category Image */}
-                  <div className="h-48 bg-cover bg-center relative" style={{ backgroundImage: `url('${category.image || '/placeholder-category.jpg'}')` }}>
+              ) : products.filter(p => p.featured).map((product) => (
+                <div key={product._id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                  {/* Product Image */}
+                  <div className="h-48 relative">
+                    <img
+                      src={product.image ? (product.image.startsWith('/api/') ? `https://pickle-store-backend.onrender.com${product.image}` : product.image) : 'https://via.placeholder.com/300x200'}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.target.src = 'https://via.placeholder.com/300x200';
+                      }}
+                    />
                     <div className="absolute top-2 right-2 flex gap-2">
-                      <button
-                        onClick={() => handleToggleCategoryStatus(category._id || category.id)}
-                        className={`px-2 py-1 text-xs font-medium rounded-full ${
-                          category.isActive 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}
-                      >
-                        {category.isActive ? 'Active' : 'Inactive'}
-                      </button>
-                    </div>
-                    <div className="absolute bottom-2 left-2">
-                      <span className="text-2xl bg-white bg-opacity-80 rounded-full p-1">
-                        {category.emoji || '🗂️'}
+                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 text-xs font-medium rounded-full">
+                        ⭐ Featured
+                      </span>
+                      <span className={`px-2 py-1 text-xs font-medium rounded-full ${
+                        product.inStock 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
+                      }`}>
+                        {product.inStock ? 'In Stock' : 'Out of Stock'}
                       </span>
                     </div>
                   </div>
 
-                  {/* Category Info */}
+                  {/* Product Info */}
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-lg font-semibold text-gray-900 truncate">
-                        {category.title}
+                        {product.name}
                       </h3>
-                      <span className="text-xs text-gray-500">#{category.order}</span>
+                      {product.rating && (
+                        <div className="flex items-center text-sm text-gray-600">
+                          <span className="text-yellow-500">★</span>
+                          <span className="ml-1">{product.rating}</span>
+                        </div>
+                      )}
                     </div>
                     
                     <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                      {category.description}
+                      {product.description}
                     </p>
 
-                    <div className="flex items-center justify-between">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        category.category === 'Pickles' ? 'bg-green-100 text-green-800' :
-                        category.category === 'Spices' ? 'bg-red-100 text-red-800' :
-                        category.category === 'Podi' ? 'bg-yellow-100 text-yellow-800' :
-                        category.category === 'Seafood' ? 'bg-blue-100 text-blue-800' :
-                        'bg-purple-100 text-purple-800'
+                    <div className="mb-3">
+                      {product.weights && product.weights.length > 0 && (
+                        <div className="text-sm">
+                          <span className="font-semibold text-gray-700">Prices: </span>
+                          {product.weights.map((w, idx) => (
+                            <span key={idx} className="text-[#ecab13] font-bold">
+                              {w.weight}: ₹{w.price}{idx < product.weights.length - 1 ? ', ' : ''}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-1 text-xs mb-3">
+                      <span className="bg-blue-100 px-2 py-1 rounded text-blue-800">{product.category}</span>
+                      <span className={`px-2 py-1 rounded font-medium ${
+                        product.codAvailable 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-red-100 text-red-800'
                       }`}>
-                        {category.category === 'Custom' && category.customCategoryName 
-                          ? category.customCategoryName 
-                          : category.category}
+                        {product.codAvailable ? '💰 COD' : '❌ No COD'}
                       </span>
+                      {product.reviews > 0 && (
+                        <span className="bg-purple-100 px-2 py-1 rounded text-purple-800">
+                          {product.reviews} reviews
+                        </span>
+                      )}
                     </div>
 
                     {/* Action Buttons */}
                     <div className="flex gap-2 mt-4">
                       <button
-                        onClick={() => handleEditCategory(category)}
+                        onClick={() => toggleFeaturedStatus(product._id)}
+                        className="flex-1 bg-yellow-500 text-white text-sm py-2 px-3 rounded-md hover:bg-yellow-600 transition-colors"
+                      >
+                        Remove Featured
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingProduct(product);
+                          setFormData({
+                            name: product.name,
+                            description: product.description,
+                            category: product.category,
+                            weights: product.weights || [{ weight: '', price: '' }],
+                            productType: product.productType || 'Pickles',
+                            spiceLevel: product.spiceLevel || 'Medium',
+                            ingredients: product.ingredients || '',
+                            storageInstructions: product.storageInstructions || '',
+                            codAvailable: product.codAvailable || false
+                          });
+                          setShowAddForm(true);
+                        }}
                         className="flex-1 bg-blue-500 text-white text-sm py-2 px-3 rounded-md hover:bg-blue-600 transition-colors"
                       >
                         Edit
-                      </button>
-                      <button
-                        onClick={() => handleDeleteCategory(category._id || category.id)}
-                        className="flex-1 bg-red-500 text-white text-sm py-2 px-3 rounded-md hover:bg-red-600 transition-colors"
-                      >
-                        Delete
                       </button>
                     </div>
                   </div>
