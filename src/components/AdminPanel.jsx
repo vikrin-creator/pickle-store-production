@@ -593,11 +593,25 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
   const handleEditProduct = (product) => {
     setEditingProduct(product);
+    
+    // Handle backward compatibility: old products vs new products
+    let productCategory, dietaryCategory;
+    
+    if (product.productCategory) {
+      // New product: has separate fields
+      productCategory = product.productCategory;
+      dietaryCategory = product.category; // category field contains dietary info
+    } else {
+      // Old product: category field contains product category, guess dietary category
+      productCategory = product.category;
+      dietaryCategory = product.dietaryCategory || 'Vegetarian';
+    }
+    
     setFormData({
       name: product.name,
       description: product.description,
-      category: product.category,
-      dietaryCategory: product.dietaryCategory || 'Vegetarian', // Default if not set
+      category: productCategory,
+      dietaryCategory: dietaryCategory,
       spiceLevel: product.spiceLevel || 'Medium',
       image: product.image,
       codAvailable: product.codAvailable !== undefined ? product.codAvailable : true
@@ -1435,8 +1449,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   )}
                 </div>
                 <div className="flex flex-wrap gap-1 text-xs mb-3">
-                  <span className="bg-blue-100 px-2 py-1 rounded text-blue-800">{product.category}</span>
-                  <span className="bg-gray-100 px-2 py-1 rounded">{product.category}</span>
+                  <span className="bg-blue-100 px-2 py-1 rounded text-blue-800">
+                    {product.productCategory || product.category}
+                  </span>
+                  <span className="bg-gray-100 px-2 py-1 rounded">
+                    {product.productCategory ? product.category : 'Vegetarian'}
+                  </span>
                   {product.featured && <span className="bg-yellow-100 px-2 py-1 rounded text-yellow-800">Featured</span>}
                   {product.rating && <span className="bg-green-100 px-2 py-1 rounded text-green-800">★ {product.rating}</span>}
                   <span className={`px-2 py-1 rounded font-medium ${
