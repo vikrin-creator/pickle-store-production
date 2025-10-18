@@ -82,12 +82,14 @@ class AuthService {
       return data;
     } catch (error) {
       console.error('Registration network error:', error);
+      console.error('API_URL being used:', API_URL);
+      console.error('Full URL attempted:', `${API_URL}/api/auth/register`);
       
-      // Check if it's a network connectivity issue
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      // Check if it's a CORS or network connectivity issue
+      if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('Failed to fetch'))) {
         return {
           success: false,
-          message: 'Unable to connect to server. Please check your internet connection and try again.'
+          message: 'Unable to connect to server. This could be a network or CORS issue. Please try again.'
         };
       }
       
@@ -132,12 +134,14 @@ class AuthService {
       return data;
     } catch (error) {
       console.error('Login network error:', error);
+      console.error('API_URL being used:', API_URL);
+      console.error('Full URL attempted:', `${API_URL}/api/auth/login`);
       
-      // Check if it's a network connectivity issue
-      if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      // Check if it's a CORS or network connectivity issue
+      if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('Failed to fetch'))) {
         return {
           success: false,
-          message: 'Unable to connect to server. Please check your internet connection and try again.'
+          message: 'Unable to connect to server. This could be a network or CORS issue. Please try again.'
         };
       }
       
