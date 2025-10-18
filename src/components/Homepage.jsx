@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import authService from '../services/authService';
 import HomepageService from '../services/homepageService';
 import CustomerAuth from './CustomerAuth';
+import CustomerProfile from './CustomerProfile';
 
 const Homepage = ({ cartCount, onNavigateToCart }) => {
   // Helper for category navigation
@@ -15,6 +16,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
   const [homepageData, setHomepageData] = useState({
     featured: { products: [] },
     customerFavorites: { products: [] }
@@ -135,6 +137,14 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     window.location.reload();
   };
 
+  const handleProfileClick = () => {
+    setShowProfile(true);
+  };
+
+  const handleProfileClose = () => {
+    setShowProfile(false);
+  };
+
   const handleShowLogin = () => {
     setShowAuthModal(true);
   };
@@ -252,10 +262,44 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                     window.navigateToWishlist && window.navigateToWishlist();
                     setShowMobileMenu(false);
                   }}
-                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200"
+                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
                 >
                   My Wishlist
                 </button>
+                
+                {/* Authentication/Profile Options */}
+                {isAuthenticated ? (
+                  <>
+                    <button 
+                      onClick={() => {
+                        handleProfileClick();
+                        setShowMobileMenu(false);
+                      }}
+                      className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+                    >
+                      👤 My Profile
+                    </button>
+                    <button 
+                      onClick={() => {
+                        handleLogout();
+                        setShowMobileMenu(false);
+                      }}
+                      className="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200"
+                    >
+                      🚪 Logout
+                    </button>
+                  </>
+                ) : (
+                  <button 
+                    onClick={() => {
+                      handleShowLogin();
+                      setShowMobileMenu(false);
+                    }}
+                    className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200"
+                  >
+                    👤 Login / Sign Up
+                  </button>
+                )}
               </nav>
             </div>
           )}
@@ -263,7 +307,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Header Actions */}
         <div className="hidden lg:flex items-center gap-2 animate-fade-in-delay-2">
-          {/* Account/Logout Button */}
+          {/* Account/Profile Button */}
           {isAuthenticated ? (
             <div className="flex items-center gap-2">
               {/* Welcome message - only show on larger screens */}
@@ -271,14 +315,12 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 Welcome, {user?.firstName || 'Customer'}!
               </span>
               <button 
-                onClick={handleLogout}
-                className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-red-500/20 hover:scale-105 group"
-                title={`Logout ${user?.firstName || 'User'}`}
+                onClick={handleProfileClick}
+                className="flex items-center gap-2 px-3 py-2 rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-105 group"
+                title={`Profile - ${user?.firstName || 'User'}`}
               >
-                <svg fill="currentColor" height="18px" viewBox="0 0 256 256" width="18px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
-                  <path d="M112,216a8,8,0,0,1-8,8H48a16,16,0,0,1-16-16V48A16,16,0,0,1,48,32h56a8,8,0,0,1,0,16H48V208h56A8,8,0,0,1,112,216Zm109.66-93.66-40-40a8,8,0,0,0-11.32,11.32L188.69,112H112a8,8,0,0,0,0,16h76.69l-18.35,18.34a8,8,0,0,0,11.32,11.32l40-40A8,8,0,0,0,221.66,122.34Z"></path>
-                </svg>
-                <span className="hidden lg:block text-sm font-medium">Logout</span>
+                <span className="text-lg group-hover:scale-110 transition-transform duration-300">👤</span>
+                <span className="hidden lg:block text-sm font-medium">Profile</span>
               </button>
             </div>
           ) : (
@@ -640,6 +682,17 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         <CustomerAuth 
           onClose={handleAuthClose}
           onSuccess={handleAuthSuccess}
+        />
+      )}
+
+      {/* Customer Profile */}
+      {showProfile && (
+        <CustomerProfile 
+          onClose={handleProfileClose}
+          onNavigateHome={() => {
+            setShowProfile(false);
+            // Could add any additional navigation logic here
+          }}
         />
       )}
     </div>
