@@ -80,6 +80,26 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [updatingOrderStatus, setUpdatingOrderStatus] = useState(false);
 
+  // Reviews and FAQ States
+  const [reviews, setReviews] = useState([]);
+  const [faqs, setFaqs] = useState([]);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [showFaqForm, setShowFaqForm] = useState(false);
+  const [editingReview, setEditingReview] = useState(null);
+  const [editingFaq, setEditingFaq] = useState(null);
+  const [reviewFormData, setReviewFormData] = useState({
+    productId: '',
+    productName: '',
+    customerName: '',
+    rating: 5,
+    comment: ''
+  });
+  const [faqFormData, setFaqFormData] = useState({
+    question: '',
+    answer: '',
+    category: 'General'
+  });
+
   // Load all admin data on component mount
 
   useEffect(() => {
@@ -111,6 +131,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           break;
         case 'customers':
           await loadCustomers();
+          break;
+        case 'reviews':
+          await loadReviews();
+          break;
+        case 'faq':
+          await loadFaqs();
           break;
         default:
           await loadProducts();
@@ -169,6 +195,28 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     } catch (error) {
       console.error('Error loading customers:', error);
       setCustomers([]);
+    }
+  };
+
+  const loadReviews = async () => {
+    try {
+      const data = await AdminService.getAllReviews();
+      console.log('Loaded reviews from API:', data.length);
+      setReviews(data || []);
+    } catch (error) {
+      console.error('Error loading reviews:', error);
+      setReviews([]);
+    }
+  };
+
+  const loadFaqs = async () => {
+    try {
+      const data = await AdminService.getAllFaqs();
+      console.log('Loaded FAQs from API:', data.length);
+      setFaqs(data || []);
+    } catch (error) {
+      console.error('Error loading FAQs:', error);
+      setFaqs([]);
     }
   };
 
@@ -676,6 +724,104 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     }
   };
 
+  // Reviews Handler Functions
+  const handleSaveReview = async () => {
+    try {
+      if (!reviewFormData.productName || !reviewFormData.customerName || !reviewFormData.comment) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      if (editingReview) {
+        // Update existing review
+        const updatedReview = await AdminService.updateReview(editingReview._id || editingReview.id, reviewFormData);
+        const updatedReviews = reviews.map(review => 
+          (review._id || review.id) === (editingReview._id || editingReview.id) 
+            ? updatedReview
+            : review
+        );
+        setReviews(updatedReviews);
+        alert('Review updated successfully!');
+      } else {
+        // Add new review
+        const newReview = await AdminService.createReview(reviewFormData);
+        setReviews([newReview, ...reviews]);
+        alert('Review added successfully!');
+      }
+
+      // Reset form
+      setShowReviewForm(false);
+      setEditingReview(null);
+      setReviewFormData({ productId: '', productName: '', customerName: '', rating: 5, comment: '' });
+    } catch (error) {
+      console.error('Error saving review:', error);
+      alert(`Failed to save review: ${error.message}`);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId) => {
+    if (window.confirm('Are you sure you want to delete this review?')) {
+      try {
+        await AdminService.deleteReview(reviewId);
+        const updatedReviews = reviews.filter(review => (review._id || review.id) !== reviewId);
+        setReviews(updatedReviews);
+        alert('Review deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting review:', error);
+        alert(`Failed to delete review: ${error.message}`);
+      }
+    }
+  };
+
+  // FAQ Handler Functions
+  const handleSaveFaq = async () => {
+    try {
+      if (!faqFormData.question || !faqFormData.answer) {
+        alert('Please fill in all required fields');
+        return;
+      }
+
+      if (editingFaq) {
+        // Update existing FAQ
+        const updatedFaq = await AdminService.updateFaq(editingFaq._id || editingFaq.id, faqFormData);
+        const updatedFaqs = faqs.map(faq => 
+          (faq._id || faq.id) === (editingFaq._id || editingFaq.id) 
+            ? updatedFaq
+            : faq
+        );
+        setFaqs(updatedFaqs);
+        alert('FAQ updated successfully!');
+      } else {
+        // Add new FAQ
+        const newFaq = await AdminService.createFaq(faqFormData);
+        setFaqs([newFaq, ...faqs]);
+        alert('FAQ added successfully!');
+      }
+
+      // Reset form
+      setShowFaqForm(false);
+      setEditingFaq(null);
+      setFaqFormData({ question: '', answer: '', category: 'General' });
+    } catch (error) {
+      console.error('Error saving FAQ:', error);
+      alert(`Failed to save FAQ: ${error.message}`);
+    }
+  };
+
+  const handleDeleteFaq = async (faqId) => {
+    if (window.confirm('Are you sure you want to delete this FAQ?')) {
+      try {
+        await AdminService.deleteFaq(faqId);
+        const updatedFaqs = faqs.filter(faq => (faq._id || faq.id) !== faqId);
+        setFaqs(updatedFaqs);
+        alert('FAQ deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting FAQ:', error);
+        alert(`Failed to delete FAQ: ${error.message}`);
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Mobile Menu Overlay */}
@@ -756,7 +902,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               { id: 'orders', label: 'Orders', icon: '📦' },
               { id: 'customers', label: 'Users', icon: '👥' },
               { id: 'payments', label: 'Payments', icon: '💳' },
-              { id: 'shipping', label: 'Shipping', icon: '🚚' }
+              { id: 'shipping', label: 'Shipping', icon: '🚚' },
+              { id: 'reviews', label: 'Reviews', icon: '⭐' },
+              { id: 'faq', label: 'FAQ', icon: '❓' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -1662,8 +1810,396 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
 
+        {/* Reviews Tab */}
+        {activeTab === 'reviews' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">⭐ Reviews Management</h2>
+              <button
+                onClick={() => setShowReviewForm(true)}
+                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                + Add Review
+              </button>
+            </div>
+
+            {/* Reviews Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Total Reviews</h3>
+                <p className="text-2xl font-bold text-green-600">{reviews.length}</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Average Rating</h3>
+                <p className="text-2xl font-bold text-yellow-600">
+                  {reviews.length > 0 ? (reviews.reduce((acc, rev) => acc + rev.rating, 0) / reviews.length).toFixed(1) : '0.0'}
+                </p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">5-Star Reviews</h3>
+                <p className="text-2xl font-bold text-orange-600">
+                  {reviews.filter(rev => rev.rating === 5).length}
+                </p>
+              </div>
+            </div>
+
+            {/* Reviews Table */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">All Reviews</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Rating</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Comment</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {reviews.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                          No reviews found. Add some reviews to get started!
+                        </td>
+                      </tr>
+                    ) : reviews.map((review) => (
+                      <tr key={review._id || review.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                          {review.productName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {review.customerName}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <div className="flex items-center">
+                            <span className="text-yellow-400">
+                              {'★'.repeat(review.rating)}{'☆'.repeat(5 - review.rating)}
+                            </span>
+                            <span className="ml-1">({review.rating})</span>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
+                          {review.comment}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button 
+                            onClick={() => {
+                              setEditingReview(review);
+                              setReviewFormData(review);
+                              setShowReviewForm(true);
+                            }}
+                            className="text-blue-600 hover:text-blue-900 mr-2"
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteReview(review._id || review.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* FAQ Tab */}
+        {activeTab === 'faq' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">❓ FAQ Management</h2>
+              <button
+                onClick={() => setShowFaqForm(true)}
+                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                + Add FAQ
+              </button>
+            </div>
+
+            {/* FAQ Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Total FAQs</h3>
+                <p className="text-2xl font-bold text-blue-600">{faqs.length}</p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">General FAQs</h3>
+                <p className="text-2xl font-bold text-green-600">
+                  {faqs.filter(faq => faq.category === 'General').length}
+                </p>
+              </div>
+              <div className="bg-white p-6 rounded-lg shadow-md">
+                <h3 className="text-sm font-medium text-gray-600">Product FAQs</h3>
+                <p className="text-2xl font-bold text-purple-600">
+                  {faqs.filter(faq => faq.category === 'Products').length}
+                </p>
+              </div>
+            </div>
+
+            {/* FAQ Table */}
+            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-200">
+                <h3 className="text-lg font-medium text-gray-900">All FAQs</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Question</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Answer</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Category</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-200">
+                    {faqs.length === 0 ? (
+                      <tr>
+                        <td colSpan="4" className="px-6 py-4 text-center text-gray-500">
+                          No FAQs found. Add some questions to help your customers!
+                        </td>
+                      </tr>
+                    ) : faqs.map((faq) => (
+                      <tr key={faq._id || faq.id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 text-sm font-medium text-gray-900 max-w-xs">
+                          {faq.question}
+                        </td>
+                        <td className="px-6 py-4 text-sm text-gray-500 max-w-md truncate">
+                          {faq.answer}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            faq.category === 'General' ? 'bg-blue-100 text-blue-800' :
+                            faq.category === 'Products' ? 'bg-green-100 text-green-800' :
+                            faq.category === 'Shipping' ? 'bg-purple-100 text-purple-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {faq.category}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button 
+                            onClick={() => {
+                              setEditingFaq(faq);
+                              setFaqFormData(faq);
+                              setShowFaqForm(true);
+                            }}
+                            className="text-blue-600 hover:text-blue-900 mr-2"
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteFaq(faq._id || faq.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
+
         </main>
       </div>
+
+      {/* Review Form Modal */}
+      {showReviewForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingReview ? 'Edit Review' : 'Add New Review'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowReviewForm(false);
+                    setEditingReview(null);
+                    setReviewFormData({ productId: '', productName: '', customerName: '', rating: 5, comment: '' });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                <input
+                  type="text"
+                  value={reviewFormData.productName}
+                  onChange={(e) => setReviewFormData({ ...reviewFormData, productName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Enter product name"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name</label>
+                <input
+                  type="text"
+                  value={reviewFormData.customerName}
+                  onChange={(e) => setReviewFormData({ ...reviewFormData, customerName: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Enter customer name"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Rating</label>
+                <select
+                  value={reviewFormData.rating}
+                  onChange={(e) => setReviewFormData({ ...reviewFormData, rating: parseInt(e.target.value) })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value={5}>⭐⭐⭐⭐⭐ (5 Stars)</option>
+                  <option value={4}>⭐⭐⭐⭐☆ (4 Stars)</option>
+                  <option value={3}>⭐⭐⭐☆☆ (3 Stars)</option>
+                  <option value={2}>⭐⭐☆☆☆ (2 Stars)</option>
+                  <option value={1}>⭐☆☆☆☆ (1 Star)</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Comment</label>
+                <textarea
+                  value={reviewFormData.comment}
+                  onChange={(e) => setReviewFormData({ ...reviewFormData, comment: e.target.value })}
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Enter review comment"
+                  required
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <button
+                  onClick={handleSaveReview}
+                  className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
+                >
+                  {editingReview ? 'Update Review' : 'Add Review'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowReviewForm(false);
+                    setEditingReview(null);
+                    setReviewFormData({ productId: '', productName: '', customerName: '', rating: 5, comment: '' });
+                  }}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* FAQ Form Modal */}
+      {showFaqForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingFaq ? 'Edit FAQ' : 'Add New FAQ'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowFaqForm(false);
+                    setEditingFaq(null);
+                    setFaqFormData({ question: '', answer: '', category: 'General' });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Question</label>
+                <input
+                  type="text"
+                  value={faqFormData.question}
+                  onChange={(e) => setFaqFormData({ ...faqFormData, question: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Enter frequently asked question"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select
+                  value={faqFormData.category}
+                  onChange={(e) => setFaqFormData({ ...faqFormData, category: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="General">General</option>
+                  <option value="Products">Products</option>
+                  <option value="Shipping">Shipping</option>
+                  <option value="Returns">Returns</option>
+                  <option value="Payment">Payment</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Answer</label>
+                <textarea
+                  value={faqFormData.answer}
+                  onChange={(e) => setFaqFormData({ ...faqFormData, answer: e.target.value })}
+                  rows={5}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Enter detailed answer"
+                  required
+                />
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <button
+                  onClick={handleSaveFaq}
+                  className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
+                >
+                  {editingFaq ? 'Update FAQ' : 'Add FAQ'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowFaqForm(false);
+                    setEditingFaq(null);
+                    setFaqFormData({ question: '', answer: '', category: 'General' });
+                  }}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Order View Modal */}
       {showOrderViewModal && selectedOrder && (

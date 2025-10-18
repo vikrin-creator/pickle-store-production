@@ -655,6 +655,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Contact Us</a>
           <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Privacy Policy</a>
           <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Terms of Service</a>
+          <button onClick={() => window.showFaqModal?.()} className="transition-colors duration-200 hover:text-[#ecab13]">FAQ</button>
         </div>
 
         {/* Social Links */}

@@ -175,6 +175,135 @@ class AdminService {
       return [];
     }
   }
+
+  // Reviews API
+  static async getAllReviews() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/reviews/admin/all`);
+      if (!response.ok) throw new Error('Failed to fetch reviews');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching reviews:', error);
+      throw error;
+    }
+  }
+
+  static async createReview(reviewData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/reviews`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reviewData)
+      });
+      if (!response.ok) throw new Error('Failed to create review');
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating review:', error);
+      throw error;
+    }
+  }
+
+  static async updateReview(reviewId, reviewData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(reviewData)
+      });
+      if (!response.ok) throw new Error('Failed to update review');
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating review:', error);
+      throw error;
+    }
+  }
+
+  static async deleteReview(reviewId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error('Failed to delete review');
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting review:', error);
+      throw error;
+    }
+  }
+
+  // FAQs API
+  static async getAllFaqs() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/faqs/admin/all`);
+      if (!response.ok) throw new Error('Failed to fetch FAQs');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching FAQs:', error);
+      throw error;
+    }
+  }
+
+  static async getPublicFaqs() {
+    try {
+      const response = await fetch(`${API_BASE_URL}/faqs`);
+      if (!response.ok) throw new Error('Failed to fetch public FAQs');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching public FAQs:', error);
+      throw error;
+    }
+  }
+
+  static async createFaq(faqData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/faqs`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(faqData)
+      });
+      if (!response.ok) throw new Error('Failed to create FAQ');
+      return await response.json();
+    } catch (error) {
+      console.error('Error creating FAQ:', error);
+      throw error;
+    }
+  }
+
+  static async updateFaq(faqId, faqData) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/faqs/${faqId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(faqData)
+      });
+      if (!response.ok) throw new Error('Failed to update FAQ');
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating FAQ:', error);
+      throw error;
+    }
+  }
+
+  static async deleteFaq(faqId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/faqs/${faqId}`, {
+        method: 'DELETE'
+      });
+      if (!response.ok) throw new Error('Failed to delete FAQ');
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting FAQ:', error);
+      throw error;
+    }
+  }
 }
 
 export default AdminService;

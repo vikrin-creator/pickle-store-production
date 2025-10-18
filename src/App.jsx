@@ -9,6 +9,7 @@ import AdminPanel from './components/AdminPanel'
 import AdminLogin from './components/AdminLogin'
 import Wishlist from './components/Wishlist'
 import CustomerAuth from './components/CustomerAuth'
+import FAQ from './components/FAQ'
 import authService from './services/authService'
 import './App.css'
 
@@ -26,6 +27,72 @@ function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [showCustomerAuth, setShowCustomerAuth] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState(null);
+
+  // FAQ state
+  const [showFaq, setShowFaq] = useState(false);
+  const [faqs, setFaqs] = useState([]);
+
+  // Load FAQs from API
+  const loadFaqs = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/faqs`);
+      if (response.ok) {
+        const data = await response.json();
+        setFaqs(data);
+      } else {
+        // Fallback to sample data if API fails
+        setFaqs([
+          {
+            _id: '1',
+            question: 'What makes Janiitra pickles special?',
+            answer: 'Our pickles are made using traditional recipes passed down through generations, with authentic spices and natural ingredients. We use no artificial preservatives and follow time-tested methods to ensure the best taste and quality.',
+            category: 'General'
+          },
+          {
+            _id: '2',
+            question: 'How long do the pickles last?',
+            answer: 'Our pickles have a shelf life of 12-18 months when stored properly in a cool, dry place. Once opened, they should be consumed within 2-3 months and kept refrigerated.',
+            category: 'Products'
+          },
+          {
+            _id: '3',
+            question: 'Do you offer free shipping?',
+            answer: 'Yes! We offer free shipping on orders above ₹500. For orders below ₹500, a nominal shipping charge of ₹50 applies.',
+            category: 'Shipping'
+          },
+          {
+            _id: '4',
+            question: 'Can I return or exchange products?',
+            answer: 'We accept returns within 7 days of delivery if the product is damaged or not as described. Due to the nature of food products, we do not accept returns for change of mind.',
+            category: 'Returns'
+          },
+          {
+            _id: '5',
+            question: 'What payment methods do you accept?',
+            answer: 'We accept all major credit/debit cards, UPI payments, net banking, and cash on delivery (COD) for most locations.',
+            category: 'Payment'
+          }
+        ]);
+      }
+    } catch (error) {
+      console.error('Error loading FAQs:', error);
+      // Fallback to sample data
+      setFaqs([
+        {
+          _id: '1',
+          question: 'What makes Janiitra pickles special?',
+          answer: 'Our pickles are made using traditional recipes passed down through generations, with authentic spices and natural ingredients. We use no artificial preservatives and follow time-tested methods to ensure the best taste and quality.',
+          category: 'General'
+        },
+        {
+          _id: '2',
+          question: 'How long do the pickles last?',
+          answer: 'Our pickles have a shelf life of 12-18 months when stored properly in a cool, dry place. Once opened, they should be consumed within 2-3 months and kept refrigerated.',
+          category: 'Products'
+        }
+      ]);
+    }
+  };
 
   // Initialize page from URL on mount
   useEffect(() => {
@@ -140,6 +207,19 @@ function App() {
       console.error('Error loading cart count:', error);
       setCartCount(0);
     }
+  };
+
+  // Global FAQ function setup
+  useEffect(() => {
+    window.showFaqModal = () => setShowFaq(true);
+    loadFaqs(); // Load FAQs on app start
+    return () => {
+      delete window.showFaqModal;
+    };
+  }, []);
+
+  const handleCloseFaq = () => {
+    setShowFaq(false);
   };
 
   const addToCart = (product) => {
@@ -421,6 +501,13 @@ function App() {
           onClose={closeCustomerAuth}
         />
       )}
+
+      {/* FAQ Modal */}
+      <FAQ 
+        isOpen={showFaq}
+        onClose={handleCloseFaq}
+        faqs={faqs}
+      />
     </div>
   );
 }
