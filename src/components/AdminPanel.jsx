@@ -1607,7 +1607,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       </div>
       
       {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 px-4 lg:px-8 py-4">
+      <footer className="bg-white border-t border-gray-200 px-4 lg:px-8 py-4 lg:ml-64">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
           <div className="text-xs sm:text-sm text-gray-600">
             © 2025 Janiitra Pickles Admin Dashboard. All rights reserved.
