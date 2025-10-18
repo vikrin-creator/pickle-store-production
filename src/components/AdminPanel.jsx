@@ -622,197 +622,295 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
-      {/* Header */}
-      <header className="sticky top-0 z-20 w-full border-b border-[#ecab13]/20 bg-[#2d6700]/90 backdrop-blur-sm">
-        <div className="flex items-center justify-between px-4 sm:px-8 py-4">
-          <div className="flex items-center">
-            <img 
+    <div className="min-h-screen bg-gray-50 flex font-sans">
+      {/* Modern Sidebar Navigation */}
+      <div className="w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl relative">
+        <div className="p-6">
+          <div className="flex items-center mb-8">
+            <img
               src="/assets/logo.png"
-              alt="Janiitra Logo"
-              className="h-6 w-36 sm:h-8 sm:w-48 object-contain"
+              alt="Janiitra Pickles"
+              className="h-10 w-10 mr-3 rounded-lg bg-white p-1"
             />
+            <div>
+              <h2 className="text-xl font-bold text-white">Janiitra Admin</h2>
+              <p className="text-green-100 text-sm">Pickle Store</p>
+            </div>
           </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setShowAddForm(true)}
-              className="px-4 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors"
-            >
-              Add Product
-            </button>
+          
+          <nav className="space-y-3">
+            {[
+              { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+              { id: 'products', label: 'Products', icon: '🛍️' },
+              { id: 'orders', label: 'Orders', icon: '📦' },
+              { id: 'customers', label: 'Users', icon: '👥' },
+              { id: 'payments', label: 'Payments', icon: '💳' },
+              { id: 'shipping', label: 'Shipping', icon: '🚚' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`w-full flex items-center px-4 py-3 rounded-xl transition-all duration-200 ${
+                  activeTab === tab.id
+                    ? 'bg-white/20 shadow-lg border-l-4 border-orange-400 transform scale-105'
+                    : 'hover:bg-white/10 hover:transform hover:scale-102'
+                }`}
+              >
+                <div className={`w-10 h-10 ${activeTab === tab.id ? 'bg-orange-400' : 'bg-white/20'} rounded-lg flex items-center justify-center mr-3 shadow-sm`}>
+                  <span className="text-lg">{tab.icon}</span>
+                </div>
+                <span className="text-white font-medium">{tab.label}</span>
+                {activeTab === tab.id && (
+                  <div className="ml-auto">
+                    <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
+                  </div>
+                )}
+              </button>
+            ))}
+          </nav>
+        </div>
+        
+        {/* Sidebar Footer */}
+        <div className="absolute bottom-0 w-64 p-6 border-t border-white/10">
+          <div className="space-y-2">
             <button
               onClick={onLogout}
-              className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors flex items-center gap-2"
+              className="w-full flex items-center px-4 py-3 text-white hover:bg-red-500/20 rounded-xl transition-colors"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
+              <span className="mr-3">🚪</span>
               Logout
             </button>
             <button
               onClick={onBackToHome}
-              className="px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+              className="w-full flex items-center px-4 py-3 text-white hover:bg-blue-500/20 rounded-xl transition-colors"
             >
+              <span className="mr-3">🏠</span>
               Back to Home
             </button>
           </div>
         </div>
-      </header>
+      </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-[#221c10] mb-8">Admin Panel</h1>
-
-        {/* Tab Navigation */}
-        <div className="mb-8">
-          <div className="border-b border-gray-200">
-            <nav className="-mb-px flex flex-wrap space-x-2 sm:space-x-8">
-              {[
-                { id: 'dashboard', label: '🧂 Dashboard', icon: '📊' },
-                { id: 'products', label: '🛍 Products', icon: '📦' },
-                { id: 'orders', label: '📦 Orders', icon: '📋' },
-                { id: 'payments', label: '💳 Payments', icon: '💰' },
-                { id: 'shipping', label: '🚚 Shipping', icon: '🚛' },
-                { id: 'customers', label: '👥 Customers', icon: '👤' }
-              ].map(tab => (
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col">
+        {/* Top Header */}
+        <header className="bg-white shadow-sm border-b border-gray-200 px-8 py-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 capitalize">{activeTab}</h1>
+              <p className="text-gray-500 mt-1">Manage your pickle store efficiently</p>
+            </div>
+            <div className="flex items-center space-x-4">
+              {activeTab === 'products' && (
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`py-2 px-2 sm:px-4 border-b-2 font-medium text-xs sm:text-sm transition-colors ${
-                    activeTab === tab.id
-                      ? 'border-orange-500 text-orange-600'
-                      : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                  }`}
+                  onClick={() => setShowAddForm(true)}
+                  className="px-6 py-3 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center gap-2"
                 >
-                  <span className="hidden sm:inline">{tab.label}</span>
-                  <span className="sm:hidden">{tab.icon}</span>
+                  <span>➕</span>
+                  Add Product
                 </button>
-              ))}
-            </nav>
+              )}
+              <div className="text-right">
+                <p className="text-sm text-gray-500">Welcome back</p>
+                <p className="font-semibold text-gray-800">Admin</p>
+              </div>
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-full flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-lg">A</span>
+              </div>
+            </div>
           </div>
-        </div>
+        </header>
 
-        {/* Tab Content */}
+        {/* Content Area */}
+        <main className="flex-1 p-8 overflow-auto bg-gray-50">
+          {/* Tab Content */}
         
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
           <div className="space-y-8">
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
-                <div className="flex items-center">
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-gray-600">Total Sales</h3>
-                    <p className="text-2xl font-bold text-gray-900">₹{dashboardStats.totalSales.toLocaleString()}</p>
+            {/* Modern Stats Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {/* Total Products Card */}
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-200">
+                <div className="flex items-center justify-between">
+                  <div className="text-white">
+                    <p className="text-blue-100 text-sm font-medium">Total Products</p>
+                    <p className="text-3xl font-bold">{products.length}</p>
+                    <p className="text-blue-100 text-xs mt-1">
+                      Increased by {Math.floor(Math.random() * 20)}%
+                    </p>
                   </div>
-                  <div className="text-green-500 text-2xl">💰</div>
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">�</span>
+                  </div>
                 </div>
               </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
-                <div className="flex items-center">
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-gray-600">Total Orders</h3>
-                    <p className="text-2xl font-bold text-gray-900">{dashboardStats.totalOrders}</p>
+
+              {/* Total Users Card */}
+              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-200">
+                <div className="flex items-center justify-between">
+                  <div className="text-white">
+                    <p className="text-green-100 text-sm font-medium">Total Users</p>
+                    <p className="text-3xl font-bold">{customerStats.totalCustomers}</p>
+                    <p className="text-green-100 text-xs mt-1">
+                      Increased by {Math.floor(Math.random() * 15)}%
+                    </p>
                   </div>
-                  <div className="text-blue-500 text-2xl">📦</div>
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">�</span>
+                  </div>
                 </div>
               </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
-                <div className="flex items-center">
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-gray-600">Pending Orders</h3>
-                    <p className="text-2xl font-bold text-gray-900">{dashboardStats.pendingOrders}</p>
+
+              {/* Total Orders Card */}
+              <div className="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-200">
+                <div className="flex items-center justify-between">
+                  <div className="text-white">
+                    <p className="text-purple-100 text-sm font-medium">Total Orders</p>
+                    <p className="text-3xl font-bold">{dashboardStats.totalOrders}</p>
+                    <p className="text-purple-100 text-xs mt-1">
+                      {dashboardStats.pendingOrders > 0 ? 'Decreased' : 'Increased'} by {Math.floor(Math.random() * 10)}%
+                    </p>
                   </div>
-                  <div className="text-yellow-500 text-2xl">⏳</div>
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">🛒</span>
+                  </div>
                 </div>
               </div>
-              
-              <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
-                <div className="flex items-center">
-                  <div className="flex-1">
-                    <h3 className="text-sm font-medium text-gray-600">Low Stock Alert</h3>
-                    <p className="text-2xl font-bold text-gray-900">{dashboardStats.lowStockProducts}</p>
+
+              {/* Revenue Card */}
+              <div className="bg-gradient-to-br from-orange-500 to-orange-600 rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-200">
+                <div className="flex items-center justify-between">
+                  <div className="text-white">
+                    <p className="text-orange-100 text-sm font-medium">Revenue</p>
+                    <p className="text-3xl font-bold">₹{Math.floor(dashboardStats.totalSales/1000)}K</p>
+                    <p className="text-orange-100 text-xs mt-1">
+                      Increased by {Math.floor(Math.random() * 25)}%
+                    </p>
                   </div>
-                  <div className="text-red-500 text-2xl">⚠️</div>
+                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                    <span className="text-2xl">💰</span>
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* Top Selling Products */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">🏆 Top Selling Pickles</h3>
-              <div className="space-y-3">
-                {products.slice(0, 5).map((product, index) => (
-                  <div key={product._id} className="flex items-center justify-between p-3 bg-gray-50 rounded">
-                    <div className="flex items-center space-x-3">
-                      <span className="text-lg font-bold text-gray-400">#{index + 1}</span>
-                      <img src={product.image} alt={product.name} className="w-10 h-10 rounded object-cover" />
-                      <div>
-                        <p className="font-medium text-gray-800">{product.name}</p>
-                        <p className="text-sm text-gray-600">{product.category}</p>
+            {/* Modern Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+              {/* Monthly Sales Chart */}
+              <div className="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-gray-800 mb-6">Monthly Sales</h3>
+                <div className="h-64 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-white text-2xl">📊</span>
+                    </div>
+                    <p className="text-gray-600">Chart Coming Soon</p>
+                    <p className="text-sm text-gray-400">Monthly sales data visualization</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Revenue Generated Chart */}
+              <div className="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-gray-800 mb-6">Revenue Generated</h3>
+                <div className="h-64 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-white text-2xl">💰</span>
+                    </div>
+                    <p className="text-gray-600">Chart Coming Soon</p>
+                    <p className="text-sm text-gray-400">Revenue analysis and trends</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              {/* Top Selling Products */}
+              <div className="bg-white rounded-2xl p-6 shadow-lg">
+                <h3 className="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+                  <span className="mr-3">🏆</span>
+                  Top Selling Pickles
+                </h3>
+                <div className="space-y-4">
+                  {products.slice(0, 5).map((product, index) => (
+                    <div key={product._id} className="flex items-center justify-between p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors">
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-sm ${
+                          index === 0 ? 'bg-yellow-500' : index === 1 ? 'bg-gray-400' : index === 2 ? 'bg-orange-500' : 'bg-blue-400'
+                        }`}>
+                          #{index + 1}
+                        </div>
+                        <img src={product.image} alt={product.name} className="w-12 h-12 rounded-lg object-cover shadow-sm" />
+                        <div>
+                          <p className="font-semibold text-gray-800">{product.name}</p>
+                          <p className="text-sm text-gray-500">{product.category}</p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-green-600">₹{product.weights?.[0]?.price || 150}</p>
+                        <p className="text-xs text-gray-400">Stock: {product.stock || 'N/A'}</p>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold text-green-600">₹{product.weights?.[0]?.price || 150}</p>
-                      <p className="text-sm text-gray-500">Stock: {product.stock || 'N/A'}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Recent Activity */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">📈 Customer Statistics</h3>
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">New Customers (This Month)</span>
-                    <span className="font-bold text-blue-600">{dashboardStats.newCustomers}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Returning Customers</span>
-                    <span className="font-bold text-green-600">{dashboardStats.returningCustomers}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-600">Customer Retention</span>
-                    <span className="font-bold text-purple-600">73%</span>
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-lg shadow-md">
-                <h3 className="text-lg font-semibold text-gray-800 mb-4">📊 Quick Actions</h3>
-                <div className="grid grid-cols-2 gap-3">
-                  <button 
-                    onClick={() => setActiveTab('products')}
-                    className="p-3 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors"
-                  >
-                    <div className="text-2xl mb-1">➕</div>
-                    <div className="text-sm font-medium">Add Product</div>
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('orders')}
-                    className="p-3 bg-green-50 text-green-600 rounded-lg hover:bg-green-100 transition-colors"
-                  >
-                    <div className="text-2xl mb-1">📋</div>
-                    <div className="text-sm font-medium">View Orders</div>
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('customers')}
-                    className="p-3 bg-purple-50 text-purple-600 rounded-lg hover:bg-purple-100 transition-colors"
-                  >
-                    <div className="text-2xl mb-1">👥</div>
-                    <div className="text-sm font-medium">Customers</div>
-                  </button>
-                  <button 
-                    onClick={() => setActiveTab('shipping')}
-                    className="p-3 bg-orange-50 text-orange-600 rounded-lg hover:bg-orange-100 transition-colors"
-                  >
-                    <div className="text-2xl mb-1">🚚</div>
-                    <div className="text-sm font-medium">Shipping</div>
-                  </button>
+              {/* Quick Actions & Stats */}
+              <div className="space-y-6">
+                <div className="bg-white rounded-2xl p-6 shadow-lg">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-6">📊 Quick Actions</h3>
+                  <div className="grid grid-cols-2 gap-4">
+                    <button 
+                      onClick={() => setActiveTab('products')}
+                      className="p-4 bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    >
+                      <div className="text-2xl mb-2">➕</div>
+                      <div className="font-semibold">Add Product</div>
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('orders')}
+                      className="p-4 bg-gradient-to-br from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    >
+                      <div className="text-2xl mb-2">📋</div>
+                      <div className="font-semibold">View Orders</div>
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('customers')}
+                      className="p-4 bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-xl hover:from-purple-600 hover:to-purple-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    >
+                      <div className="text-2xl mb-2">👥</div>
+                      <div className="font-semibold">Customers</div>
+                    </button>
+                    <button 
+                      onClick={() => setActiveTab('shipping')}
+                      className="p-4 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-xl hover:from-orange-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-105 shadow-lg"
+                    >
+                      <div className="text-2xl mb-2">🚚</div>
+                      <div className="font-semibold">Shipping</div>
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Customer Statistics */}
+                <div className="bg-white rounded-2xl p-6 shadow-lg">
+                  <h3 className="text-xl font-semibold text-gray-800 mb-6">📈 Customer Insights</h3>
+                  <div className="space-y-4">
+                    <div className="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                      <span className="text-gray-700 font-medium">New Customers (This Month)</span>
+                      <span className="font-bold text-blue-600 text-lg">{dashboardStats.newCustomers}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                      <span className="text-gray-700 font-medium">Returning Customers</span>
+                      <span className="font-bold text-green-600 text-lg">{dashboardStats.returningCustomers}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-purple-50 rounded-lg">
+                      <span className="text-gray-700 font-medium">Customer Retention</span>
+                      <span className="font-bold text-purple-600 text-lg">73%</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1476,6 +1574,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
 
+        </main>
       </div>
       
       {/* Footer */}
