@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminService from '../services/adminService';
 import CategoryService from '../services/categoryService';
+import OffersService from '../services/offersService';
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [products, setProducts] = useState([]);
@@ -117,6 +118,20 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [selectedCategoryImageFile, setSelectedCategoryImageFile] = useState(null);
   const [categoryImagePreview, setCategoryImagePreview] = useState('');
 
+  // Offers Management States
+  const [offers, setOffers] = useState([]);
+  const [showOfferForm, setShowOfferForm] = useState(false);
+  const [editingOffer, setEditingOffer] = useState(null);
+  const [offerFormData, setOfferFormData] = useState({
+    text: '',
+    isActive: true,
+    startDate: new Date().toISOString().split('T')[0],
+    endDate: '',
+    displayOrder: 1,
+    backgroundColor: '#FF6B35',
+    textColor: '#FFFFFF'
+  });
+
   // Load all admin data on component mount
 
   useEffect(() => {
@@ -170,6 +185,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           break;
         case 'categories':
           await loadCategories();
+          break;
+        case 'offers':
+          await loadOffers();
           break;
         default:
           await loadProducts();
@@ -261,6 +279,65 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     } catch (error) {
       console.error('Error loading categories:', error);
       setCategories([]);
+    }
+  };
+
+  const loadOffers = async () => {
+    try {
+      const data = await OffersService.getAllOffers();
+      console.log('Loaded offers from API:', data.length);
+      setOffers(data || []);
+    } catch (error) {
+      console.error('Error loading offers:', error);
+      setOffers([]);
+    }
+  };
+
+  const handleOfferSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      if (editingOffer) {
+        await OffersService.updateOffer(editingOffer._id, offerFormData);
+      } else {
+        await OffersService.createOffer(offerFormData);
+      }
+      await loadOffers();
+      setShowOfferForm(false);
+      setEditingOffer(null);
+      setOfferFormData({
+        text: '',
+        isActive: true,
+        startDate: new Date().toISOString().split('T')[0],
+        endDate: '',
+        displayOrder: 1,
+        backgroundColor: '#FF6B35',
+        textColor: '#FFFFFF'
+      });
+    } catch (error) {
+      console.error('Error submitting offer:', error);
+      alert('Error submitting offer: ' + error.message);
+    }
+  };
+
+  const handleDeleteOffer = async (id) => {
+    if (window.confirm('Are you sure you want to delete this offer?')) {
+      try {
+        await OffersService.deleteOffer(id);
+        await loadOffers();
+      } catch (error) {
+        console.error('Error deleting offer:', error);
+        alert('Error deleting offer: ' + error.message);
+      }
+    }
+  };
+
+  const handleToggleOfferStatus = async (id) => {
+    try {
+      await OffersService.toggleOfferStatus(id);
+      await loadOffers();
+    } catch (error) {
+      console.error('Error toggling offer status:', error);
+      alert('Error toggling offer status: ' + error.message);
     }
   };
 
@@ -1113,6 +1190,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               { id: 'payments', label: 'Payments', icon: '💳' },
               { id: 'shipping', label: 'Shipping', icon: '🚚' },
               { id: 'categories', label: 'Categories', icon: '🗂️' },
+              { id: 'offers', label: 'Offers', icon: '🎉' },
               { id: 'reviews', label: 'Reviews', icon: '⭐' },
               { id: 'faq', label: 'FAQ', icon: '❓' }
             ].map(tab => (
@@ -2348,6 +2426,145 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
 
+        {/* Offers Tab - Running Text Banner Management */}
+        {activeTab === 'offers' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">🎉 Offers & Banners</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Manage running text banners for special offers ({offers.length} offers)
+                </p>
+              </div>
+              <button
+                onClick={() => setShowOfferForm(true)}
+                className="bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Add New Offer
+              </button>
+            </div>
+
+            {/* Offers List */}
+            <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Offer Text</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Colors</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Range</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {offers.map((offer) => (
+                      <tr key={offer._id} className="hover:bg-gray-50">
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="max-w-xs">
+                            <div className="text-sm font-medium text-gray-900 truncate">{offer.text}</div>
+                            <div 
+                              className="text-xs px-2 py-1 rounded mt-1 inline-block"
+                              style={{ 
+                                backgroundColor: offer.backgroundColor, 
+                                color: offer.textColor 
+                              }}
+                            >
+                              Preview
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => handleToggleOfferStatus(offer._id)}
+                            className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                              offer.isActive 
+                                ? 'bg-green-100 text-green-800 hover:bg-green-200' 
+                                : 'bg-red-100 text-red-800 hover:bg-red-200'
+                            } transition-colors cursor-pointer`}
+                          >
+                            {offer.isActive ? 'Active' : 'Inactive'}
+                          </button>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex items-center gap-2">
+                            <div 
+                              className="w-4 h-4 rounded border border-gray-300"
+                              style={{ backgroundColor: offer.backgroundColor }}
+                              title="Background Color"
+                            ></div>
+                            <div 
+                              className="w-4 h-4 rounded border border-gray-300"
+                              style={{ backgroundColor: offer.textColor }}
+                              title="Text Color"
+                            ></div>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          <div>
+                            <div>From: {new Date(offer.startDate).toLocaleDateString()}</div>
+                            {offer.endDate && (
+                              <div>To: {new Date(offer.endDate).toLocaleDateString()}</div>
+                            )}
+                            {!offer.endDate && (
+                              <div className="text-gray-500 text-xs">No end date</div>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {offer.displayOrder}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button 
+                            onClick={() => {
+                              setEditingOffer(offer);
+                              setOfferFormData({
+                                text: offer.text,
+                                isActive: offer.isActive,
+                                startDate: new Date(offer.startDate).toISOString().split('T')[0],
+                                endDate: offer.endDate ? new Date(offer.endDate).toISOString().split('T')[0] : '',
+                                displayOrder: offer.displayOrder,
+                                backgroundColor: offer.backgroundColor,
+                                textColor: offer.textColor
+                              });
+                              setShowOfferForm(true);
+                            }}
+                            className="text-blue-600 hover:text-blue-900 mr-2"
+                          >
+                            Edit
+                          </button>
+                          <button 
+                            onClick={() => handleDeleteOffer(offer._id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {offers.length === 0 && (
+                <div className="text-center py-8">
+                  <div className="text-gray-500 mb-2">No offers found</div>
+                  <button
+                    onClick={() => setShowOfferForm(true)}
+                    className="text-orange-600 hover:text-orange-700 font-medium"
+                  >
+                    Create your first offer
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
         </main>
       </div>
 
@@ -2902,6 +3119,215 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 </div>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Offer Form Modal */}
+      {showOfferForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingOffer ? 'Edit Offer' : 'Add New Offer'}
+                </h3>
+                <button
+                  onClick={() => {
+                    setShowOfferForm(false);
+                    setEditingOffer(null);
+                    setOfferFormData({
+                      text: '',
+                      isActive: true,
+                      startDate: new Date().toISOString().split('T')[0],
+                      endDate: '',
+                      displayOrder: 1,
+                      backgroundColor: '#FF6B35',
+                      textColor: '#FFFFFF'
+                    });
+                  }}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            <form onSubmit={handleOfferSubmit} className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Offer Text */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Offer Text *
+                  </label>
+                  <textarea
+                    value={offerFormData.text}
+                    onChange={(e) => setOfferFormData({ ...offerFormData, text: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    rows="3"
+                    placeholder="Enter your offer text (e.g., Diwali Special - Extra 15% OFF on Ghee)"
+                    required
+                    maxLength={500}
+                  />
+                  <div className="text-xs text-gray-500 mt-1">
+                    {offerFormData.text.length}/500 characters
+                  </div>
+                </div>
+
+                {/* Status */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Status
+                  </label>
+                  <select
+                    value={offerFormData.isActive}
+                    onChange={(e) => setOfferFormData({ ...offerFormData, isActive: e.target.value === 'true' })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                  </select>
+                </div>
+
+                {/* Display Order */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Display Order
+                  </label>
+                  <input
+                    type="number"
+                    value={offerFormData.displayOrder}
+                    onChange={(e) => setOfferFormData({ ...offerFormData, displayOrder: parseInt(e.target.value) || 1 })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    min="1"
+                    placeholder="1"
+                  />
+                  <div className="text-xs text-gray-500 mt-1">
+                    Lower numbers appear first
+                  </div>
+                </div>
+
+                {/* Start Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Start Date *
+                  </label>
+                  <input
+                    type="date"
+                    value={offerFormData.startDate}
+                    onChange={(e) => setOfferFormData({ ...offerFormData, startDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    required
+                  />
+                </div>
+
+                {/* End Date */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    End Date (Optional)
+                  </label>
+                  <input
+                    type="date"
+                    value={offerFormData.endDate}
+                    onChange={(e) => setOfferFormData({ ...offerFormData, endDate: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                  <div className="text-xs text-gray-500 mt-1">
+                    Leave empty for no expiry
+                  </div>
+                </div>
+
+                {/* Background Color */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Background Color
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={offerFormData.backgroundColor}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, backgroundColor: e.target.value })}
+                      className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={offerFormData.backgroundColor}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, backgroundColor: e.target.value })}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="#FF6B35"
+                    />
+                  </div>
+                </div>
+
+                {/* Text Color */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Text Color
+                  </label>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="color"
+                      value={offerFormData.textColor}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, textColor: e.target.value })}
+                      className="w-12 h-10 border border-gray-300 rounded cursor-pointer"
+                    />
+                    <input
+                      type="text"
+                      value={offerFormData.textColor}
+                      onChange={(e) => setOfferFormData({ ...offerFormData, textColor: e.target.value })}
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      placeholder="#FFFFFF"
+                    />
+                  </div>
+                </div>
+
+                {/* Preview */}
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Preview
+                  </label>
+                  <div 
+                    className="w-full py-3 px-4 rounded-lg text-center font-medium"
+                    style={{ 
+                      backgroundColor: offerFormData.backgroundColor, 
+                      color: offerFormData.textColor 
+                    }}
+                  >
+                    {offerFormData.text || 'Your offer text will appear here...'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowOfferForm(false);
+                    setEditingOffer(null);
+                    setOfferFormData({
+                      text: '',
+                      isActive: true,
+                      startDate: new Date().toISOString().split('T')[0],
+                      endDate: '',
+                      displayOrder: 1,
+                      backgroundColor: '#FF6B35',
+                      textColor: '#FFFFFF'
+                    });
+                  }}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white rounded-md"
+                >
+                  {editingOffer ? 'Update' : 'Create'} Offer
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
