@@ -100,6 +100,13 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     }
   }, [testimonials.length]);
 
+  // Reset testimonial index if out of bounds
+  useEffect(() => {
+    if (testimonials.length > 0 && currentTestimonialIndex >= testimonials.length) {
+      setCurrentTestimonialIndex(0);
+    }
+  }, [testimonials.length, currentTestimonialIndex]);
+
   // Load homepage data from API
   const loadHomepageData = async () => {
     try {
@@ -709,9 +716,13 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               <div className="relative">
                 {/* Navigation Arrows */}
                 <button 
-                  onClick={() => setCurrentTestimonialIndex(prev => prev === 0 ? testimonials.length - 1 : prev - 1)}
+                  onClick={() => {
+                    if (testimonials && testimonials.length > 1) {
+                      setCurrentTestimonialIndex(prev => prev === 0 ? testimonials.length - 1 : prev - 1);
+                    }
+                  }}
                   className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 z-10 group"
-                  disabled={testimonials.length <= 1}
+                  disabled={!testimonials || testimonials.length <= 1}
                 >
                   <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 shadow-2xl border border-gray-100 group-hover:bg-gradient-to-r group-hover:from-[#ecab13] group-hover:to-orange-500 transition-all duration-300 group-hover:scale-110">
                     <svg className="w-6 h-6 text-gray-700 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -721,9 +732,13 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 </button>
 
                 <button 
-                  onClick={() => setCurrentTestimonialIndex(prev => prev === testimonials.length - 1 ? 0 : prev + 1)}
+                  onClick={() => {
+                    if (testimonials && testimonials.length > 1) {
+                      setCurrentTestimonialIndex(prev => prev === testimonials.length - 1 ? 0 : prev + 1);
+                    }
+                  }}
                   className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 z-10 group"
-                  disabled={testimonials.length <= 1}
+                  disabled={!testimonials || testimonials.length <= 1}
                 >
                   <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 shadow-2xl border border-gray-100 group-hover:bg-gradient-to-r group-hover:from-[#ecab13] group-hover:to-orange-500 transition-all duration-300 group-hover:scale-110">
                     <svg className="w-6 h-6 text-gray-700 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -741,7 +756,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                     <div className="absolute bottom-4 right-4 text-4xl text-[#ecab13]/10 font-serif rotate-180">"</div>
                     
                     <div className="relative px-8 py-10 text-center">
-                      {testimonials[currentTestimonialIndex] && (
+                      {testimonials && testimonials.length > 0 && testimonials[currentTestimonialIndex] && (
                         <>
                           {/* Customer Avatar */}
                           <div className="relative mx-auto mb-6">
@@ -827,7 +842,11 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                   {testimonials.map((_, index) => (
                     <button
                       key={index}
-                      onClick={() => setCurrentTestimonialIndex(index)}
+                      onClick={() => {
+                        if (testimonials && testimonials.length > 0 && index < testimonials.length) {
+                          setCurrentTestimonialIndex(index);
+                        }
+                      }}
                       className={`relative transition-all duration-300 ${
                         index === currentTestimonialIndex 
                           ? 'scale-125' 
