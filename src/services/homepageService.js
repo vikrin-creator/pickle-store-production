@@ -1,5 +1,5 @@
 // Frontend service for homepage management
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com/api';
 
 class HomepageService {
   // Get all homepage sections

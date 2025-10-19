@@ -115,13 +115,9 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
       const sections = await HomepageService.getAllSections();
       const sectionsMap = {};
-      if (Array.isArray(sections)) {
-        sections.forEach(section => {
-          if (section && section.sectionType) {
-            sectionsMap[section.sectionType] = section;
-          }
-        });
-      }
+      sections.forEach(section => {
+        sectionsMap[section.sectionType] = section;
+      });
       setHomepageData(sectionsMap);
     } catch (error) {
       console.error('Error loading homepage data:', error);
@@ -438,9 +434,6 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
               {homepageData.featured.products.map((homepageProduct, index) => {
                 const product = homepageProduct.productId;
-                if (!product || !product._id) {
-                  return null; // Skip products with null productId
-                }
                 return (
                   <button 
                     key={product._id || product.id || index}
@@ -572,9 +565,6 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 max-w-6xl mx-auto">
               {homepageData.customerFavorites.products.map((homepageProduct, index) => {
                 const product = homepageProduct.productId;
-                if (!product || !product._id) {
-                  return null; // Skip products with null productId
-                }
                 return (
                   <button 
                     key={product._id || product.id || index} 
