@@ -11,6 +11,7 @@ import Wishlist from './components/Wishlist'
 import CustomerAuth from './components/CustomerAuth'
 import FAQ from './components/FAQ'
 import WhatsAppChat from './components/WhatsAppChat'
+import OfferBanner from './components/OfferBanner'
 import authService from './services/authService'
 import './App.css'
 
@@ -494,6 +495,9 @@ function App() {
 
   return (
     <div className="App">
+      {/* Show offer banner on all pages except admin */}
+      {currentPage !== 'admin' && currentPage !== 'admin-login' && <OfferBanner />}
+      
       {renderPage()}
       
       {/* Customer Authentication Modal */}
