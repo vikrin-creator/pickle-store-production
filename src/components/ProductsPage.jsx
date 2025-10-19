@@ -246,7 +246,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
 
   // Helper function to get category value for filtering
   const getCategoryValue = (category) => {
-    // Use title field as the primary value for filtering
+    // Use title field as the primary value for filtering - this matches how products are stored
     if (category.title) {
       return category.title;
     }

@@ -499,7 +499,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               ]).sort((a, b) => (a.order || 0) - (b.order || 0)).map((item, index) => (
                   <button 
                     key={index}
-                    onClick={() => handleCategoryNavigate(item.category)}
+                    onClick={() => handleCategoryNavigate(item.title || item.category)}
                     className={`h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
                     style={{ animationDelay: `${index * 0.2}s` }}
                   >
