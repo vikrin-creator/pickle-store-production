@@ -679,8 +679,8 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           )}
         </section>
 
-        {/* Customer Testimonials Section */}
-        <section className="py-16 px-3 sm:px-6 bg-gradient-to-br from-[#ecab13]/5 to-[#ecab13]/10">
+        {/* Customer Testimonials Section - Force Deploy */}
+        <section className="py-16 px-3 sm:px-6 bg-gradient-to-br from-[#ecab13]/5 to-[#ecab13]/10 animate-fade-in-up">
           <div className="max-w-6xl mx-auto">
             {/* Section Header - Updated */}
             <div className="text-center mb-16">
