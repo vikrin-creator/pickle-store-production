@@ -27,7 +27,9 @@ const OffersBanner = () => {
   const fetchActiveOffers = async () => {
     try {
       setLoading(true);
+      console.log('Fetching active offers...');
       const activeOffers = await offersService.getActiveOffers();
+      console.log('Active offers received:', activeOffers);
       setOffers(activeOffers);
       setError(null);
     } catch (error) {
@@ -39,12 +41,21 @@ const OffersBanner = () => {
   };
 
   if (loading) {
+    console.log('OffersBanner: Loading...');
     return null; // Don't show anything while loading
   }
 
-  if (error || offers.length === 0) {
-    return null; // Don't show banner if there's an error or no offers
+  if (error) {
+    console.log('OffersBanner: Error -', error);
+    return null;
   }
+
+  if (offers.length === 0) {
+    console.log('OffersBanner: No offers found');
+    return null; // Don't show banner if there's no offers
+  }
+
+  console.log('OffersBanner: Rendering with', offers.length, 'offers');
 
   const currentOffer = offers[currentOfferIndex];
 

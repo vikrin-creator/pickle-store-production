@@ -1,6 +1,9 @@
 // API Configuration
 const API_BASE_URL = 'https://pickle-store-backend.onrender.com';
 
+// Export API_URL for compatibility
+export const API_URL = API_BASE_URL;
+
 // API Endpoints
 export const API_ENDPOINTS = {
   products: `${API_BASE_URL}/api/products`,
