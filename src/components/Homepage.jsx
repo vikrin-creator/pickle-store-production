@@ -680,24 +680,13 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </section>
 
         {/* Customer Testimonials Section */}
-        <section className="relative py-12 px-3 sm:px-6 overflow-hidden">
-          {/* Background Elements */}
-          <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50"></div>
-          <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-br from-[#ecab13]/20 to-orange-200/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-br from-red-200/20 to-[#ecab13]/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          
-          <div className="relative max-w-6xl mx-auto">
+        <section className="py-16 px-3 sm:px-6">
+          <div className="max-w-6xl mx-auto">
             {/* Section Header */}
-            <div className="text-center mb-10">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#ecab13] to-orange-500 rounded-full mb-6 shadow-lg">
-                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/>
-                </svg>
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-4 lowercase tracking-wide">
+            <div className="text-center mb-16">
+              <h2 className="text-4xl md:text-6xl font-bold text-gray-800 mb-4 lowercase">
                 what our customers say
               </h2>
-              <div className="w-24 h-1 bg-gradient-to-r from-[#ecab13] to-orange-500 mx-auto rounded-full"></div>
             </div>
 
             {/* Loading State */}
@@ -721,14 +710,12 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                       setCurrentTestimonialIndex(prev => prev === 0 ? testimonials.length - 1 : prev - 1);
                     }
                   }}
-                  className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 z-10 group"
+                  className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-gray-400 hover:text-gray-700 transition-colors duration-200"
                   disabled={!testimonials || testimonials.length <= 1}
                 >
-                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 shadow-2xl border border-gray-100 group-hover:bg-gradient-to-r group-hover:from-[#ecab13] group-hover:to-orange-500 transition-all duration-300 group-hover:scale-110">
-                    <svg className="w-6 h-6 text-gray-700 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-                    </svg>
-                  </div>
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
                 </button>
 
                 <button 
@@ -737,108 +724,42 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                       setCurrentTestimonialIndex(prev => prev === testimonials.length - 1 ? 0 : prev + 1);
                     }
                   }}
-                  className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 z-10 group"
+                  className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 text-gray-400 hover:text-gray-700 transition-colors duration-200"
                   disabled={!testimonials || testimonials.length <= 1}
                 >
-                  <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 shadow-2xl border border-gray-100 group-hover:bg-gradient-to-r group-hover:from-[#ecab13] group-hover:to-orange-500 transition-all duration-300 group-hover:scale-110">
-                    <svg className="w-6 h-6 text-gray-700 group-hover:text-white transition-colors duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
 
-                {/* Main Testimonial Card */}
-                <div className="mx-8 relative">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 overflow-hidden transform hover:scale-102 transition-all duration-300">
-                    {/* Decorative Elements */}
-                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#ecab13] via-orange-500 to-red-500"></div>
-                    <div className="absolute top-4 left-4 text-4xl text-[#ecab13]/10 font-serif">"</div>
-                    <div className="absolute bottom-4 right-4 text-4xl text-[#ecab13]/10 font-serif rotate-180">"</div>
-                    
-                    <div className="relative px-8 py-10 text-center">
-                      {testimonials && testimonials.length > 0 && testimonials[currentTestimonialIndex] && (
-                        <>
-                          {/* Customer Avatar */}
-                          <div className="relative mx-auto mb-6">
-                            <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-[#ecab13] to-orange-500 p-1 shadow-lg">
-                              <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
-                                {testimonials[currentTestimonialIndex].customerImage ? (
-                                  <img 
-                                    src={testimonials[currentTestimonialIndex].customerImage} 
-                                    alt={testimonials[currentTestimonialIndex].customerName}
-                                    className="w-full h-full object-cover"
-                                  />
-                                ) : (
-                                  <span className="text-lg font-bold bg-gradient-to-br from-[#ecab13] to-orange-500 bg-clip-text text-transparent">
-                                    {testimonials[currentTestimonialIndex].customerName.charAt(0).toUpperCase()}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            {testimonials[currentTestimonialIndex].verifiedBuyer && (
-                              <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1.5 shadow-lg">
-                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                                </svg>
-                              </div>
-                            )}
-                          </div>
+                {/* Direct Testimonial Display */}
+                <div className="max-w-4xl mx-auto px-8 text-center">
+                  {testimonials && testimonials.length > 0 && testimonials[currentTestimonialIndex] && (
+                    <>
+                      {/* Customer Name - Red Color */}
+                      <h3 className="text-3xl md:text-4xl font-bold text-red-500 mb-4">
+                        {testimonials[currentTestimonialIndex].customerName}
+                      </h3>
+                      
+                      {/* Location and Date */}
+                      <p className="text-gray-600 text-lg mb-8">
+                        {testimonials[currentTestimonialIndex].customerLocation} | {new Date(testimonials[currentTestimonialIndex].createdAt).toLocaleDateString('en-GB', { 
+                          day: '2-digit', 
+                          month: 'long', 
+                          year: 'numeric' 
+                        })}
+                      </p>
 
-                          {/* Rating Stars */}
-                          <div className="flex justify-center mb-4 space-x-1">
-                            {[...Array(5)].map((_, i) => (
-                              <svg 
-                                key={i}
-                                className={`w-5 h-5 ${i < testimonials[currentTestimonialIndex].rating ? 'text-yellow-400' : 'text-gray-200'} transition-colors duration-300`}
-                                fill="currentColor" 
-                                viewBox="0 0 20 20"
-                              >
-                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                              </svg>
-                            ))}
-                          </div>
-
-                          {/* Testimonial Text */}
-                          <blockquote className="text-lg md:text-xl text-gray-700 leading-relaxed mb-6 font-medium italic max-w-2xl mx-auto">
-                            "{testimonials[currentTestimonialIndex].testimonialText}"
-                          </blockquote>
-
-                          {/* Customer Info */}
-                          <div className="space-y-1">
-                            <h3 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
-                              {testimonials[currentTestimonialIndex].customerName}
-                            </h3>
-                            <p className="text-gray-500 text-base flex items-center justify-center space-x-2">
-                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
-                              </svg>
-                              <span>{testimonials[currentTestimonialIndex].customerLocation}</span>
-                              <span>•</span>
-                              <span>{new Date(testimonials[currentTestimonialIndex].createdAt).toLocaleDateString('en-GB', { 
-                                day: '2-digit', 
-                                month: 'long', 
-                                year: 'numeric' 
-                              })}</span>
-                            </p>
-                          </div>
-
-                          {/* Product Mentioned */}
-                          {testimonials[currentTestimonialIndex].productMentioned && (
-                            <div className="mt-4 inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-[#ecab13]/10 to-orange-500/10 rounded-full border border-[#ecab13]/20">
-                              <svg className="w-4 h-4 text-[#ecab13] mr-1.5" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
-                              </svg>
-                              <span className="text-[#ecab13] font-medium text-sm">{testimonials[currentTestimonialIndex].productMentioned}</span>
-                            </div>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
+                      {/* Testimonial Text */}
+                      <blockquote className="text-xl md:text-2xl text-gray-700 leading-relaxed font-normal italic max-w-3xl mx-auto">
+                        '{testimonials[currentTestimonialIndex].testimonialText}'
+                      </blockquote>
+                    </>
+                  )}
                 </div>
 
-                {/* Enhanced Dots Navigation */}
-                <div className="flex justify-center mt-6 space-x-3">
+                {/* Simple Dots Navigation */}
+                <div className="flex justify-center mt-12 space-x-2">
                   {testimonials.map((_, index) => (
                     <button
                       key={index}
@@ -847,21 +768,12 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                           setCurrentTestimonialIndex(index);
                         }
                       }}
-                      className={`relative transition-all duration-300 ${
+                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
                         index === currentTestimonialIndex 
-                          ? 'scale-125' 
-                          : 'hover:scale-110'
-                      }`}
-                    >
-                      <div className={`w-4 h-4 rounded-full transition-all duration-300 ${
-                        index === currentTestimonialIndex 
-                          ? 'bg-gradient-to-r from-[#ecab13] to-orange-500 shadow-lg' 
+                          ? 'bg-gray-700' 
                           : 'bg-gray-300 hover:bg-gray-400'
-                      }`}></div>
-                      {index === currentTestimonialIndex && (
-                        <div className="absolute inset-0 rounded-full bg-gradient-to-r from-[#ecab13] to-orange-500 animate-ping opacity-20"></div>
-                      )}
-                    </button>
+                      }`}
+                    />
                   ))}
                 </div>
               </div>
