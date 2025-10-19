@@ -1,21 +1,56 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const OfferBanner = () => {
   const [isVisible, setIsVisible] = useState(true);
+  const [settings, setSettings] = useState({
+    text: '🎉 Diwali Special Offer: Get 25% OFF on all pickle varieties! ✨ Free shipping on orders above ₹500 🚀 Use code: DIWALI25 ⏰ Limited time offer - Ends Oct 31st!',
+    isActive: true,
+    backgroundColor: 'from-red-600 to-orange-600',
+    textColor: 'text-white',
+    animationSpeed: 30
+  });
 
-  if (!isVisible) return null;
+  useEffect(() => {
+    // Load settings from localStorage
+    const loadSettings = () => {
+      try {
+        const savedSettings = localStorage.getItem('offerBannerSettings');
+        if (savedSettings) {
+          setSettings(JSON.parse(savedSettings));
+        }
+      } catch (error) {
+        console.error('Error loading offer settings:', error);
+      }
+    };
+
+    // Load initial settings
+    loadSettings();
+
+    // Listen for updates from admin panel
+    const handleOfferUpdate = (event) => {
+      setSettings(event.detail);
+    };
+
+    window.addEventListener('offerBannerUpdate', handleOfferUpdate);
+
+    return () => {
+      window.removeEventListener('offerBannerUpdate', handleOfferUpdate);
+    };
+  }, []);
+
+  if (!isVisible || !settings.isActive) return null;
 
   return (
-    <div className="bg-gradient-to-r from-red-600 to-orange-600 text-white py-3 px-4 relative overflow-hidden">
+    <div className={`bg-gradient-to-r ${settings.backgroundColor} ${settings.textColor} py-3 px-4 relative overflow-hidden`}>
       <div className="container mx-auto flex items-center justify-between">
         {/* Scrolling offer text */}
         <div className="flex-1 overflow-hidden">
-          <div className="animate-marquee whitespace-nowrap">
+          <div 
+            className="animate-marquee whitespace-nowrap"
+            style={{ animationDuration: `${settings.animationSpeed}s` }}
+          >
             <span className="text-sm md:text-base font-medium">
-              🎉 Diwali Special Offer: Get 25% OFF on all pickle varieties! 
-              ✨ Free shipping on orders above ₹500 
-              🚀 Use code: DIWALI25 
-              ⏰ Limited time offer - Ends Oct 31st!
+              {settings.text}
             </span>
           </div>
         </div>

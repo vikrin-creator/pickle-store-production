@@ -55,6 +55,16 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     avgDeliveryTime: '0 days'
   });
   
+  // Offer banner state
+  const [offerSettings, setOfferSettings] = useState({
+    text: '🎉 Diwali Special Offer: Get 25% OFF on all pickle varieties! ✨ Free shipping on orders above ₹500 🚀 Use code: DIWALI25 ⏰ Limited time offer - Ends Oct 31st!',
+    isActive: true,
+    backgroundColor: 'from-red-600 to-orange-600',
+    textColor: 'text-white',
+    animationSpeed: 30
+  });
+  const [showOfferForm, setShowOfferForm] = useState(false);
+  
   // Product filtering state
   const [productFilter, setProductFilter] = useState('all'); // 'all', 'cod-enabled', 'cod-disabled'
   
@@ -172,6 +182,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         case 'categories':
           await loadCategories();
           break;
+        case 'offers':
+          loadOfferSettings();
           break;
         default:
           await loadProducts();
@@ -264,6 +276,40 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       console.error('Error loading categories:', error);
       setCategories([]);
     }
+  };
+
+  // Offer Banner Management Functions
+  const loadOfferSettings = () => {
+    try {
+      // Load from localStorage or keep default
+      const savedSettings = localStorage.getItem('offerBannerSettings');
+      if (savedSettings) {
+        setOfferSettings(JSON.parse(savedSettings));
+      }
+    } catch (error) {
+      console.error('Error loading offer settings:', error);
+    }
+  };
+
+  const saveOfferSettings = (settings) => {
+    try {
+      localStorage.setItem('offerBannerSettings', JSON.stringify(settings));
+      setOfferSettings(settings);
+      
+      // Trigger a custom event to update the banner immediately
+      window.dispatchEvent(new CustomEvent('offerBannerUpdate', { detail: settings }));
+      
+      alert('Offer banner settings saved successfully!');
+    } catch (error) {
+      console.error('Error saving offer settings:', error);
+      alert('Error saving offer settings');
+    }
+  };
+
+  const handleOfferSubmit = (e) => {
+    e.preventDefault();
+    saveOfferSettings(offerSettings);
+    setShowOfferForm(false);
   };
 
   const getCategoryDisplayName = (category) => {
@@ -1114,7 +1160,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               { id: 'payments', label: 'Payments', icon: '💳' },
               { id: 'shipping', label: 'Shipping', icon: '🚚' },
               { id: 'categories', label: 'Categories', icon: '🗂️' },
-
+              { id: 'offers', label: 'Offer Banner', icon: '🎁' },
               { id: 'reviews', label: 'Reviews', icon: '⭐' },
               { id: 'faq', label: 'FAQ', icon: '❓' }
             ].map(tab => (
@@ -2133,6 +2179,44 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
 
+        {/* Offers Tab */}
+        {activeTab === 'offers' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <h2 className="text-2xl font-bold text-gray-800">🎁 Offer Banner Management</h2>
+              <button
+                onClick={() => setShowOfferForm(true)}
+                className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-600 transition-colors"
+              >
+                Edit Banner
+              </button>
+            </div>
+
+            {/* Current Banner Preview */}
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold mb-4">Current Banner Preview</h3>
+              <div className={`bg-gradient-to-r ${offerSettings.backgroundColor} ${offerSettings.textColor} py-3 px-4 relative overflow-hidden rounded-lg`}>
+                <div className="flex items-center justify-between">
+                  <div className="flex-1 overflow-hidden">
+                    <div className="animate-marquee whitespace-nowrap">
+                      <span className="text-sm md:text-base font-medium">
+                        {offerSettings.text}
+                      </span>
+                    </div>
+                  </div>
+                  <button className="ml-4 p-1 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors text-white font-bold text-lg">
+                    ×
+                  </button>
+                </div>
+              </div>
+              <div className="mt-4 text-sm text-gray-600">
+                <p><strong>Status:</strong> {offerSettings.isActive ? '✅ Active' : '❌ Inactive'}</p>
+                <p><strong>Animation Speed:</strong> {offerSettings.animationSpeed}s</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* FAQ Tab */}
         {activeTab === 'faq' && (
           <div className="space-y-6">
@@ -2448,6 +2532,125 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 </button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Offer Banner Form Modal */}
+      {showOfferForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">Edit Offer Banner</h3>
+                <button
+                  onClick={() => setShowOfferForm(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+            
+            <form onSubmit={handleOfferSubmit} className="p-6 space-y-4">
+              {/* Banner Text */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Banner Text
+                </label>
+                <textarea
+                  value={offerSettings.text}
+                  onChange={(e) => setOfferSettings({...offerSettings, text: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  rows="3"
+                  placeholder="Enter your offer text with emojis..."
+                  required
+                />
+              </div>
+
+              {/* Banner Status */}
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={offerSettings.isActive}
+                    onChange={(e) => setOfferSettings({...offerSettings, isActive: e.target.checked})}
+                    className="mr-2"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Show Banner</span>
+                </label>
+              </div>
+
+              {/* Background Color */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Background Style
+                </label>
+                <select
+                  value={offerSettings.backgroundColor}
+                  onChange={(e) => setOfferSettings({...offerSettings, backgroundColor: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="from-red-600 to-orange-600">Red to Orange</option>
+                  <option value="from-blue-600 to-purple-600">Blue to Purple</option>
+                  <option value="from-green-600 to-teal-600">Green to Teal</option>
+                  <option value="from-yellow-500 to-red-500">Yellow to Red</option>
+                  <option value="from-indigo-600 to-pink-600">Indigo to Pink</option>
+                </select>
+              </div>
+
+              {/* Animation Speed */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Animation Speed (seconds)
+                </label>
+                <input
+                  type="number"
+                  min="10"
+                  max="60"
+                  value={offerSettings.animationSpeed}
+                  onChange={(e) => setOfferSettings({...offerSettings, animationSpeed: parseInt(e.target.value)})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
+              </div>
+
+              {/* Preview */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Live Preview
+                </label>
+                <div className={`bg-gradient-to-r ${offerSettings.backgroundColor} ${offerSettings.textColor} py-3 px-4 relative overflow-hidden rounded-lg`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 overflow-hidden">
+                      <div className="animate-marquee whitespace-nowrap">
+                        <span className="text-sm md:text-base font-medium">
+                          {offerSettings.text}
+                        </span>
+                      </div>
+                    </div>
+                    <button type="button" className="ml-4 p-1 hover:bg-white hover:bg-opacity-20 rounded-full transition-colors text-white font-bold text-lg">
+                      ×
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+                <button
+                  type="button"
+                  onClick={() => setShowOfferForm(false)}
+                  className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600"
+                >
+                  Save Banner
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
