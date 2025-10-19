@@ -673,7 +673,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </section>
 
         {/* Customer Testimonials Section */}
-        <section className="relative py-20 px-3 sm:px-6 overflow-hidden">
+        <section className="relative py-12 px-3 sm:px-6 overflow-hidden">
           {/* Background Elements */}
           <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50"></div>
           <div className="absolute top-0 left-1/4 w-64 h-64 bg-gradient-to-br from-[#ecab13]/20 to-orange-200/20 rounded-full blur-3xl animate-pulse"></div>
@@ -681,7 +681,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           
           <div className="relative max-w-6xl mx-auto">
             {/* Section Header */}
-            <div className="text-center mb-16">
+            <div className="text-center mb-10">
               <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-[#ecab13] to-orange-500 rounded-full mb-6 shadow-lg">
                 <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
                   <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z"/>
@@ -733,19 +733,19 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 </button>
 
                 {/* Main Testimonial Card */}
-                <div className="mx-12 relative">
-                  <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-white/50 overflow-hidden transform hover:scale-105 transition-all duration-500">
+                <div className="mx-8 relative">
+                  <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/50 overflow-hidden transform hover:scale-102 transition-all duration-300">
                     {/* Decorative Elements */}
-                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#ecab13] via-orange-500 to-red-500"></div>
-                    <div className="absolute top-6 left-6 text-6xl text-[#ecab13]/10 font-serif">"</div>
-                    <div className="absolute bottom-6 right-6 text-6xl text-[#ecab13]/10 font-serif rotate-180">"</div>
+                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#ecab13] via-orange-500 to-red-500"></div>
+                    <div className="absolute top-4 left-4 text-4xl text-[#ecab13]/10 font-serif">"</div>
+                    <div className="absolute bottom-4 right-4 text-4xl text-[#ecab13]/10 font-serif rotate-180">"</div>
                     
-                    <div className="relative px-12 py-16 text-center">
+                    <div className="relative px-8 py-10 text-center">
                       {testimonials[currentTestimonialIndex] && (
                         <>
                           {/* Customer Avatar */}
-                          <div className="relative mx-auto mb-8">
-                            <div className="w-24 h-24 rounded-full overflow-hidden bg-gradient-to-br from-[#ecab13] to-orange-500 p-1 shadow-2xl">
+                          <div className="relative mx-auto mb-6">
+                            <div className="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-[#ecab13] to-orange-500 p-1 shadow-lg">
                               <div className="w-full h-full rounded-full overflow-hidden bg-white flex items-center justify-center">
                                 {testimonials[currentTestimonialIndex].customerImage ? (
                                   <img 
@@ -754,15 +754,15 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                                     className="w-full h-full object-cover"
                                   />
                                 ) : (
-                                  <span className="text-2xl font-bold bg-gradient-to-br from-[#ecab13] to-orange-500 bg-clip-text text-transparent">
+                                  <span className="text-lg font-bold bg-gradient-to-br from-[#ecab13] to-orange-500 bg-clip-text text-transparent">
                                     {testimonials[currentTestimonialIndex].customerName.charAt(0).toUpperCase()}
                                   </span>
                                 )}
                               </div>
                             </div>
                             {testimonials[currentTestimonialIndex].verifiedBuyer && (
-                              <div className="absolute -bottom-2 -right-2 bg-green-500 rounded-full p-2 shadow-lg">
-                                <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                              <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1.5 shadow-lg">
+                                <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                                 </svg>
                               </div>
@@ -770,11 +770,11 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                           </div>
 
                           {/* Rating Stars */}
-                          <div className="flex justify-center mb-6 space-x-1">
+                          <div className="flex justify-center mb-4 space-x-1">
                             {[...Array(5)].map((_, i) => (
                               <svg 
                                 key={i}
-                                className={`w-6 h-6 ${i < testimonials[currentTestimonialIndex].rating ? 'text-yellow-400' : 'text-gray-200'} transition-colors duration-300`}
+                                className={`w-5 h-5 ${i < testimonials[currentTestimonialIndex].rating ? 'text-yellow-400' : 'text-gray-200'} transition-colors duration-300`}
                                 fill="currentColor" 
                                 viewBox="0 0 20 20"
                               >
@@ -784,16 +784,16 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                           </div>
 
                           {/* Testimonial Text */}
-                          <blockquote className="text-xl md:text-2xl text-gray-700 leading-relaxed mb-8 font-medium italic max-w-4xl mx-auto">
+                          <blockquote className="text-lg md:text-xl text-gray-700 leading-relaxed mb-6 font-medium italic max-w-2xl mx-auto">
                             "{testimonials[currentTestimonialIndex].testimonialText}"
                           </blockquote>
 
                           {/* Customer Info */}
-                          <div className="space-y-2">
-                            <h3 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
+                          <div className="space-y-1">
+                            <h3 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
                               {testimonials[currentTestimonialIndex].customerName}
                             </h3>
-                            <p className="text-gray-500 text-lg flex items-center justify-center space-x-2">
+                            <p className="text-gray-500 text-base flex items-center justify-center space-x-2">
                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd"/>
                               </svg>
@@ -809,11 +809,11 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
                           {/* Product Mentioned */}
                           {testimonials[currentTestimonialIndex].productMentioned && (
-                            <div className="mt-6 inline-flex items-center px-4 py-2 bg-gradient-to-r from-[#ecab13]/10 to-orange-500/10 rounded-full border border-[#ecab13]/20">
-                              <svg className="w-5 h-5 text-[#ecab13] mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <div className="mt-4 inline-flex items-center px-3 py-1.5 bg-gradient-to-r from-[#ecab13]/10 to-orange-500/10 rounded-full border border-[#ecab13]/20">
+                              <svg className="w-4 h-4 text-[#ecab13] mr-1.5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z"/>
                               </svg>
-                              <span className="text-[#ecab13] font-semibold">{testimonials[currentTestimonialIndex].productMentioned}</span>
+                              <span className="text-[#ecab13] font-medium text-sm">{testimonials[currentTestimonialIndex].productMentioned}</span>
                             </div>
                           )}
                         </>
@@ -823,7 +823,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 </div>
 
                 {/* Enhanced Dots Navigation */}
-                <div className="flex justify-center mt-10 space-x-3">
+                <div className="flex justify-center mt-6 space-x-3">
                   {testimonials.map((_, index) => (
                     <button
                       key={index}
