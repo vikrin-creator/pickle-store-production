@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import CustomerAuth from './CustomerAuth';
 import authService from '../services/authService';
 import Footer from './Footer';
+import { getDynamicCoupon, validateDynamicCoupon, getExampleCouponText } from '../utils/couponUtils';
 
 const Checkout = ({ onBack, onOrderComplete }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -45,6 +46,28 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     loadCartItems();
     checkAuthStatus();
   }, []);
+
+  // Listen for offer banner updates and refresh coupon availability
+  useEffect(() => {
+    const handleBannerUpdate = () => {
+      // If a coupon is currently applied, check if it's still valid
+      if (appliedCoupon) {
+        const currentCoupon = getDynamicCoupon();
+        if (!currentCoupon || currentCoupon.code !== appliedCoupon.code) {
+          // Current coupon is no longer valid, remove it
+          removeCoupon();
+          setCouponError('Coupon removed due to offer update');
+        }
+      }
+    };
+
+    // Listen for banner updates
+    window.addEventListener('offerBannerUpdate', handleBannerUpdate);
+    
+    return () => {
+      window.removeEventListener('offerBannerUpdate', handleBannerUpdate);
+    };
+  }, [appliedCoupon]);
 
   const checkAuthStatus = () => {
     if (authService.isAuthenticated()) {
@@ -96,15 +119,6 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     setTotal(discountedSubtotal + shipping + tax);
   };
 
-  // Predefined coupons - In production, this would come from backend
-  const validCoupons = {
-    'DIWALI25': { code: 'DIWALI25', discount: 25, description: 'Diwali Special - 25% OFF', minAmount: 500 },
-    'WELCOME10': { code: 'WELCOME10', discount: 10, description: 'Welcome Offer - 10% OFF', minAmount: 300 },
-    'SAVE15': { code: 'SAVE15', discount: 15, description: 'Save More - 15% OFF', minAmount: 800 },
-    'NEWBIE20': { code: 'NEWBIE20', discount: 20, description: 'First Time Customer - 20% OFF', minAmount: 600 },
-    'BULK30': { code: 'BULK30', discount: 30, description: 'Bulk Order - 30% OFF', minAmount: 2000 }
-  };
-
   const applyCoupon = async () => {
     if (!couponCode.trim()) {
       setCouponError('Please enter a coupon code');
@@ -116,12 +130,18 @@ const Checkout = ({ onBack, onOrderComplete }) => {
 
     try {
       // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 800));
+      await new Promise(resolve => setTimeout(resolve, 500));
       
-      const coupon = validCoupons[couponCode.toUpperCase()];
+      // Validate against dynamic coupon from offer banner
+      const coupon = validateDynamicCoupon(couponCode);
       
       if (!coupon) {
-        setCouponError('Invalid coupon code');
+        const dynamicCoupon = getDynamicCoupon();
+        if (dynamicCoupon) {
+          setCouponError(`Invalid coupon code. Current active coupon: ${dynamicCoupon.code}`);
+        } else {
+          setCouponError('No active coupon available at the moment');
+        }
         setIsApplyingCoupon(false);
         return;
       }
@@ -720,14 +740,15 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                         <p className="text-red-500 text-xs mt-1">{couponError}</p>
                       )}
                       
-                      {/* Available Coupons Hint */}
+                      {/* Current Offer Hint */}
                       <div className="mt-3 text-xs text-gray-600">
-                        <p className="font-medium mb-1">Available Coupons:</p>
-                        <div className="space-y-1">
-                          <p>• DIWALI25 - 25% OFF (Min ₹500)</p>
-                          <p>• WELCOME10 - 10% OFF (Min ₹300)</p>
-                          <p>• SAVE15 - 15% OFF (Min ₹800)</p>
+                        <p className="font-medium mb-1">Current Offer:</p>
+                        <div className="p-2 bg-yellow-50 border border-yellow-200 rounded">
+                          <p className="text-yellow-800">{getExampleCouponText()}</p>
                         </div>
+                        <p className="mt-1 text-gray-500">
+                          ℹ️ Coupon codes are from the current offer banner
+                        </p>
                       </div>
                     </div>
                   ) : (

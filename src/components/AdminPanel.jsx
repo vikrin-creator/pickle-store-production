@@ -2571,10 +2571,19 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   value={offerSettings.text}
                   onChange={(e) => setOfferSettings({...offerSettings, text: e.target.value})}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  rows="3"
-                  placeholder="Enter your offer text with emojis..."
+                  rows="4"
+                  placeholder="🎉 Diwali Special: Get 25% OFF on all items! 🚀 Use code: DIWALI25 ⏰ Limited time offer!"
                   required
                 />
+                <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                  <h4 className="text-sm font-medium text-blue-800 mb-2">💡 Coupon Integration Tips:</h4>
+                  <div className="text-xs text-blue-700 space-y-1">
+                    <p>• Include discount percentage: "25% OFF" or "Get 20%"</p>
+                    <p>• Add coupon code: "Use code: SAVE25" or "Code: WELCOME10"</p>
+                    <p>• Optional minimum amount: "Min ₹500" or "Above ₹300"</p>
+                    <p>• Customers can use the coupon code during checkout!</p>
+                  </div>
+                </div>
               </div>
 
               {/* Banner Status */}
