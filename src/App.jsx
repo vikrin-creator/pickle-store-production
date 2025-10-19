@@ -11,7 +11,6 @@ import Wishlist from './components/Wishlist'
 import CustomerAuth from './components/CustomerAuth'
 import FAQ from './components/FAQ'
 import WhatsAppChat from './components/WhatsAppChat'
-import OffersBanner from './components/OffersBanner'
 import authService from './services/authService'
 import './App.css'
 
@@ -495,9 +494,6 @@ function App() {
 
   return (
     <div className="App">
-      {/* Offers Banner - Appears on all pages at the top */}
-      <OffersBanner />
-      
       {renderPage()}
       
       {/* Customer Authentication Modal */}
