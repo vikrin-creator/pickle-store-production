@@ -59,7 +59,10 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [offerSettings, setOfferSettings] = useState({
     text: '🎉 Diwali Special Offer: Get 25% OFF on all pickle varieties! ✨ Free shipping on orders above ₹500 🚀 Use code: DIWALI25 ⏰ Limited time offer - Ends Oct 31st!',
     isActive: true,
-    backgroundColor: 'from-red-600 to-orange-600',
+    backgroundColor: 'from-green-600 to-emerald-600',
+    customStartColor: '#16a34a',
+    customEndColor: '#059669',
+    useCustomColors: false,
     textColor: 'text-white',
     animationSpeed: 30
   });
@@ -2195,7 +2198,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             {/* Current Banner Preview */}
             <div className="bg-white rounded-lg shadow p-6">
               <h3 className="text-lg font-semibold mb-4">Current Banner Preview</h3>
-              <div className={`bg-gradient-to-r ${offerSettings.backgroundColor} ${offerSettings.textColor} py-3 px-4 relative overflow-hidden rounded-lg`}>
+              <div 
+                className={`${offerSettings.useCustomColors ? '' : `bg-gradient-to-r ${offerSettings.backgroundColor}`} ${offerSettings.textColor} py-3 px-4 relative overflow-hidden rounded-lg`}
+                style={offerSettings.useCustomColors ? {
+                  background: `linear-gradient(to right, ${offerSettings.customStartColor}, ${offerSettings.customEndColor})`
+                } : {}}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex-1 overflow-hidden">
                     <div className="animate-marquee whitespace-nowrap">
@@ -2212,6 +2220,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               <div className="mt-4 text-sm text-gray-600">
                 <p><strong>Status:</strong> {offerSettings.isActive ? '✅ Active' : '❌ Inactive'}</p>
                 <p><strong>Animation Speed:</strong> {offerSettings.animationSpeed}s</p>
+                <p><strong>Colors:</strong> {offerSettings.useCustomColors ? `Custom (${offerSettings.customStartColor} → ${offerSettings.customEndColor})` : offerSettings.backgroundColor.replace('from-', '').replace('to-', ' → ').replace('-', ' ')}</p>
               </div>
             </div>
           </div>
@@ -2586,17 +2595,81 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Background Style
                 </label>
-                <select
-                  value={offerSettings.backgroundColor}
-                  onChange={(e) => setOfferSettings({...offerSettings, backgroundColor: e.target.value})}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                >
-                  <option value="from-red-600 to-orange-600">Red to Orange</option>
-                  <option value="from-blue-600 to-purple-600">Blue to Purple</option>
-                  <option value="from-green-600 to-teal-600">Green to Teal</option>
-                  <option value="from-yellow-500 to-red-500">Yellow to Red</option>
-                  <option value="from-indigo-600 to-pink-600">Indigo to Pink</option>
-                </select>
+                
+                {/* Color Style Toggle */}
+                <div className="mb-3">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={offerSettings.useCustomColors}
+                      onChange={(e) => setOfferSettings({...offerSettings, useCustomColors: e.target.checked})}
+                      className="mr-2"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Use Custom Colors</span>
+                  </label>
+                </div>
+
+                {!offerSettings.useCustomColors ? (
+                  <select
+                    value={offerSettings.backgroundColor}
+                    onChange={(e) => setOfferSettings({...offerSettings, backgroundColor: e.target.value})}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  >
+                    <option value="from-green-600 to-emerald-600">Green to Emerald (Header Match)</option>
+                    <option value="from-green-700 to-green-500">Dark Green to Light Green</option>
+                    <option value="from-emerald-600 to-teal-600">Emerald to Teal</option>
+                    <option value="from-green-600 to-yellow-500">Green to Yellow</option>
+                    <option value="from-teal-600 to-green-600">Teal to Green</option>
+                    <option value="from-red-600 to-orange-600">Red to Orange</option>
+                    <option value="from-blue-600 to-purple-600">Blue to Purple</option>
+                    <option value="from-indigo-600 to-pink-600">Indigo to Pink</option>
+                  </select>
+                ) : (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          Start Color
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="color"
+                            value={offerSettings.customStartColor}
+                            onChange={(e) => setOfferSettings({...offerSettings, customStartColor: e.target.value})}
+                            className="w-12 h-8 border border-gray-300 rounded cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={offerSettings.customStartColor}
+                            onChange={(e) => setOfferSettings({...offerSettings, customStartColor: e.target.value})}
+                            className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-500"
+                            placeholder="#16a34a"
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-600 mb-1">
+                          End Color
+                        </label>
+                        <div className="flex items-center space-x-2">
+                          <input
+                            type="color"
+                            value={offerSettings.customEndColor}
+                            onChange={(e) => setOfferSettings({...offerSettings, customEndColor: e.target.value})}
+                            className="w-12 h-8 border border-gray-300 rounded cursor-pointer"
+                          />
+                          <input
+                            type="text"
+                            value={offerSettings.customEndColor}
+                            onChange={(e) => setOfferSettings({...offerSettings, customEndColor: e.target.value})}
+                            className="flex-1 px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-orange-500"
+                            placeholder="#059669"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Animation Speed */}
@@ -2619,7 +2692,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Live Preview
                 </label>
-                <div className={`bg-gradient-to-r ${offerSettings.backgroundColor} ${offerSettings.textColor} py-3 px-4 relative overflow-hidden rounded-lg`}>
+                <div 
+                  className={`${offerSettings.useCustomColors ? '' : `bg-gradient-to-r ${offerSettings.backgroundColor}`} ${offerSettings.textColor} py-3 px-4 relative overflow-hidden rounded-lg`}
+                  style={offerSettings.useCustomColors ? {
+                    background: `linear-gradient(to right, ${offerSettings.customStartColor}, ${offerSettings.customEndColor})`
+                  } : {}}
+                >
                   <div className="flex items-center justify-between">
                     <div className="flex-1 overflow-hidden">
                       <div className="animate-marquee whitespace-nowrap">

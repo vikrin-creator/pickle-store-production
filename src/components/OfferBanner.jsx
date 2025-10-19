@@ -5,7 +5,10 @@ const OfferBanner = () => {
   const [settings, setSettings] = useState({
     text: '🎉 Diwali Special Offer: Get 25% OFF on all pickle varieties! ✨ Free shipping on orders above ₹500 🚀 Use code: DIWALI25 ⏰ Limited time offer - Ends Oct 31st!',
     isActive: true,
-    backgroundColor: 'from-red-600 to-orange-600',
+    backgroundColor: 'from-green-600 to-emerald-600',
+    customStartColor: '#16a34a',
+    customEndColor: '#059669',
+    useCustomColors: false,
     textColor: 'text-white',
     animationSpeed: 30
   });
@@ -41,7 +44,12 @@ const OfferBanner = () => {
   if (!isVisible || !settings.isActive) return null;
 
   return (
-    <div className={`bg-gradient-to-r ${settings.backgroundColor} ${settings.textColor} py-3 px-4 relative overflow-hidden`}>
+    <div 
+      className={`${settings.useCustomColors ? '' : `bg-gradient-to-r ${settings.backgroundColor}`} ${settings.textColor} py-3 px-4 relative overflow-hidden`}
+      style={settings.useCustomColors ? {
+        background: `linear-gradient(to right, ${settings.customStartColor}, ${settings.customEndColor})`
+      } : {}}
+    >
       <div className="container mx-auto flex items-center justify-between">
         {/* Scrolling offer text */}
         <div className="flex-1 overflow-hidden">
