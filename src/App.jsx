@@ -10,6 +10,7 @@ import AdminLogin from './components/AdminLogin'
 import Wishlist from './components/Wishlist'
 import CustomerAuth from './components/CustomerAuth'
 import FAQ from './components/FAQ'
+import WhatsAppChat from './components/WhatsAppChat'
 import authService from './services/authService'
 import './App.css'
 
@@ -509,6 +510,9 @@ function App() {
         onClose={handleCloseFaq}
         faqs={faqs}
       />
+
+      {/* WhatsApp Chat - Available on all pages */}
+      <WhatsAppChat />
     </div>
   );
 }

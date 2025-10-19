@@ -219,8 +219,8 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             About
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </a>
-          <a href="#recipes" className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
-            Recipes
+          <a href="#story" className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
+            Story
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </a>
           <a href="#contact" className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
@@ -258,11 +258,11 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                   Shop
                 </button>
                 <a 
-                  href="#recipes" 
+                  href="#story" 
                   className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
                   onClick={() => setShowMobileMenu(false)}
                 >
-                  Recipes
+                  Story
                 </a>
                 <a 
                   href="#about" 
@@ -524,7 +524,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-6 sm:mb-8 animate-bounce-in">🌱 Our Promise</h2>
           <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             {[
-              { icon: "✔", title: "Authenticity First", desc: "Recipes rooted in tradition" },
+              { icon: "✔", title: "Authenticity First", desc: "Stories rooted in tradition" },
               { icon: "✔", title: "100% Natural", desc: "No preservatives, no artificial flavors" },
               { icon: "✔", title: "Locally Sourced", desc: "Supporting farmers & fishermen" },
               { icon: "✔", title: "Taste of Home", desc: "Packed with nostalgia, purity, and love" }
@@ -613,7 +613,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 },
                 {
                   title: "Garlic Pickle",
-                  description: "Spicy garlic pickle prepared using age-old recipes from grandmothers' kitchens.",
+                  description: "Spicy garlic pickle prepared using age-old stories from grandmothers' kitchens.",
                   image: "/assets/Garlic.png"
                 }
               ].map((item, index) => (
@@ -640,7 +640,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         <section className="bg-[#ecab13]/10 rounded-2xl py-12 sm:py-16 px-3 sm:px-6 text-center mx-3 sm:mx-6 animate-fade-in-up">
           <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold animate-bounce-in">Stay Connected with Janiitra</h2>
           <p className="mt-4 mx-auto max-w-2xl text-base sm:text-lg text-[#221c10]/80 animate-fade-in-delay-1 px-4">
-            Get exclusive offers, traditional recipes, and authentic product updates straight from our kitchen to your inbox.
+            Get exclusive offers, our authentic story, and product updates straight from our kitchen to your inbox.
           </p>
           <form 
             onSubmit={handleNewsletterSubmit}
