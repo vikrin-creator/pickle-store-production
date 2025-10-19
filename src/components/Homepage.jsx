@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import authService from '../services/authService';
 import HomepageService from '../services/homepageService';
 import CategoryService from '../services/categoryService';
+import TestimonialService from '../services/testimonialService';
 import CustomerAuth from './CustomerAuth';
 import CustomerProfile from './CustomerProfile';
 
@@ -45,6 +46,8 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   });
   const [categories, setCategories] = useState([]);
   const [homepageLoading, setHomepageLoading] = useState(true);
+  const [testimonials, setTestimonials] = useState([]);
+  const [testimonialsLoading, setTestimonialsLoading] = useState(true);
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -52,6 +55,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     setUser(authService.getCurrentUser());
     loadHomepageData();
     loadCategories();
+    loadTestimonials();
   }, []);
 
   // Load categories from database
@@ -64,6 +68,21 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
       console.error('Homepage: Error loading categories:', error);
       // Keep static categories as fallback
       setCategories([]);
+    }
+  };
+
+  // Load testimonials from database
+  const loadTestimonials = async () => {
+    try {
+      setTestimonialsLoading(true);
+      const data = await TestimonialService.getAllTestimonials();
+      console.log('Homepage: Loaded testimonials from API:', data.length);
+      setTestimonials(data || []);
+    } catch (error) {
+      console.error('Homepage: Error loading testimonials:', error);
+      setTestimonials([]);
+    } finally {
+      setTestimonialsLoading(false);
     }
   };
 
@@ -637,6 +656,118 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               ))}
             </div>
           )}
+        </section>
+
+        {/* Customer Testimonials Section */}
+        <section className="py-12 sm:py-16 px-3 sm:px-6 bg-gradient-to-br from-[#ecab13]/5 to-[#ecab13]/10 animate-fade-in-up">
+          <div className="max-w-7xl mx-auto">
+            <div className="text-center mb-8 sm:mb-12">
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-4 animate-slide-down">
+                What Our Customers Say
+              </h2>
+              <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto animate-fade-in-delay-1 px-4">
+                Real reviews from pickle lovers who've experienced the authentic taste of Janiitra
+              </p>
+            </div>
+
+            {/* Loading State */}
+            {testimonialsLoading && (
+              <div className="flex justify-center items-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#ecab13]"></div>
+                <span className="ml-3 text-gray-600">Loading testimonials...</span>
+              </div>
+            )}
+
+            {/* Testimonials Grid */}
+            {!testimonialsLoading && testimonials.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                {testimonials.slice(0, 6).map((testimonial, index) => (
+                  <div 
+                    key={testimonial._id}
+                    className={`bg-white rounded-xl shadow-sm p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger border border-gray-100`}
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    {/* Rating Stars */}
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex text-yellow-400 text-lg">
+                        {TestimonialService.getStarDisplay(testimonial.rating)}
+                      </div>
+                      {testimonial.verifiedBuyer && (
+                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
+                          ✓ Verified
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Customer Photo and Info */}
+                    <div className="flex items-center mb-4">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
+                        {testimonial.customerImage ? (
+                          <img 
+                            src={testimonial.customerImage} 
+                            alt={testimonial.customerName}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-[#ecab13] flex items-center justify-center text-white font-bold text-lg">
+                            {testimonial.customerName.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                        <div className="w-full h-full bg-[#ecab13] items-center justify-center text-white font-bold text-lg" style={{ display: 'none' }}>
+                          {testimonial.customerName.charAt(0).toUpperCase()}
+                        </div>
+                      </div>
+                      <div className="ml-3">
+                        <h3 className="font-semibold text-gray-900 text-sm">
+                          {testimonial.customerName}
+                        </h3>
+                        <p className="text-xs text-gray-500">
+                          {testimonial.customerLocation}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Testimonial Text */}
+                    <blockquote className="text-gray-700 text-sm leading-relaxed mb-4 italic">
+                      "{TestimonialService.truncateText(testimonial.testimonialText, 120)}"
+                    </blockquote>
+
+                    {/* Product Mentioned */}
+                    {testimonial.productMentioned && (
+                      <div className="flex items-center text-xs text-[#ecab13] font-medium">
+                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
+                        </svg>
+                        {testimonial.productMentioned}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Empty State */}
+            {!testimonialsLoading && testimonials.length === 0 && (
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">🗣️</div>
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">No testimonials yet</h3>
+                <p className="text-gray-500">Be the first to share your experience with our authentic pickles!</p>
+              </div>
+            )}
+
+            {/* View More Button */}
+            {!testimonialsLoading && testimonials.length > 6 && (
+              <div className="text-center mt-8">
+                <button className="font-body bg-[#ecab13] text-[#221c10] px-6 py-3 font-semibold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg transform hover:rotate-1 hover:bg-[#d49811]">
+                  View All Reviews
+                </button>
+              </div>
+            )}
+          </div>
         </section>
 
         {/* Newsletter Section */}

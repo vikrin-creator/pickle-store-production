@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import AdminService from '../services/adminService';
 import CategoryService from '../services/categoryService';
+import TestimonialService from '../services/testimonialService';
 
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
@@ -115,6 +116,24 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     category: 'General'
   });
 
+  // Testimonials States
+  const [testimonials, setTestimonials] = useState([]);
+  const [showTestimonialForm, setShowTestimonialForm] = useState(false);
+  const [editingTestimonial, setEditingTestimonial] = useState(null);
+  const [testimonialImageUpload, setTestimonialImageUpload] = useState(null);
+  const [testimonialFormData, setTestimonialFormData] = useState({
+    customerName: '',
+    customerLocation: '',
+    customerImage: '',
+    testimonialText: '',
+    rating: 5,
+    productMentioned: '',
+    isActive: true,
+    isFeatured: false,
+    order: 0,
+    verifiedBuyer: false
+  });
+
   // Category Management States
   const [categories, setCategories] = useState([]);
   const [showCategoryForm, setShowCategoryForm] = useState(false);
@@ -181,6 +200,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           break;
         case 'faq':
           await loadFaqs();
+          break;
+        case 'testimonials':
+          await loadTestimonials();
           break;
         case 'categories':
           await loadCategories();
@@ -267,6 +289,17 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     } catch (error) {
       console.error('Error loading FAQs:', error);
       setFaqs([]);
+    }
+  };
+
+  const loadTestimonials = async () => {
+    try {
+      const data = await TestimonialService.getAllTestimonialsAdmin();
+      console.log('Loaded testimonials from API:', data.length);
+      setTestimonials(data || []);
+    } catch (error) {
+      console.error('Error loading testimonials:', error);
+      setTestimonials([]);
     }
   };
 
@@ -1165,7 +1198,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               { id: 'categories', label: 'Categories', icon: '🗂️' },
               { id: 'offers', label: 'Offer Banner', icon: '🎁' },
               { id: 'reviews', label: 'Reviews', icon: '⭐' },
-              { id: 'faq', label: 'FAQ', icon: '❓' }
+              { id: 'faq', label: 'FAQ', icon: '❓' },
+              { id: 'testimonials', label: 'Testimonials', icon: '💬' }
             ].map(tab => (
               <button
                 key={tab.id}
@@ -3193,6 +3227,360 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Testimonials Tab */}
+      {activeTab === 'testimonials' && (
+        <div className="ml-64 p-6 space-y-6">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+              <h2 className="text-2xl font-bold text-gray-800">💬 Customer Testimonials</h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Manage customer testimonials displayed on homepage ({testimonials.length} testimonials)
+              </p>
+            </div>
+            <button
+              onClick={() => setShowTestimonialForm(true)}
+              className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              Add New Testimonial
+            </button>
+          </div>
+
+          {/* Testimonials Grid */}
+          {testimonials.length === 0 ? (
+            <div className="bg-white p-8 rounded-lg shadow-md text-center">
+              <div className="text-6xl mb-4">💬</div>
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">No testimonials yet</h3>
+              <p className="text-gray-500 mb-4">Start adding customer testimonials to build trust and credibility.</p>
+              <button
+                onClick={() => setShowTestimonialForm(true)}
+                className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg transition-colors"
+              >
+                Add First Testimonial
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {testimonials.map((testimonial) => (
+                <div
+                  key={testimonial._id}
+                  className={`bg-white rounded-lg shadow-md p-6 border-l-4 transition-all duration-200 hover:shadow-lg ${
+                    testimonial.isFeatured ? 'border-yellow-400 bg-yellow-50' : 
+                    testimonial.isActive ? 'border-green-400' : 'border-gray-300 opacity-75'
+                  }`}
+                >
+                  {/* Header */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                        {testimonial.customerImage ? (
+                          <img 
+                            src={testimonial.customerImage} 
+                            alt={testimonial.customerName}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-blue-500 flex items-center justify-center text-white font-bold">
+                            {testimonial.customerName.charAt(0).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900 text-sm">{testimonial.customerName}</h3>
+                        <p className="text-xs text-gray-500">{testimonial.customerLocation}</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-1">
+                      {testimonial.isFeatured && (
+                        <span className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Featured</span>
+                      )}
+                      {testimonial.verifiedBuyer && (
+                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">✓ Verified</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Rating */}
+                  <div className="flex items-center mb-3">
+                    <div className="flex text-yellow-400">
+                      {TestimonialService.getStarDisplay(testimonial.rating)}
+                    </div>
+                    <span className="ml-2 text-sm text-gray-600">({testimonial.rating}/5)</span>
+                  </div>
+
+                  {/* Testimonial Text */}
+                  <blockquote className="text-gray-700 text-sm leading-relaxed mb-4 italic">
+                    "{TestimonialService.truncateText(testimonial.testimonialText, 100)}"
+                  </blockquote>
+
+                  {/* Product Mentioned */}
+                  {testimonial.productMentioned && (
+                    <div className="mb-4">
+                      <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                        📦 {testimonial.productMentioned}
+                      </span>
+                    </div>
+                  )}
+
+                  {/* Actions */}
+                  <div className="flex justify-between items-center pt-4 border-t border-gray-100">
+                    <div className="flex space-x-2">
+                      <button
+                        onClick={() => {
+                          setEditingTestimonial(testimonial);
+                          setTestimonialFormData({
+                            customerName: testimonial.customerName,
+                            customerLocation: testimonial.customerLocation,
+                            customerImage: testimonial.customerImage || '',
+                            testimonialText: testimonial.testimonialText,
+                            rating: testimonial.rating,
+                            productMentioned: testimonial.productMentioned || '',
+                            isActive: testimonial.isActive,
+                            isFeatured: testimonial.isFeatured,
+                            order: testimonial.order,
+                            verifiedBuyer: testimonial.verifiedBuyer
+                          });
+                          setShowTestimonialForm(true);
+                        }}
+                        className="text-blue-600 hover:text-blue-800 text-sm"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => handleToggleTestimonialActive(testimonial._id)}
+                        className={`text-sm ${
+                          testimonial.isActive 
+                            ? 'text-red-600 hover:text-red-800' 
+                            : 'text-green-600 hover:text-green-800'
+                        }`}
+                      >
+                        {testimonial.isActive ? 'Deactivate' : 'Activate'}
+                      </button>
+                      <button
+                        onClick={() => handleToggleTestimonialFeatured(testimonial._id)}
+                        className={`text-sm ${
+                          testimonial.isFeatured 
+                            ? 'text-gray-600 hover:text-gray-800' 
+                            : 'text-yellow-600 hover:text-yellow-800'
+                        }`}
+                      >
+                        {testimonial.isFeatured ? 'Unfeature' : 'Feature'}
+                      </button>
+                    </div>
+                    <button
+                      onClick={() => handleDeleteTestimonial(testimonial._id)}
+                      className="text-red-600 hover:text-red-800 text-sm"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Testimonial Form Modal */}
+      {showTestimonialForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">
+                {editingTestimonial ? 'Edit Testimonial' : 'Add New Testimonial'}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowTestimonialForm(false);
+                  setEditingTestimonial(null);
+                  setTestimonialFormData({
+                    customerName: '',
+                    customerLocation: '',
+                    customerImage: '',
+                    testimonialText: '',
+                    rating: 5,
+                    productMentioned: '',
+                    isActive: true,
+                    isFeatured: false,
+                    order: 0,
+                    verifiedBuyer: false
+                  });
+                  setTestimonialImageUpload(null);
+                }}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {/* Customer Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Name*</label>
+                <input
+                  type="text"
+                  value={testimonialFormData.customerName}
+                  onChange={(e) => setTestimonialFormData({...testimonialFormData, customerName: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="Enter customer name"
+                  required
+                />
+              </div>
+
+              {/* Customer Location */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Location*</label>
+                <input
+                  type="text"
+                  value={testimonialFormData.customerLocation}
+                  onChange={(e) => setTestimonialFormData({...testimonialFormData, customerLocation: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., Mumbai, Maharashtra"
+                  required
+                />
+              </div>
+
+              {/* Customer Image Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Photo</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setTestimonialImageUpload(e.target.files[0])}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Upload customer photo (optional)</p>
+              </div>
+
+              {/* Testimonial Text */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Testimonial Text*</label>
+                <textarea
+                  value={testimonialFormData.testimonialText}
+                  onChange={(e) => setTestimonialFormData({...testimonialFormData, testimonialText: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={4}
+                  placeholder="Enter customer testimonial..."
+                  required
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  {testimonialFormData.testimonialText.length}/500 characters
+                </p>
+              </div>
+
+              {/* Rating */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Rating*</label>
+                <select
+                  value={testimonialFormData.rating}
+                  onChange={(e) => setTestimonialFormData({...testimonialFormData, rating: parseInt(e.target.value)})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value={5}>⭐⭐⭐⭐⭐ (5 Stars)</option>
+                  <option value={4}>⭐⭐⭐⭐ (4 Stars)</option>
+                  <option value={3}>⭐⭐⭐ (3 Stars)</option>
+                  <option value={2}>⭐⭐ (2 Stars)</option>
+                  <option value={1}>⭐ (1 Star)</option>
+                </select>
+              </div>
+
+              {/* Product Mentioned */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Product Mentioned</label>
+                <input
+                  type="text"
+                  value={testimonialFormData.productMentioned}
+                  onChange={(e) => setTestimonialFormData({...testimonialFormData, productMentioned: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="e.g., Mango Pickle, Garlic Powder"
+                />
+              </div>
+
+              {/* Checkboxes */}
+              <div className="space-y-2">
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={testimonialFormData.isActive}
+                    onChange={(e) => setTestimonialFormData({...testimonialFormData, isActive: e.target.checked})}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Active (show on website)</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={testimonialFormData.isFeatured}
+                    onChange={(e) => setTestimonialFormData({...testimonialFormData, isFeatured: e.target.checked})}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Featured (highlight this testimonial)</span>
+                </label>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={testimonialFormData.verifiedBuyer}
+                    onChange={(e) => setTestimonialFormData({...testimonialFormData, verifiedBuyer: e.target.checked})}
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">Verified Buyer</span>
+                </label>
+              </div>
+
+              {/* Order */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Display Order</label>
+                <input
+                  type="number"
+                  value={testimonialFormData.order}
+                  onChange={(e) => setTestimonialFormData({...testimonialFormData, order: parseInt(e.target.value) || 0})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  placeholder="0"
+                  min="0"
+                />
+                <p className="text-xs text-gray-500 mt-1">Lower numbers appear first</p>
+              </div>
+            </div>
+
+            <div className="flex justify-end space-x-3 mt-6">
+              <button
+                onClick={() => {
+                  setShowTestimonialForm(false);
+                  setEditingTestimonial(null);
+                  setTestimonialFormData({
+                    customerName: '',
+                    customerLocation: '',
+                    customerImage: '',
+                    testimonialText: '',
+                    rating: 5,
+                    productMentioned: '',
+                    isActive: true,
+                    isFeatured: false,
+                    order: 0,
+                    verifiedBuyer: false
+                  });
+                  setTestimonialImageUpload(null);
+                }}
+                className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveTestimonial}
+                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+              >
+                {editingTestimonial ? 'Update' : 'Save'} Testimonial
+              </button>
             </div>
           </div>
         </div>
