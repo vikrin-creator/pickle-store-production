@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 const WhatsAppChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const [isAnimating, setIsAnimating] = useState(false);
   const whatsappNumber = '7780197494';
 
   const handleSendMessage = (e) => {
@@ -13,7 +12,7 @@ const WhatsAppChat = () => {
       const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
       window.open(whatsappURL, '_blank');
       setMessage('');
-      closeChat();
+      setIsOpen(false);
     }
   };
 
@@ -28,24 +27,18 @@ const WhatsAppChat = () => {
     const encodedMessage = encodeURIComponent(quickMsg);
     const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     window.open(whatsappURL, '_blank');
-    closeChat();
+    setIsOpen(false);
   };
 
-  const openChat = () => {
-    setIsAnimating(true);
-    setIsOpen(true);
-  };
-
-  const closeChat = () => {
-    setIsAnimating(false);
-    setTimeout(() => setIsOpen(false), 300); // Match the animation duration
+  const toggleChat = () => {
+    setIsOpen(!isOpen);
   };
 
   // Close chat when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (isOpen && !e.target.closest('.whatsapp-chat-container')) {
-        closeChat();
+      if (isOpen && !e.target.closest('.whatsapp-chat-container') && !e.target.closest('.whatsapp-toggle-btn')) {
+        setIsOpen(false);
       }
     };
 
@@ -59,10 +52,12 @@ const WhatsAppChat = () => {
     <>
       {/* WhatsApp Toggle Button */}
       <button
-        onClick={isOpen ? closeChat : openChat}
-        className={`whatsapp-toggle-btn fixed bottom-6 right-6 z-50 bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-110 ${
-          !isOpen ? 'animate-bounce' : 'rotate-45'
-        } ${isOpen ? 'bg-red-500 hover:bg-red-600' : ''}`}
+        onClick={toggleChat}
+        className={`whatsapp-toggle-btn fixed bottom-6 right-6 z-50 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-500 transform hover:scale-110 ${
+          !isOpen 
+            ? 'bg-green-500 hover:bg-green-600 animate-bounce' 
+            : 'bg-red-500 hover:bg-red-600 rotate-45'
+        }`}
         aria-label={isOpen ? "Close WhatsApp Chat" : "Open WhatsApp Chat"}
         title={isOpen ? "Close Chat" : "Chat with us on WhatsApp"}
       >
@@ -97,11 +92,7 @@ const WhatsAppChat = () => {
       {/* Chat Popup */}
       {isOpen && (
         <div 
-          className={`whatsapp-chat-container fixed bottom-24 right-3 sm:right-6 z-50 w-[95vw] max-w-sm bg-white rounded-2xl shadow-2xl border border-gray-200 transform transition-all duration-300 ${
-            isAnimating 
-              ? 'translate-y-0 opacity-100 scale-100' 
-              : 'translate-y-full opacity-0 scale-95'
-          }`}
+          className="whatsapp-chat-container fixed bottom-24 right-3 sm:right-6 z-50 w-[95vw] max-w-sm bg-white rounded-2xl shadow-2xl border border-gray-200 animate-slide-up"
         >
           {/* Header */}
           <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-t-2xl flex items-center justify-between relative overflow-hidden">
@@ -126,7 +117,7 @@ const WhatsAppChat = () => {
             </div>
             
             <button
-              onClick={closeChat}
+              onClick={() => setIsOpen(false)}
               className="relative z-10 text-white/80 hover:text-white p-2 hover:bg-white/20 rounded-full transition-all duration-200"
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -206,10 +197,8 @@ const WhatsAppChat = () => {
       {/* Animated Backdrop */}
       {isOpen && (
         <div 
-          className={`fixed inset-0 z-40 transition-all duration-300 ${
-            isAnimating ? 'bg-black/30' : 'bg-black/0'
-          }`}
-          onClick={closeChat}
+          className="fixed inset-0 z-40 bg-black/20 transition-all duration-300"
+          onClick={() => setIsOpen(false)}
         />
       )}
     </>
