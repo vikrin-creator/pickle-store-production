@@ -6,6 +6,27 @@ import CustomerAuth from './CustomerAuth';
 import CustomerProfile from './CustomerProfile';
 
 const Homepage = ({ cartCount, onNavigateToCart }) => {
+  // Hero carousel images
+  const heroImages = [
+    '/assets/PickleBackgroundjars.png',
+    '/assets/PickleBackgroundjars.png', // You can replace these with different images
+    '/assets/PickleBackgroundjars.png'  // For now using same image, add more later
+  ];
+
+  // Hero carousel state
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Auto-rotate hero images
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        (prevIndex + 1) % heroImages.length
+      );
+    }, 4000); // Change image every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [heroImages.length]);
+
   // Helper for category navigation
   const handleCategoryNavigate = (category) => {
     if (window.navigateToProducts) {
@@ -390,15 +411,42 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
       </header>
 
       <main role="main">
-        {/* Hero Section */}
+        {/* Hero Section with Carousel */}
         <section 
-          className="flex items-center justify-center min-h-[50vh] sm:min-h-[60vh] lg:min-h-[70vh] bg-cover bg-center text-center text-[#e8e1e1] px-3 sm:px-6 py-12 sm:py-16 lg:py-20 animate-fade-in"
-          style={{
-            backgroundImage: "linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('/assets/PickleBackgroundjars.png')"
-          }}
+          className="relative flex items-center justify-center min-h-[50vh] sm:min-h-[60vh] lg:min-h-[70vh] bg-cover bg-center text-center text-[#e8e1e1] px-3 sm:px-6 py-12 sm:py-16 lg:py-20 animate-fade-in overflow-hidden"
           aria-label="Hero section showcasing authentic Indian pickles"
         >
-          <div className="animate-slide-up max-w-6xl mx-auto -mt-8 sm:-mt-12 lg:-mt-16">
+          {/* Background Images Carousel */}
+          {heroImages.map((image, index) => (
+            <div
+              key={index}
+              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('${image}')`
+              }}
+            />
+          ))}
+
+          {/* Carousel Indicators */}
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+            {heroImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentImageIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentImageIndex 
+                    ? 'bg-[#ecab13] scale-125' 
+                    : 'bg-white/50 hover:bg-white/75'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          {/* Hero Content */}
+          <div className="relative z-10 animate-slide-up max-w-6xl mx-auto -mt-8 sm:-mt-12 lg:-mt-16">
             <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold uppercase tracking-wide mb-4 text-white animate-fade-in-delay-1">
               AUTHENTIC INDIAN PICKLES
             </h1>
