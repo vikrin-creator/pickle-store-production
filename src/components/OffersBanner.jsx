@@ -7,6 +7,8 @@ const OffersBanner = () => {
   const [error, setError] = useState(null);
   const [currentOfferIndex, setCurrentOfferIndex] = useState(0);
 
+  console.log('OffersBanner component mounted!');
+
   useEffect(() => {
     fetchActiveOffers();
   }, []);
@@ -40,19 +42,32 @@ const OffersBanner = () => {
     }
   };
 
+  // Temporary test banner for debugging - REMOVE THIS LATER
   if (loading) {
     console.log('OffersBanner: Loading...');
-    return null; // Don't show anything while loading
+    return (
+      <div className="w-full bg-blue-500 text-white py-2 px-4 text-center text-sm">
+        🔄 Loading offers...
+      </div>
+    );
   }
 
   if (error) {
     console.log('OffersBanner: Error -', error);
-    return null;
+    return (
+      <div className="w-full bg-red-500 text-white py-2 px-4 text-center text-sm">
+        ❌ Error loading offers: {error}
+      </div>
+    );
   }
 
   if (offers.length === 0) {
     console.log('OffersBanner: No offers found');
-    return null; // Don't show banner if there's no offers
+    return (
+      <div className="w-full bg-yellow-500 text-black py-2 px-4 text-center text-sm">
+        ⚠️ No offers available - Check API connection
+      </div>
+    );
   }
 
   console.log('OffersBanner: Rendering with', offers.length, 'offers');
