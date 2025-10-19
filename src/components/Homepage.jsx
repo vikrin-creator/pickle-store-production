@@ -48,6 +48,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   const [homepageLoading, setHomepageLoading] = useState(true);
   const [testimonials, setTestimonials] = useState([]);
   const [testimonialsLoading, setTestimonialsLoading] = useState(true);
+  const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -85,6 +86,19 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
       setTestimonialsLoading(false);
     }
   };
+
+  // Auto-rotate testimonials every 5 seconds
+  useEffect(() => {
+    if (testimonials.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentTestimonialIndex(prev => 
+          prev === testimonials.length - 1 ? 0 : prev + 1
+        );
+      }, 5000);
+
+      return () => clearInterval(interval);
+    }
+  }, [testimonials.length]);
 
   // Load homepage data from API
   const loadHomepageData = async () => {
@@ -660,14 +674,11 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Customer Testimonials Section */}
         <section className="py-12 sm:py-16 px-3 sm:px-6 bg-gradient-to-br from-[#ecab13]/5 to-[#ecab13]/10 animate-fade-in-up">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8 sm:mb-12">
-              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-4 animate-slide-down">
-                What Our Customers Say
+              <h2 className="font-display text-2xl sm:text-3xl md:text-4xl font-bold mb-4 animate-slide-down lowercase">
+                what our customers say
               </h2>
-              <p className="text-base sm:text-lg text-gray-600 max-w-3xl mx-auto animate-fade-in-delay-1 px-4">
-                Real reviews from pickle lovers who've experienced the authentic taste of Janiitra
-              </p>
             </div>
 
             {/* Loading State */}
@@ -678,75 +689,89 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               </div>
             )}
 
-            {/* Testimonials Grid */}
+            {/* Testimonials Carousel */}
             {!testimonialsLoading && testimonials.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
-                {testimonials.slice(0, 6).map((testimonial, index) => (
-                  <div 
-                    key={testimonial._id}
-                    className={`bg-white rounded-xl shadow-sm p-6 hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger border border-gray-100`}
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    {/* Rating Stars */}
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex text-yellow-400 text-lg">
-                        {TestimonialService.getStarDisplay(testimonial.rating)}
+              <div className="relative">
+                {/* Navigation Arrows */}
+                <button 
+                  onClick={() => setCurrentTestimonialIndex(prev => prev === 0 ? testimonials.length - 1 : prev - 1)}
+                  className="absolute left-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+                  disabled={testimonials.length <= 1}
+                >
+                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+
+                <button 
+                  onClick={() => setCurrentTestimonialIndex(prev => prev === testimonials.length - 1 ? 0 : prev + 1)}
+                  className="absolute right-0 top-1/2 transform -translate-y-1/2 z-10 bg-white rounded-full p-2 shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110"
+                  disabled={testimonials.length <= 1}
+                >
+                  <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+
+                {/* Single Testimonial Display */}
+                <div className="mx-8 px-8 py-12 text-center bg-white rounded-lg shadow-sm">
+                  {testimonials[currentTestimonialIndex] && (
+                    <>
+                      {/* Customer Name - Red Color */}
+                      <h3 className="text-2xl font-bold text-red-500 mb-2">
+                        {testimonials[currentTestimonialIndex].customerName}
+                      </h3>
+                      
+                      {/* Location and Date */}
+                      <p className="text-gray-600 mb-6">
+                        {testimonials[currentTestimonialIndex].customerLocation} | {new Date(testimonials[currentTestimonialIndex].createdAt).toLocaleDateString('en-GB', { 
+                          day: '2-digit', 
+                          month: 'long', 
+                          year: 'numeric' 
+                        })}
+                      </p>
+
+                      {/* Testimonial Text */}
+                      <blockquote className="text-gray-700 text-lg leading-relaxed mb-6 max-w-3xl mx-auto">
+                        '{testimonials[currentTestimonialIndex].testimonialText}'
+                      </blockquote>
+
+                      {/* Rating Stars */}
+                      <div className="flex justify-center text-yellow-400 text-xl mb-4">
+                        {TestimonialService.getStarDisplay(testimonials[currentTestimonialIndex].rating)}
                       </div>
-                      {testimonial.verifiedBuyer && (
-                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full font-medium">
-                          ✓ Verified
+
+                      {/* Verification Badge */}
+                      {testimonials[currentTestimonialIndex].verifiedBuyer && (
+                        <span className="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full font-medium text-sm">
+                          ✓ Verified Buyer
                         </span>
                       )}
-                    </div>
 
-                    {/* Customer Photo and Info */}
-                    <div className="flex items-center mb-4">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                        {testimonial.customerImage ? (
-                          <img 
-                            src={testimonial.customerImage} 
-                            alt={testimonial.customerName}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              e.target.style.display = 'none';
-                              e.target.nextSibling.style.display = 'flex';
-                            }}
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-[#ecab13] flex items-center justify-center text-white font-bold text-lg">
-                            {testimonial.customerName.charAt(0).toUpperCase()}
-                          </div>
-                        )}
-                        <div className="w-full h-full bg-[#ecab13] items-center justify-center text-white font-bold text-lg" style={{ display: 'none' }}>
-                          {testimonial.customerName.charAt(0).toUpperCase()}
+                      {/* Product Mentioned */}
+                      {testimonials[currentTestimonialIndex].productMentioned && (
+                        <div className="mt-4 text-[#ecab13] font-medium">
+                          Product: {testimonials[currentTestimonialIndex].productMentioned}
                         </div>
-                      </div>
-                      <div className="ml-3">
-                        <h3 className="font-semibold text-gray-900 text-sm">
-                          {testimonial.customerName}
-                        </h3>
-                        <p className="text-xs text-gray-500">
-                          {testimonial.customerLocation}
-                        </p>
-                      </div>
-                    </div>
+                      )}
+                    </>
+                  )}
+                </div>
 
-                    {/* Testimonial Text */}
-                    <blockquote className="text-gray-700 text-sm leading-relaxed mb-4 italic">
-                      "{TestimonialService.truncateText(testimonial.testimonialText, 120)}"
-                    </blockquote>
-
-                    {/* Product Mentioned */}
-                    {testimonial.productMentioned && (
-                      <div className="flex items-center text-xs text-[#ecab13] font-medium">
-                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
-                        </svg>
-                        {testimonial.productMentioned}
-                      </div>
-                    )}
-                  </div>
-                ))}
+                {/* Dots Navigation */}
+                <div className="flex justify-center mt-6 space-x-2">
+                  {testimonials.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentTestimonialIndex(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
+                        index === currentTestimonialIndex 
+                          ? 'bg-[#ecab13] scale-110' 
+                          : 'bg-gray-300 hover:bg-gray-400'
+                      }`}
+                    />
+                  ))}
+                </div>
               </div>
             )}
 
