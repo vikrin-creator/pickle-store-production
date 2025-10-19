@@ -981,6 +981,122 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     }
   };
 
+  // Testimonial Handler Functions
+  const handleSaveTestimonial = async () => {
+    try {
+      // Validate required fields
+      const validationErrors = TestimonialService.validateTestimonialData(testimonialFormData);
+      if (validationErrors.length > 0) {
+        alert('Please fix the following errors:\n' + validationErrors.join('\n'));
+        return;
+      }
+
+      let testimonialData = { ...testimonialFormData };
+
+      // Handle image upload if a new image is selected
+      if (testimonialImageUpload) {
+        try {
+          const formData = new FormData();
+          formData.append('image', testimonialImageUpload);
+          formData.append('folder', 'testimonials');
+
+          const imageResponse = await fetch(`${import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com/api'}/images/upload`, {
+            method: 'POST',
+            body: formData
+          });
+
+          if (!imageResponse.ok) {
+            throw new Error('Failed to upload image');
+          }
+
+          const imageData = await imageResponse.json();
+          testimonialData.customerImage = imageData.secure_url;
+        } catch (error) {
+          console.error('Error uploading image:', error);
+          alert('Failed to upload image. Please try again.');
+          return;
+        }
+      }
+
+      if (editingTestimonial) {
+        // Update existing testimonial
+        const updatedTestimonial = await TestimonialService.updateTestimonial(editingTestimonial._id, testimonialData);
+        const updatedTestimonials = testimonials.map(testimonial =>
+          testimonial._id === editingTestimonial._id ? updatedTestimonial : testimonial
+        );
+        setTestimonials(updatedTestimonials);
+        alert('Testimonial updated successfully!');
+      } else {
+        // Add new testimonial
+        const newTestimonial = await TestimonialService.createTestimonial(testimonialData);
+        setTestimonials([newTestimonial, ...testimonials]);
+        alert('Testimonial added successfully!');
+      }
+
+      // Reset form
+      setShowTestimonialForm(false);
+      setEditingTestimonial(null);
+      setTestimonialFormData({
+        customerName: '',
+        customerLocation: '',
+        customerImage: '',
+        testimonialText: '',
+        rating: 5,
+        productMentioned: '',
+        isActive: true,
+        isFeatured: false,
+        order: 0,
+        verifiedBuyer: false
+      });
+      setTestimonialImageUpload(null);
+    } catch (error) {
+      console.error('Error saving testimonial:', error);
+      alert(`Failed to save testimonial: ${error.message}`);
+    }
+  };
+
+  const handleDeleteTestimonial = async (testimonialId) => {
+    if (window.confirm('Are you sure you want to delete this testimonial?')) {
+      try {
+        await TestimonialService.deleteTestimonial(testimonialId);
+        const updatedTestimonials = testimonials.filter(testimonial => testimonial._id !== testimonialId);
+        setTestimonials(updatedTestimonials);
+        alert('Testimonial deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting testimonial:', error);
+        alert(`Failed to delete testimonial: ${error.message}`);
+      }
+    }
+  };
+
+  const handleToggleTestimonialActive = async (testimonialId) => {
+    try {
+      const updatedTestimonial = await TestimonialService.toggleTestimonialActive(testimonialId);
+      const updatedTestimonials = testimonials.map(testimonial =>
+        testimonial._id === testimonialId ? updatedTestimonial : testimonial
+      );
+      setTestimonials(updatedTestimonials);
+      alert(`Testimonial ${updatedTestimonial.isActive ? 'activated' : 'deactivated'} successfully!`);
+    } catch (error) {
+      console.error('Error toggling testimonial status:', error);
+      alert(`Failed to toggle testimonial status: ${error.message}`);
+    }
+  };
+
+  const handleToggleTestimonialFeatured = async (testimonialId) => {
+    try {
+      const updatedTestimonial = await TestimonialService.toggleTestimonialFeatured(testimonialId);
+      const updatedTestimonials = testimonials.map(testimonial =>
+        testimonial._id === testimonialId ? updatedTestimonial : testimonial
+      );
+      setTestimonials(updatedTestimonials);
+      alert(`Testimonial ${updatedTestimonial.isFeatured ? 'featured' : 'unfeatured'} successfully!`);
+    } catch (error) {
+      console.error('Error toggling testimonial featured status:', error);
+      alert(`Failed to toggle testimonial featured status: ${error.message}`);
+    }
+  };
+
   // Category Handler Functions
   const handleCategoryImageChange = (e) => {
     const file = e.target.files[0];
