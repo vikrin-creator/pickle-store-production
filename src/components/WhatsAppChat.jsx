@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 const WhatsAppChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
-  const whatsappNumber = '7780197494';
+  const whatsappNumber = '9177754434';
 
   const handleSendMessage = (e) => {
     e.preventDefault();
