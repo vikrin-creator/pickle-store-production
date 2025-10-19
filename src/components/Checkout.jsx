@@ -9,6 +9,13 @@ const Checkout = ({ onBack, onOrderComplete }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  
+  // Coupon state
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  
   const [formData, setFormData] = useState({
     // Contact Information
     email: '',
@@ -74,11 +81,75 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     }
   };
 
-  const calculateTotal = (items) => {
+  const calculateTotal = (items, coupon = appliedCoupon) => {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     const shipping = subtotal > 2000 ? 0 : 200; // Free shipping over ₹2000, otherwise ₹200
-    const tax = subtotal * 0.18; // 18% GST for India
-    setTotal(subtotal + shipping + tax);
+    
+    // Apply coupon discount to subtotal before tax
+    let discountAmount = 0;
+    if (coupon) {
+      discountAmount = (subtotal * coupon.discount) / 100;
+    }
+    
+    const discountedSubtotal = subtotal - discountAmount;
+    const tax = discountedSubtotal * 0.18; // 18% GST for India
+    setTotal(discountedSubtotal + shipping + tax);
+  };
+
+  // Predefined coupons - In production, this would come from backend
+  const validCoupons = {
+    'DIWALI25': { code: 'DIWALI25', discount: 25, description: 'Diwali Special - 25% OFF', minAmount: 500 },
+    'WELCOME10': { code: 'WELCOME10', discount: 10, description: 'Welcome Offer - 10% OFF', minAmount: 300 },
+    'SAVE15': { code: 'SAVE15', discount: 15, description: 'Save More - 15% OFF', minAmount: 800 },
+    'NEWBIE20': { code: 'NEWBIE20', discount: 20, description: 'First Time Customer - 20% OFF', minAmount: 600 },
+    'BULK30': { code: 'BULK30', discount: 30, description: 'Bulk Order - 30% OFF', minAmount: 2000 }
+  };
+
+  const applyCoupon = async () => {
+    if (!couponCode.trim()) {
+      setCouponError('Please enter a coupon code');
+      return;
+    }
+
+    setIsApplyingCoupon(true);
+    setCouponError('');
+
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 800));
+      
+      const coupon = validCoupons[couponCode.toUpperCase()];
+      
+      if (!coupon) {
+        setCouponError('Invalid coupon code');
+        setIsApplyingCoupon(false);
+        return;
+      }
+
+      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      
+      if (subtotal < coupon.minAmount) {
+        setCouponError(`Minimum order amount ₹${coupon.minAmount} required for this coupon`);
+        setIsApplyingCoupon(false);
+        return;
+      }
+
+      setAppliedCoupon(coupon);
+      calculateTotal(cartItems, coupon);
+      setCouponError('');
+      
+    } catch (error) {
+      setCouponError('Error applying coupon. Please try again.');
+    }
+    
+    setIsApplyingCoupon(false);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError('');
+    calculateTotal(cartItems, null);
   };
 
   const handleInputChange = (e) => {
@@ -129,11 +200,16 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     setIsProcessing(true);
 
     try {
-      // Calculate totals
+      // Calculate totals with coupon
       const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      let discountAmount = 0;
+      if (appliedCoupon) {
+        discountAmount = (subtotal * appliedCoupon.discount) / 100;
+      }
+      const discountedSubtotal = subtotal - discountAmount;
       const shipping = subtotal > 2000 ? 0 : 200;
-      const tax = subtotal * 0.18;
-      const finalTotal = subtotal + shipping + tax;
+      const tax = discountedSubtotal * 0.18;
+      const finalTotal = discountedSubtotal + shipping + tax;
 
       // Prepare order data for backend
       const orderData = {
@@ -162,6 +238,12 @@ const Checkout = ({ onBack, onOrderComplete }) => {
           }
         },
         subtotal: subtotal,
+        discount: discountAmount,
+        coupon: appliedCoupon ? {
+          code: appliedCoupon.code,
+          discount: appliedCoupon.discount,
+          description: appliedCoupon.description
+        } : null,
         tax: tax,
         shipping: shipping,
         total: finalTotal,
@@ -602,19 +684,95 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                   ))}
                 </div>
 
+                {/* Coupon Section */}
+                <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="text-sm font-medium mb-3 text-gray-700">Have a coupon?</h4>
+                  
+                  {!appliedCoupon ? (
+                    <div>
+                      <div className="flex gap-2 mb-2">
+                        <input
+                          type="text"
+                          value={couponCode}
+                          onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                          placeholder="Enter coupon code"
+                          className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ecab13] focus:border-transparent"
+                          disabled={isApplyingCoupon}
+                        />
+                        <button
+                          type="button"
+                          onClick={applyCoupon}
+                          disabled={isApplyingCoupon || !couponCode.trim()}
+                          className="px-4 py-2 bg-[#ecab13] text-white text-sm font-medium rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                        >
+                          {isApplyingCoupon ? (
+                            <>
+                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-white"></div>
+                              Applying
+                            </>
+                          ) : (
+                            'Apply'
+                          )}
+                        </button>
+                      </div>
+                      
+                      {couponError && (
+                        <p className="text-red-500 text-xs mt-1">{couponError}</p>
+                      )}
+                      
+                      {/* Available Coupons Hint */}
+                      <div className="mt-3 text-xs text-gray-600">
+                        <p className="font-medium mb-1">Available Coupons:</p>
+                        <div className="space-y-1">
+                          <p>• DIWALI25 - 25% OFF (Min ₹500)</p>
+                          <p>• WELCOME10 - 10% OFF (Min ₹300)</p>
+                          <p>• SAVE15 - 15% OFF (Min ₹800)</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between p-3 bg-green-50 border border-green-200 rounded-md">
+                      <div>
+                        <p className="text-green-800 font-medium text-sm">{appliedCoupon.code}</p>
+                        <p className="text-green-600 text-xs">{appliedCoupon.description}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={removeCoupon}
+                        className="text-red-500 hover:text-red-700 text-sm font-medium"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
+                </div>
+
                 {/* Price Breakdown */}
                 <div className="space-y-2 mb-6">
                   <div className="flex justify-between text-sm">
                     <span>Subtotal</span>
                     <span>₹{(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)}</span>
                   </div>
+                  
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-sm text-green-600">
+                      <span>Discount ({appliedCoupon.code})</span>
+                      <span>-₹{((cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * appliedCoupon.discount) / 100).toFixed(2)}</span>
+                    </div>
+                  )}
+                  
                   <div className="flex justify-between text-sm">
                     <span>Shipping</span>
                     <span>{cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) > 2000 ? 'Free' : '₹200'}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Tax (GST)</span>
-                    <span>₹{(cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) * 0.18).toFixed(2)}</span>
+                    <span>₹{(() => {
+                      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                      const discountAmount = appliedCoupon ? (subtotal * appliedCoupon.discount) / 100 : 0;
+                      const discountedSubtotal = subtotal - discountAmount;
+                      return (discountedSubtotal * 0.18).toFixed(2);
+                    })()}</span>
                   </div>
                   <div className="border-t pt-2">
                     <div className="flex justify-between font-semibold">
