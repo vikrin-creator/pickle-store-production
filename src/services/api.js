@@ -1,6 +1,30 @@
 // API Configuration
 const API_BASE_URL = 'https://pickle-store-backend.onrender.com';
 
+// Request timeout in milliseconds (15 seconds for Vercel)
+const REQUEST_TIMEOUT = 15000;
+
+// Create fetch with timeout to prevent Vercel timeouts
+const fetchWithTimeout = async (url, options = {}) => {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    return response;
+  } catch (error) {
+    clearTimeout(timeoutId);
+    if (error.name === 'AbortError') {
+      throw new Error('Request timeout - server may be slow, please try again');
+    }
+    throw error;
+  }
+};
+
 // API Endpoints
 export const API_ENDPOINTS = {
   products: `${API_BASE_URL}/api/products`,
@@ -15,7 +39,7 @@ export const api = {
   // GET request
   get: async (endpoint) => {
     try {
-      const response = await fetch(endpoint);
+      const response = await fetchWithTimeout(endpoint);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -29,7 +53,7 @@ export const api = {
   // POST request
   post: async (endpoint, data) => {
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetchWithTimeout(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -49,7 +73,7 @@ export const api = {
   // PUT request
   put: async (endpoint, data) => {
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetchWithTimeout(endpoint, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -69,7 +93,7 @@ export const api = {
   // DELETE request
   delete: async (endpoint) => {
     try {
-      const response = await fetch(endpoint, {
+      const response = await fetchWithTimeout(endpoint, {
         method: 'DELETE',
       });
       if (!response.ok) {
