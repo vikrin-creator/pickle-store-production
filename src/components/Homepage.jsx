@@ -612,14 +612,9 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                   return null; // Skip products with null productId
                 }
                 return (
-                  <button 
+                  <div 
                     key={product._id || product.id || index} 
-                    onClick={() => {
-                      if (window.navigateToProductDetail) {
-                        window.navigateToProductDetail(product);
-                      }
-                    }}
-                    className={`relative bg-white rounded-xl shadow-sm p-3 sm:p-4 text-center group hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger cursor-pointer mx-2`}
+                    className={`relative bg-white rounded-xl shadow-sm p-3 sm:p-4 text-center group hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger mx-2`}
                     style={{ animationDelay: `${index * 0.2}s` }}
                   >
                     <div 
@@ -634,7 +629,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                         {homepageProduct.customDescription || product.description}
                       </div>
                     </div>
-                  </button>
+                  </div>
                 );
               })}
             </div>
@@ -662,7 +657,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               ].map((item, index) => (
                 <div 
                   key={index} 
-                  className={`relative bg-white rounded-xl shadow-sm p-3 sm:p-4 text-center group hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger cursor-pointer mx-2`}
+                  className={`relative bg-white rounded-xl shadow-sm p-3 sm:p-4 text-center group hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in-stagger mx-2`}
                   style={{ animationDelay: `${index * 0.2}s` }}
                 >
                   <div 
