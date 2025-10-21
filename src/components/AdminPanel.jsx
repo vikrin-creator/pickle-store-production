@@ -152,6 +152,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [customerFavourites, setCustomerFavourites] = useState([]);
   const [loadingCustomerFavourites, setLoadingCustomerFavourites] = useState(true);
   const [editingFavourite, setEditingFavourite] = useState(null);
+  const [selectedFavouriteImageFile, setSelectedFavouriteImageFile] = useState(null);
+  const [favouriteImagePreview, setFavouriteImagePreview] = useState('');
 
   // Load all admin data on component mount
 
@@ -2387,10 +2389,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           </p>
                         </div>
 
-                        <div className="flex items-center justify-between mb-3">
-                          <span className="text-lg font-bold text-orange-600">
-                            ₹{favourite.productId?.price || 0}
-                          </span>
+                        <div className="mb-3">
                           <span className="text-sm text-gray-500">
                             Original: {favourite.productId?.name || 'Unknown'}
                           </span>
@@ -3065,14 +3064,18 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       {/* Customer Favourite Edit Modal */}
       {editingFavourite && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">
                   ❤️ Edit Customer Favourite
                 </h3>
                 <button
-                  onClick={() => setEditingFavourite(null)}
+                  onClick={() => {
+                    setEditingFavourite(null);
+                    setSelectedFavouriteImageFile(null);
+                    setFavouriteImagePreview('');
+                  }}
                   className="text-gray-400 hover:text-gray-600"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3082,12 +3085,57 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
             </div>
             
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-6">
               {/* Original Product Info */}
               <div className="bg-gray-50 p-4 rounded-lg">
                 <h4 className="font-medium text-gray-700 mb-2">Original Product:</h4>
-                <p className="text-sm text-gray-600">{editingFavourite.productId?.name || 'Unknown Product'}</p>
-                <p className="text-sm text-gray-500">₹{editingFavourite.productId?.price || 0}</p>
+                <div className="flex items-center space-x-4">
+                  <img 
+                    src={editingFavourite.productId?.image || '/placeholder.jpg'} 
+                    alt="Original product"
+                    className="w-16 h-16 object-cover rounded-lg"
+                  />
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">{editingFavourite.productId?.name || 'Unknown Product'}</p>
+                    <p className="text-xs text-gray-500">{editingFavourite.productId?.category || 'Unknown Category'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Custom Image Upload */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Custom Image
+                </label>
+                <div className="space-y-3">
+                  {/* Current Image Preview */}
+                  <div className="flex items-center space-x-4">
+                    <div className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden">
+                      <img 
+                        src={favouriteImagePreview || editingFavourite.customImage || editingFavourite.productId?.image || '/placeholder.jpg'} 
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            setSelectedFavouriteImageFile(file);
+                            const reader = new FileReader();
+                            reader.onload = (e) => setFavouriteImagePreview(e.target.result);
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Upload a custom image or leave empty to use original</p>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {/* Custom Title */}
@@ -3119,11 +3167,14 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     ...editingFavourite,
                     customDescription: e.target.value
                   })}
-                  rows={3}
+                  rows={4}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
                   placeholder="Enter custom description for this favourite"
                   required
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {editingFavourite.customDescription?.length || 0}/500 characters
+                </p>
               </div>
 
               {/* Save/Cancel Buttons */}
@@ -3137,15 +3188,17 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       const productId = editingFavourite.productId._id || editingFavourite.productId;
                       console.log('Using productId for update:', productId);
                       
-                      // Update customer favourite using the product ID, not the entry ID
+                      // Update customer favourite using the product ID
                       await HomepageService.updateProductInSection('customerFavorites', productId, {
                         customTitle: editingFavourite.customTitle,
                         customDescription: editingFavourite.customDescription
-                      });
+                      }, selectedFavouriteImageFile);
                       
                       // Reload favourites
                       await loadCustomerFavourites();
                       setEditingFavourite(null);
+                      setSelectedFavouriteImageFile(null);
+                      setFavouriteImagePreview('');
                       
                       alert('Customer favourite updated successfully!');
                     } catch (error) {
@@ -3159,7 +3212,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   💾 Save Changes
                 </button>
                 <button
-                  onClick={() => setEditingFavourite(null)}
+                  onClick={() => {
+                    setEditingFavourite(null);
+                    setSelectedFavouriteImageFile(null);
+                    setFavouriteImagePreview('');
+                  }}
                   className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
                 >
                   Cancel
