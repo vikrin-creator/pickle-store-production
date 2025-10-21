@@ -323,12 +323,19 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const loadCustomerFavourites = async () => {
     try {
       setLoadingCustomerFavourites(true);
-      const data = await HomepageService.getHomepageSections();
-      console.log('Loaded homepage sections:', data);
+      const sectionsArray = await HomepageService.getHomepageSections();
+      console.log('Loaded homepage sections array:', sectionsArray);
       
-      // Extract customer favourites from homepage sections
-      const favouritesSection = data.customerFavorites || { products: [] };
-      setCustomerFavourites(favouritesSection.products || []);
+      // Find the customerFavorites section from the array
+      const customerFavoritesSection = sectionsArray.find(section => section.sectionType === 'customerFavorites');
+      console.log('Found customerFavorites section:', customerFavoritesSection);
+      
+      // Extract products from the section and filter out products with null productId
+      const favouriteProducts = customerFavoritesSection ? 
+        customerFavoritesSection.products.filter(product => product.productId !== null) : [];
+      console.log('Customer favourite products (filtered):', favouriteProducts);
+      
+      setCustomerFavourites(favouriteProducts || []);
     } catch (error) {
       console.error('Error loading customer favourites:', error);
       setCustomerFavourites([]);
@@ -2347,7 +2354,14 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     <p className="text-gray-500 text-sm mt-2">Customer favourites will appear here when added to the homepage</p>
                   </div>
                 ) : (
-                  customerFavourites.map((favourite, index) => (
+                  customerFavourites.map((favourite, index) => {
+                    // Safety check for productId
+                    if (!favourite.productId) {
+                      console.warn('Skipping favourite with null productId:', favourite);
+                      return null;
+                    }
+                    
+                    return (
                     <div key={favourite._id || index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
                       {/* Product Image */}
                       <div className="h-48 relative">
@@ -2393,7 +2407,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                         </div>
                       </div>
                     </div>
-                  ))
+                    );
+                  }).filter(Boolean)
                 )}
               </div>
             )}
@@ -3118,11 +3133,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     try {
                       console.log('Updating favourite:', editingFavourite);
                       
-                      // Get the product entry ID from the favourite object
-                      const entryId = editingFavourite._id || editingFavourite.id;
+                      // Get the actual product ID from the favourite object
+                      const productId = editingFavourite.productId._id || editingFavourite.productId;
+                      console.log('Using productId for update:', productId);
                       
-                      // Update customer favourite
-                      await HomepageService.updateProductInSection('customerFavorites', entryId, {
+                      // Update customer favourite using the product ID, not the entry ID
+                      await HomepageService.updateProductInSection('customerFavorites', productId, {
                         customTitle: editingFavourite.customTitle,
                         customDescription: editingFavourite.customDescription
                       });
