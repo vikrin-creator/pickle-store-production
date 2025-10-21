@@ -222,7 +222,6 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     console.log('Profile clicked, current auth status:', isAuthenticated);
     console.log('Current user:', user);
     console.log('Current showProfile state:', showProfile);
-    alert('Profile button clicked! Auth: ' + isAuthenticated + ', User: ' + (user?.firstName || 'None'));
     setShowProfile(true);
     console.log('Profile state set to true');
   };
@@ -543,7 +542,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             ]).sort((a, b) => (a.order || 0) - (b.order || 0)).map((item, index) => (
                 <button 
                   key={index}
-                  onClick={() => handleCategoryNavigate(item.title || item.category)}
+                  onClick={() => handleCategoryNavigate(item.category)}
                   className={`h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
                   style={{ animationDelay: `${index * 0.2}s` }}
                 >

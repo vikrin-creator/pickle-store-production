@@ -78,7 +78,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     description: '',
     category: '', // Will be set to first available category
     dietaryCategory: 'Vegetarian', // Separate field for dietary classification
-    spiceLevel: 'Medium',
     image: '',
     codAvailable: true
   });
@@ -624,9 +623,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       const productData = {
         name: formData.name,
         description: formData.description,
-        category: formData.dietaryCategory, // Dietary category (Vegetarian/Non-Vegetarian)
+        category: formData.productCategory === 'Pickles' ? formData.dietaryCategory : 'Vegetarian', // Dietary category only for Pickles
         productCategory: formData.category, // Dynamic category from Categories collection
-        spiceLevel: formData.spiceLevel || 'Medium',
         weights: weightOptions,
         image: selectedImageFile, // This should be a File object, not base64
         featured: formData.featured || false,
@@ -653,7 +651,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         description: '',
         category: categories.length > 0 ? getCategoryValue(categories[0]) : '',
         dietaryCategory: 'Vegetarian',
-        spiceLevel: 'Medium',
         image: '',
         codAvailable: true
       });
@@ -695,7 +692,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       description: product.description,
       category: productCategory,
       dietaryCategory: dietaryCategory,
-      spiceLevel: product.spiceLevel || 'Medium',
       image: product.image,
       codAvailable: product.codAvailable !== undefined ? product.codAvailable : true
     });
@@ -825,7 +821,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       description: '',
       category: categories.length > 0 ? getCategoryValue(categories[0]) : '',
       dietaryCategory: 'Vegetarian',
-      spiceLevel: 'Medium',
       featured: false,
       rating: 0,
       reviews: 0,
@@ -1758,33 +1753,21 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     </select>
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Dietary Category</label>
-                    <select
-                      name="dietaryCategory"
-                      value={formData.dietaryCategory}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                    >
-                      <option value="Vegetarian">Vegetarian</option>
-                      <option value="Non-Vegetarian">Non-Vegetarian</option>
-                    </select>
-                  </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-1">Spice Level</label>
-                    <select
-                      name="spiceLevel"
-                      value={formData.spiceLevel}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                    >
-                      <option value="Mild">Mild</option>
-                      <option value="Medium">Medium</option>
-                      <option value="Hot">Hot</option>
-                      <option value="Extra Hot">Extra Hot</option>
-                    </select>
-                  </div>
+                  {/* Dietary Category - Only for Pickles */}
+                  {formData.productCategory === 'Pickles' && (
+                    <div>
+                      <label className="block text-sm font-medium mb-1">Dietary Category</label>
+                      <select
+                        name="dietaryCategory"
+                        value={formData.dietaryCategory}
+                        onChange={handleInputChange}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
+                      >
+                        <option value="Vegetarian">Vegetarian</option>
+                        <option value="Non-Vegetarian">Non-Vegetarian</option>
+                      </select>
+                    </div>
+                  )}
 
                   {/* COD Availability */}
                   <div>
