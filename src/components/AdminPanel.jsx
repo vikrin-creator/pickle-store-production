@@ -2112,41 +2112,101 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             </div>
 
             {/* Delivery Zones */}
-            <div className="bg-white p-6 rounded-lg shadow-md">
-              <h3 className="text-lg font-semibold mb-4">Delivery Zones & Charges</h3>
+            <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 space-y-2 sm:space-y-0">
+                <h3 className="text-lg font-semibold">Delivery Zones & Charges</h3>
+                <p className="text-xs sm:text-sm text-gray-600">Click Edit to modify delivery settings</p>
+              </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Zone</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Pincodes</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Delivery Charge</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Free Delivery Above</th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Delivery Time</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Zone</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden sm:table-cell">Pincodes</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Charge</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Free Above</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase hidden lg:table-cell">Time</th>
+                      <th className="px-3 sm:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Actions</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    <tr>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">Local</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">500001-500099</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">₹50</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">₹500</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">1-2 days</td>
-                    </tr>
-                    <tr>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">Regional</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">500100-599999</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">₹80</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">₹800</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">2-3 days</td>
-                    </tr>
-                    <tr>
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">National</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">All India</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">₹120</td>
-                      <td className="px-6 py-4 text-sm text-gray-900">₹1200</td>
-                      <td className="px-6 py-4 text-sm text-gray-500">3-5 days</td>
-                    </tr>
+                    {shippingZones.map((zone) => (
+                      <tr key={zone.id}>
+                        <td className="px-3 sm:px-6 py-4 text-sm font-medium text-gray-900">{zone.name}</td>
+                        <td className="px-3 sm:px-6 py-4 text-sm text-gray-500 hidden sm:table-cell">{zone.pincodes}</td>
+                        <td className="px-3 sm:px-6 py-4 text-sm">
+                          {editingZone?.id === zone.id ? (
+                            <input
+                              type="number"
+                              value={editingZone.deliveryCharge}
+                              onChange={(e) => setEditingZone({...editingZone, deliveryCharge: parseInt(e.target.value) || 0})}
+                              className="w-full max-w-[60px] p-1 border border-gray-300 rounded text-sm"
+                              min="0"
+                            />
+                          ) : (
+                            <span className="text-gray-900 font-medium">₹{zone.deliveryCharge}</span>
+                          )}
+                        </td>
+                        <td className="px-3 sm:px-6 py-4 text-sm">
+                          {editingZone?.id === zone.id ? (
+                            <input
+                              type="number"
+                              value={editingZone.freeDeliveryAbove}
+                              onChange={(e) => setEditingZone({...editingZone, freeDeliveryAbove: parseInt(e.target.value) || 0})}
+                              className="w-full max-w-[70px] p-1 border border-gray-300 rounded text-sm"
+                              min="0"
+                            />
+                          ) : (
+                            <span className="text-gray-900 font-medium">₹{zone.freeDeliveryAbove}</span>
+                          )}
+                        </td>
+                        <td className="px-3 sm:px-6 py-4 text-sm hidden lg:table-cell">
+                          {editingZone?.id === zone.id ? (
+                            <input
+                              type="text"
+                              value={editingZone.deliveryTime}
+                              onChange={(e) => setEditingZone({...editingZone, deliveryTime: e.target.value})}
+                              className="w-full max-w-[80px] p-1 border border-gray-300 rounded text-sm"
+                              placeholder="1-2 days"
+                            />
+                          ) : (
+                            <span className="text-gray-500">{zone.deliveryTime}</span>
+                          )}
+                        </td>
+                        <td className="px-3 sm:px-6 py-4 text-sm">
+                          {editingZone?.id === zone.id ? (
+                            <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1">
+                              <button
+                                onClick={() => {
+                                  // Save changes
+                                  setShippingZones(prev => 
+                                    prev.map(z => z.id === zone.id ? editingZone : z)
+                                  );
+                                  setEditingZone(null);
+                                  alert('Shipping zone updated successfully!');
+                                }}
+                                className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 whitespace-nowrap"
+                              >
+                                ✓ Save
+                              </button>
+                              <button
+                                onClick={() => setEditingZone(null)}
+                                className="bg-gray-500 text-white px-2 py-1 rounded text-xs hover:bg-gray-600 whitespace-nowrap"
+                              >
+                                ✕ Cancel
+                              </button>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => setEditingZone({...zone})}
+                              className="bg-orange-500 text-white px-2 sm:px-3 py-1 rounded text-xs hover:bg-orange-600 whitespace-nowrap"
+                            >
+                              ✏️ Edit
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
