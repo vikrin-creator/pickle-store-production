@@ -3,6 +3,7 @@ import authService from '../services/authService';
 import HomepageService from '../services/homepageService';
 import CategoryService from '../services/categoryService';
 import TestimonialService from '../services/testimonialService';
+import newsletterService from '../services/newsletterService';
 import CustomerAuth from './CustomerAuth';
 import CustomerProfile from './CustomerProfile';
 
@@ -36,6 +37,8 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     }
   };
   const [email, setEmail] = useState('');
+  const [subscriptionStatus, setSubscriptionStatus] = useState(''); // 'loading', 'success', 'error'
+  const [subscriptionMessage, setSubscriptionMessage] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -249,11 +252,45 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
     setShowMobileMenu(!showMobileMenu);
   };
 
-  const handleNewsletterSubmit = (e) => {
+  const handleNewsletterSubmit = async (e) => {
     e.preventDefault();
-    // Handle newsletter subscription
-    console.log('Newsletter subscription:', email);
-    setEmail('');
+    
+    if (!email.trim()) {
+      setSubscriptionStatus('error');
+      setSubscriptionMessage('Please enter your email address');
+      return;
+    }
+
+    if (!newsletterService.isValidEmail(email)) {
+      setSubscriptionStatus('error');
+      setSubscriptionMessage('Please enter a valid email address');
+      return;
+    }
+
+    setSubscriptionStatus('loading');
+    setSubscriptionMessage('Subscribing...');
+
+    try {
+      const result = await newsletterService.subscribe(email);
+      setSubscriptionStatus('success');
+      setSubscriptionMessage(result.message || 'Successfully subscribed! Check your email for confirmation.');
+      setEmail(''); // Clear email field on success
+      
+      // Clear success message after 5 seconds
+      setTimeout(() => {
+        setSubscriptionStatus('');
+        setSubscriptionMessage('');
+      }, 5000);
+    } catch (error) {
+      setSubscriptionStatus('error');
+      setSubscriptionMessage(error.message || 'Failed to subscribe. Please try again.');
+      
+      // Clear error message after 5 seconds
+      setTimeout(() => {
+        setSubscriptionStatus('');
+        setSubscriptionMessage('');
+      }, 5000);
+    }
   };
 
   return (
@@ -807,6 +844,20 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           <p className="mt-4 mx-auto max-w-2xl text-base sm:text-lg text-[#221c10]/80 animate-fade-in-delay-1 px-4">
             Get exclusive offers, our authentic story, and product updates straight from our kitchen to your inbox.
           </p>
+          
+          {/* Status Message */}
+          {subscriptionMessage && (
+            <div className={`mt-4 mx-auto max-w-96 px-4 py-2 rounded-lg text-sm font-medium ${
+              subscriptionStatus === 'success' 
+                ? 'bg-green-100 text-green-700 border border-green-200' 
+                : subscriptionStatus === 'error'
+                ? 'bg-red-100 text-red-700 border border-red-200'
+                : 'bg-blue-100 text-blue-700 border border-blue-200'
+            }`}>
+              {subscriptionMessage}
+            </div>
+          )}
+
           <form 
             onSubmit={handleNewsletterSubmit}
             className="mt-6 sm:mt-8 mx-auto flex flex-col sm:flex-row max-w-96 gap-2 sm:gap-2 px-4"
@@ -816,14 +867,16 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
-              className="flex-1 rounded-lg border border-[#ecab13] bg-[#f8f7f6] px-4 py-2.5 sm:py-2 text-[#221c10] text-sm sm:text-base focus:border-[#ecab13] focus:outline-none"
+              className="flex-1 rounded-lg border border-[#ecab13] bg-[#f8f7f6] px-4 py-2.5 sm:py-2 text-[#221c10] text-sm sm:text-base focus:border-[#ecab13] focus:outline-none disabled:opacity-50"
               required
+              disabled={subscriptionStatus === 'loading'}
             />
             <button 
               type="submit"
-              className="font-body rounded-lg bg-[#ecab13] px-6 py-2.5 sm:py-2 font-semibold text-sm sm:text-base text-[#221c10] transition-transform duration-200 hover:scale-105"
+              disabled={subscriptionStatus === 'loading'}
+              className="font-body rounded-lg bg-[#ecab13] px-6 py-2.5 sm:py-2 font-semibold text-sm sm:text-base text-[#221c10] transition-transform duration-200 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
-              Subscribe
+              {subscriptionStatus === 'loading' ? 'Subscribing...' : 'Subscribe'}
             </button>
           </form>
         </section>
