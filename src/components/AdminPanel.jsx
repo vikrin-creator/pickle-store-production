@@ -1075,6 +1075,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   };
 
   const handleSaveCategory = async () => {
+    console.log('handleSaveCategory called, CategoryService:', CategoryService);
+    console.log('CategoryService.createCategory exists:', typeof CategoryService.createCategory);
     try {
       if (!categoryFormData.title || !categoryFormData.description) {
         alert('Please fill in all required fields');

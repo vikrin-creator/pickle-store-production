@@ -4,6 +4,7 @@ const API_BASE_URL = "https://pickle-store-backend.onrender.com";
 
 class CategoryService {
   static async getAllCategoriesForAdmin() {
+    console.log('CategoryService: getAllCategoriesForAdmin called');
     try {
       const response = await fetch(`${API_BASE_URL}/api/categories/admin`);
       if (!response.ok) {
@@ -52,6 +53,7 @@ class CategoryService {
   }
 
   static async createCategory(categoryData, imageFile) {
+    console.log('CategoryService: createCategory called with:', categoryData);
     try {
       const formData = new FormData();
       formData.append('title', categoryData.title);
