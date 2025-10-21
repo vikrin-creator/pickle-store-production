@@ -325,6 +325,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const loadCustomerFavourites = async () => {
     try {
       setLoadingCustomerFavourites(true);
+      console.log('Loading customer favourites...');
+      
       const sectionsArray = await HomepageService.getHomepageSections();
       console.log('Loaded homepage sections array:', sectionsArray);
       
@@ -3211,6 +3213,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       
                       console.log('Update data to send:', updateData);
                       console.log('About to call HomepageService.updateProductInSection...');
+                      console.log('Using productId:', productId);
                       
                       // Update customer favourite using the product ID
                       const result = await HomepageService.updateProductInSection('customerFavorites', productId, updateData, selectedFavouriteImageFile);
