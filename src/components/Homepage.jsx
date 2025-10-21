@@ -860,7 +860,17 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
 
         {/* Copyright */}
         <div className="mt-4 sm:mt-6 pb-8 sm:pb-10 text-xs sm:text-sm text-[#221c10]/60">
-          © 2025 janiitra Pickles. All rights reserved.
+          <div>© 2025 janiitra Pickles. All rights reserved.</div>
+          <div className="mt-2">
+            <a 
+              href="https://www.vikrin.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-[#221c10]/70 hover:text-[#ecab13] transition-colors duration-200 text-sm underline"
+            >
+              Built By Vikrin
+            </a>
+          </div>
         </div>
       </footer>
 
