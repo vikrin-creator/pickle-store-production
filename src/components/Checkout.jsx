@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import CustomerAuth from './CustomerAuth';
 import authService from '../services/authService';
+import ShippingService from '../services/shippingService';
 import Footer from './Footer';
 import { getDynamicCoupon, validateDynamicCoupon, getExampleCouponText } from '../utils/couponUtils';
 
@@ -16,6 +17,11 @@ const Checkout = ({ onBack, onOrderComplete }) => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  
+  // Shipping state
+  const [shippingCost, setShippingCost] = useState(200); // Default fallback
+  const [shippingInfo, setShippingInfo] = useState(null);
+  const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
   
   const [formData, setFormData] = useState({
     // Contact Information
@@ -69,6 +75,14 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     };
   }, [appliedCoupon]);
 
+  // Calculate shipping when zipCode is available or changes
+  useEffect(() => {
+    if (formData.zipCode && formData.zipCode.length >= 6) {
+      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      calculateShipping(formData.zipCode, subtotal);
+    }
+  }, [formData.zipCode, cartItems]);
+
   const checkAuthStatus = () => {
     if (authService.isAuthenticated()) {
       const user = authService.getCurrentUser();
@@ -104,9 +118,34 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     }
   };
 
+  // Calculate shipping cost dynamically based on pincode and cart total
+  const calculateShipping = async (pincode, cartTotal) => {
+    if (!pincode || pincode.length < 6) {
+      // Use default shipping if no valid pincode
+      setShippingCost(200);
+      setShippingInfo(null);
+      return 200;
+    }
+
+    setIsCalculatingShipping(true);
+    try {
+      const result = await ShippingService.calculateShippingCost(pincode, cartTotal);
+      setShippingCost(result.shippingCost);
+      setShippingInfo(result);
+      return result.shippingCost;
+    } catch (error) {
+      console.error('Error calculating shipping:', error);
+      // Fallback to default shipping on error
+      setShippingCost(200);
+      setShippingInfo(null);
+      return 200;
+    } finally {
+      setIsCalculatingShipping(false);
+    }
+  };
+
   const calculateTotal = (items, coupon = appliedCoupon) => {
     const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shipping = subtotal > 2000 ? 0 : 200; // Free shipping over ₹2000, otherwise ₹200
     
     // Apply coupon discount to subtotal before tax
     let discountAmount = 0;
@@ -116,7 +155,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     
     const discountedSubtotal = subtotal - discountAmount;
     const tax = discountedSubtotal * 0.18; // 18% GST for India
-    setTotal(discountedSubtotal + shipping + tax);
+    setTotal(discountedSubtotal + shippingCost + tax);
   };
 
   const applyCoupon = async () => {
@@ -178,6 +217,11 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       ...prev,
       [name]: value
     }));
+    
+    // Calculate shipping when zipCode changes
+    if (name === 'zipCode' && value.length >= 6) {
+      calculateShipping(value);
+    }
   };
 
   const handleAuthSuccess = (user) => {
@@ -227,9 +271,22 @@ const Checkout = ({ onBack, onOrderComplete }) => {
         discountAmount = (subtotal * appliedCoupon.discount) / 100;
       }
       const discountedSubtotal = subtotal - discountAmount;
-      const shipping = subtotal > 2000 ? 0 : 200;
+      
+      // Calculate shipping using API if not already calculated
+      let finalShippingCost = shippingCost;
+      if (formData.zipCode && shippingCost === 0) {
+        try {
+          const shippingResult = await calculateShipping(formData.zipCode);
+          finalShippingCost = shippingResult;
+        } catch (error) {
+          console.error('Error calculating shipping during checkout:', error);
+          // Fallback to current shipping cost or default
+          finalShippingCost = shippingCost || 200;
+        }
+      }
+      
       const tax = discountedSubtotal * 0.18;
-      const finalTotal = discountedSubtotal + shipping + tax;
+      const finalTotal = discountedSubtotal + finalShippingCost + tax;
 
       // Prepare order data for backend
       const orderData = {
@@ -265,7 +322,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
           description: appliedCoupon.description
         } : null,
         tax: tax,
-        shipping: shipping,
+        shipping: finalShippingCost,
         total: finalTotal,
         paymentMethod: formData.paymentMethod === 'online' ? 'card' : 'cod', // Map online to card for backend
         paymentStatus: formData.paymentMethod === 'cod' ? 'pending' : 'pending',
@@ -784,7 +841,15 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                   
                   <div className="flex justify-between text-sm">
                     <span>Shipping</span>
-                    <span>{cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0) > 2000 ? 'Free' : '₹200'}</span>
+                    <span>
+                      {isCalculatingShipping ? (
+                        <span className="text-gray-500">Calculating...</span>
+                      ) : shippingCost === 0 ? (
+                        <span className="text-green-600 font-medium">Free</span>
+                      ) : (
+                        `₹${shippingCost}`
+                      )}
+                    </span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span>Tax (GST)</span>
@@ -802,6 +867,31 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                     </div>
                   </div>
                 </div>
+
+                {/* Free Shipping Messages */}
+                {shippingInfo && (
+                  <div className="mb-4">
+                    {shippingInfo.isFreeDelivery ? (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                        <p className="text-green-700 font-medium text-sm text-center">
+                          🎉 You've qualified for free shipping!
+                        </p>
+                        <p className="text-green-600 text-xs text-center mt-1">
+                          Delivery Time: {shippingInfo.deliveryTime}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <p className="text-yellow-700 font-medium text-sm text-center">
+                          Add ₹{(shippingInfo.freeDeliveryAbove - cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)} more to get free shipping!
+                        </p>
+                        <p className="text-yellow-600 text-xs text-center mt-1">
+                          Delivery Time: {shippingInfo.deliveryTime} • Zone: {shippingInfo.zone}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <button
                   type="submit"

@@ -2218,7 +2218,19 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     {shippingZones.map((zone) => (
                       <tr key={zone.id}>
                         <td className="px-3 sm:px-6 py-4 text-sm font-medium text-gray-900">{zone.name}</td>
-                        <td className="px-3 sm:px-6 py-4 text-sm text-gray-500 hidden sm:table-cell">{zone.pincodes}</td>
+                        <td className="px-3 sm:px-6 py-4 text-sm text-gray-500 hidden sm:table-cell">
+                          {editingZone?.id === zone.id ? (
+                            <input
+                              type="text"
+                              value={editingZone.pincodes}
+                              onChange={(e) => setEditingZone({...editingZone, pincodes: e.target.value})}
+                              className="w-full max-w-[120px] p-1 border border-gray-300 rounded text-sm"
+                              placeholder="500001-500099"
+                            />
+                          ) : (
+                            <span className="text-gray-500">{zone.pincodes}</span>
+                          )}
+                        </td>
                         <td className="px-3 sm:px-6 py-4 text-sm">
                           {editingZone?.id === zone.id ? (
                             <input
