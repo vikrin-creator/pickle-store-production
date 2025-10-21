@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import AdminService from '../services/adminService';
 import CategoryService from '../services/categoryService';
 import TestimonialService from '../services/testimonialService';
+import HomepageService from '../services/homepageService';
 
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
@@ -147,6 +148,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [selectedCategoryImageFile, setSelectedCategoryImageFile] = useState(null);
   const [categoryImagePreview, setCategoryImagePreview] = useState('');
 
+  // Customer Favourites Management States
+  const [customerFavourites, setCustomerFavourites] = useState([]);
+  const [loadingCustomerFavourites, setLoadingCustomerFavourites] = useState(true);
+  const [editingFavourite, setEditingFavourite] = useState(null);
+
   // Load all admin data on component mount
 
   useEffect(() => {
@@ -203,6 +209,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           break;
         case 'categories':
           await loadCategories();
+          break;
+        case 'customerFavourite':
+          await loadCustomerFavourites();
           break;
         case 'offers':
           loadOfferSettings();
@@ -308,6 +317,23 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     } catch (error) {
       console.error('Error loading categories:', error);
       setCategories([]);
+    }
+  };
+
+  const loadCustomerFavourites = async () => {
+    try {
+      setLoadingCustomerFavourites(true);
+      const data = await HomepageService.getHomepageSections();
+      console.log('Loaded homepage sections:', data);
+      
+      // Extract customer favourites from homepage sections
+      const favouritesSection = data.customerFavorites || { products: [] };
+      setCustomerFavourites(favouritesSection.products || []);
+    } catch (error) {
+      console.error('Error loading customer favourites:', error);
+      setCustomerFavourites([]);
+    } finally {
+      setLoadingCustomerFavourites(false);
     }
   };
 
@@ -1280,6 +1306,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               { id: 'payments', label: 'Payments', icon: '💳' },
               { id: 'shipping', label: 'Shipping', icon: '🚚' },
               { id: 'categories', label: 'Categories', icon: '🗂️' },
+              { id: 'customerFavourite', label: 'Customer Favourite', icon: '❤️' },
               { id: 'offers', label: 'Offer Banner', icon: '🎁' },
               { id: 'reviews', label: 'Reviews', icon: '⭐' },
               { id: 'faq', label: 'FAQ', icon: '❓' },
@@ -2288,6 +2315,91 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
 
+        {/* Customer Favourite Tab */}
+        {activeTab === 'customerFavourite' && (
+          <div className="space-y-6">
+            <div className="flex justify-between items-center">
+              <div>
+                <h2 className="text-2xl font-bold text-gray-800">❤️ Customer Favourite</h2>
+                <p className="text-sm text-gray-600 mt-1">
+                  Edit customer favourite products displayed on homepage (Edit only)
+                </p>
+              </div>
+            </div>
+
+            {/* Loading State */}
+            {loadingCustomerFavourites ? (
+              <div className="bg-white p-8 rounded-lg shadow-md text-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500 mx-auto mb-4"></div>
+                <p className="text-gray-600">Loading customer favourites...</p>
+              </div>
+            ) : (
+              /* Customer Favourites Grid */
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                {customerFavourites.length === 0 ? (
+                  <div className="col-span-full bg-white p-8 rounded-lg shadow-md text-center">
+                    <div className="text-gray-400 mb-4">
+                      <svg className="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                      </svg>
+                    </div>
+                    <p className="text-gray-600 text-lg">No customer favourites found</p>
+                    <p className="text-gray-500 text-sm mt-2">Customer favourites will appear here when added to the homepage</p>
+                  </div>
+                ) : (
+                  customerFavourites.map((favourite, index) => (
+                    <div key={favourite._id || index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                      {/* Product Image */}
+                      <div className="h-48 relative">
+                        <div 
+                          className="w-full h-full bg-cover bg-center"
+                          style={{ backgroundImage: `url('${favourite.customImage || favourite.productId?.image || '/placeholder.jpg'}')` }}
+                        ></div>
+                        <div className="absolute top-2 right-2">
+                          <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-medium">
+                            ❤️ Favourite
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Product Details */}
+                      <div className="p-4">
+                        <div className="mb-3">
+                          <h3 className="font-bold text-lg text-gray-800">
+                            {favourite.customTitle || favourite.productId?.name || 'Unnamed Product'}
+                          </h3>
+                          <p className="text-sm text-gray-600 mt-1">
+                            {favourite.customDescription || favourite.productId?.description || 'No description'}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="text-lg font-bold text-orange-600">
+                            ₹{favourite.productId?.price || 0}
+                          </span>
+                          <span className="text-sm text-gray-500">
+                            Original: {favourite.productId?.name || 'Unknown'}
+                          </span>
+                        </div>
+
+                        {/* Edit Button */}
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => setEditingFavourite(favourite)}
+                            className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors text-sm font-medium"
+                          >
+                            ✏️ Edit Details
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Offers Tab */}
         {activeTab === 'offers' && (
           <div className="space-y-6">
@@ -2925,6 +3037,113 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     setEditingFaq(null);
                     setFaqFormData({ question: '', answer: '', category: 'General' });
                   }}
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Customer Favourite Edit Modal */}
+      {editingFavourite && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  ❤️ Edit Customer Favourite
+                </h3>
+                <button
+                  onClick={() => setEditingFavourite(null)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              {/* Original Product Info */}
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-medium text-gray-700 mb-2">Original Product:</h4>
+                <p className="text-sm text-gray-600">{editingFavourite.productId?.name || 'Unknown Product'}</p>
+                <p className="text-sm text-gray-500">₹{editingFavourite.productId?.price || 0}</p>
+              </div>
+
+              {/* Custom Title */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Custom Title*
+                </label>
+                <input
+                  type="text"
+                  value={editingFavourite.customTitle || ''}
+                  onChange={(e) => setEditingFavourite({
+                    ...editingFavourite,
+                    customTitle: e.target.value
+                  })}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  placeholder="Enter custom title for this favourite"
+                  required
+                />
+              </div>
+
+              {/* Custom Description */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Custom Description*
+                </label>
+                <textarea
+                  value={editingFavourite.customDescription || ''}
+                  onChange={(e) => setEditingFavourite({
+                    ...editingFavourite,
+                    customDescription: e.target.value
+                  })}
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+                  placeholder="Enter custom description for this favourite"
+                  required
+                />
+              </div>
+
+              {/* Save/Cancel Buttons */}
+              <div className="flex space-x-3 pt-4">
+                <button
+                  onClick={async () => {
+                    try {
+                      console.log('Updating favourite:', editingFavourite);
+                      
+                      // Get the product entry ID from the favourite object
+                      const entryId = editingFavourite._id || editingFavourite.id;
+                      
+                      // Update customer favourite
+                      await HomepageService.updateProductInSection('customerFavorites', entryId, {
+                        customTitle: editingFavourite.customTitle,
+                        customDescription: editingFavourite.customDescription
+                      });
+                      
+                      // Reload favourites
+                      await loadCustomerFavourites();
+                      setEditingFavourite(null);
+                      
+                      alert('Customer favourite updated successfully!');
+                    } catch (error) {
+                      console.error('Error updating favourite:', error);
+                      alert('Error updating favourite: ' + error.message);
+                    }
+                  }}
+                  className="flex-1 bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors"
+                  disabled={!editingFavourite.customTitle || !editingFavourite.customDescription}
+                >
+                  💾 Save Changes
+                </button>
+                <button
+                  onClick={() => setEditingFavourite(null)}
                   className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
                 >
                   Cancel

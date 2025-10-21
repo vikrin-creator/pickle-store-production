@@ -16,6 +16,11 @@ class HomepageService {
     }
   }
 
+  // Alias for getAllSections for consistency
+  static async getHomepageSections() {
+    return this.getAllSections();
+  }
+
   // Get specific section by type
   static async getSection(sectionType) {
     try {
