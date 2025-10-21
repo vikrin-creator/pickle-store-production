@@ -91,6 +91,12 @@ function App() {
           question: 'How long do the pickles last?',
           answer: 'Our pickles have a shelf life of 12-18 months when stored properly in a cool, dry place. Once opened, they should be consumed within 2-3 months and kept refrigerated.',
           category: 'Products'
+        },
+        {
+          _id: '3',
+          question: 'Do you offer free shipping?',
+          answer: 'Yes! We offer free shipping on orders above ₹500. For orders below ₹500, a nominal shipping charge of ₹50 applies.',
+          category: 'Shipping'
         }
       ]);
     }

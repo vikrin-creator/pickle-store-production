@@ -3194,7 +3194,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       {/* FAQ Form Modal */}
       {showFaqForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">
@@ -3248,17 +3248,17 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 <textarea
                   value={faqFormData.answer}
                   onChange={(e) => setFaqFormData({ ...faqFormData, answer: e.target.value })}
-                  rows={5}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  rows={6}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 resize-vertical"
                   placeholder="Enter detailed answer"
                   required
                 />
               </div>
 
-              <div className="flex space-x-3 pt-4">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 pt-4">
                 <button
                   onClick={handleSaveFaq}
-                  className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors"
+                  className="flex-1 bg-orange-500 text-white py-2 px-4 rounded-md hover:bg-orange-600 transition-colors font-medium"
                 >
                   {editingFaq ? 'Update FAQ' : 'Add FAQ'}
                 </button>
@@ -3268,7 +3268,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     setEditingFaq(null);
                     setFaqFormData({ question: '', answer: '', category: 'General' });
                   }}
-                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+                  className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors font-medium"
                 >
                   Cancel
                 </button>
@@ -3752,7 +3752,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       {/* Order Update Modal */}
       {showOrderUpdateModal && selectedOrder && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">Update Order Status</h3>
@@ -3797,16 +3797,16 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Update Status To</label>
-                <div className="space-y-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'].map((status) => (
                     <button
                       key={status}
                       onClick={() => handleOrderStatusUpdate(status)}
                       disabled={updatingOrderStatus || selectedOrder.status === status}
-                      className={`w-full text-left px-3 py-2 rounded-md border transition-colors ${
+                      className={`text-left px-3 py-2 rounded-md border transition-colors ${
                         selectedOrder.status === status 
                           ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
-                          : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300'
+                          : 'bg-white hover:bg-gray-50 text-gray-700 border-gray-300 hover:border-orange-300'
                       } ${updatingOrderStatus ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full mr-2 ${
