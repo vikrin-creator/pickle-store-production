@@ -117,6 +117,25 @@ class ShippingService {
       throw error;
     }
   }
+
+  // Delete shipping zone
+  static async deleteShippingZone(zoneId) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/shipping/zones/${zoneId}`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || errorData.error || 'Failed to delete shipping zone');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting shipping zone:', error);
+      throw error;
+    }
+  }
 }
 
 export default ShippingService;

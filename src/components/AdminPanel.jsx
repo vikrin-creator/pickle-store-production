@@ -2312,12 +2312,31 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                               </button>
                             </div>
                           ) : (
-                            <button
-                              onClick={() => setEditingZone({...zone})}
-                              className="bg-orange-500 text-white px-2 sm:px-3 py-1 rounded text-xs hover:bg-orange-600 whitespace-nowrap"
-                            >
-                              ✏️ Edit
-                            </button>
+                            <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1">
+                              <button
+                                onClick={() => setEditingZone({...zone})}
+                                className="bg-orange-500 text-white px-2 sm:px-3 py-1 rounded text-xs hover:bg-orange-600 whitespace-nowrap"
+                              >
+                                ✏️ Edit
+                              </button>
+                              <button
+                                onClick={async () => {
+                                  if (window.confirm(`Are you sure you want to delete the "${zone.name}" shipping zone? This action cannot be undone.`)) {
+                                    try {
+                                      await ShippingService.deleteShippingZone(zone.zoneId || zone.id);
+                                      setShippingZones(prev => prev.filter(z => z.id !== zone.id && z.zoneId !== zone.zoneId));
+                                      alert('Shipping zone deleted successfully!');
+                                    } catch (error) {
+                                      console.error('Error deleting shipping zone:', error);
+                                      alert('Failed to delete shipping zone. Please try again.');
+                                    }
+                                  }
+                                }}
+                                className="bg-red-500 text-white px-2 sm:px-3 py-1 rounded text-xs hover:bg-red-600 whitespace-nowrap"
+                              >
+                                🗑️ Delete
+                              </button>
+                            </div>
                           )}
                         </td>
                       </tr>
