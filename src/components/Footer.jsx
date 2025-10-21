@@ -31,7 +31,17 @@ const Footer = () => {
 
       {/* Copyright */}
       <div className="mt-4 sm:mt-6 pb-8 sm:pb-10 text-xs sm:text-sm text-[#221c10]/60">
-        @2025 Janiitra Pickles. All rights reserved.
+        <div>@2025 Janiitra Pickles. All rights reserved.</div>
+        <div className="mt-2">
+          <a 
+            href="https://www.vikrin.com/" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-[#221c10]/50 hover:text-[#ecab13] transition-colors duration-200 text-xs"
+          >
+            Build By Vikrin
+          </a>
+        </div>
       </div>
     </footer>
   );

@@ -1357,8 +1357,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             <img
               src="/assets/logo.png"
               alt="Janiitra - Authentic Indian Pickles Logo"
-              className="h-6 w-32 sm:h-7 sm:w-40 md:h-8 md:w-48 object-contain hover:scale-105 transition-transform duration-300 cursor-pointer"
-              onClick={() => window.location.href = '/'}
+              className="h-6 w-32 sm:h-7 sm:w-40 md:h-8 md:w-48 object-contain"
             />
           </div>
 
@@ -1373,16 +1372,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 <span className="hidden md:inline">Add Product</span>
               </button>
             )}
-            
-            <button
-              onClick={() => window.location.href = '/'}
-              className="px-2 lg:px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 flex items-center gap-1 lg:gap-2 shadow-md text-sm lg:text-base"
-            >
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M10,20V14H14V20H19V12H22L12,3L2,12H5V20H10Z" />
-              </svg>
-              <span className="hidden sm:inline">Home</span>
-            </button>
             
             <button
               onClick={handleLogout}
