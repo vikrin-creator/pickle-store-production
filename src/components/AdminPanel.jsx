@@ -3,6 +3,7 @@ import AdminService from '../services/adminService';
 import CategoryService from '../services/categoryService';
 import TestimonialService from '../services/testimonialService';
 import HomepageService from '../services/homepageService';
+import ShippingService from '../services/shippingService';
 
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
@@ -155,10 +156,47 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [selectedFavouriteImageFile, setSelectedFavouriteImageFile] = useState(null);
   const [favouriteImagePreview, setFavouriteImagePreview] = useState('');
 
+  // Shipping Zones Management States
+  const [shippingZones, setShippingZones] = useState([
+    {
+      id: 'local',
+      name: 'Local',
+      pincodes: '500001-500099',
+      deliveryCharge: 50,
+      freeDeliveryAbove: 500,
+      deliveryTime: '1-2 days'
+    },
+    {
+      id: 'regional',
+      name: 'Regional', 
+      pincodes: '500100-599999',
+      deliveryCharge: 80,
+      freeDeliveryAbove: 800,
+      deliveryTime: '2-3 days'
+    },
+    {
+      id: 'national',
+      name: 'National',
+      pincodes: 'All India',
+      deliveryCharge: 120,
+      freeDeliveryAbove: 1200,
+      deliveryTime: '3-5 days'
+    }
+  ]);
+  const [editingZone, setEditingZone] = useState(null);
+  const [loadingShippingZones, setLoadingShippingZones] = useState(false);
+
   // Load all admin data on component mount
 
   useEffect(() => {
     loadAllAdminData();
+  }, [activeTab]);
+
+  // Load shipping zones when shipping tab is active
+  useEffect(() => {
+    if (activeTab === 'shipping') {
+      loadShippingZones();
+    }
   }, [activeTab]);
 
   // Set initial category when categories are loaded
@@ -170,6 +208,53 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       }));
     }
   }, [categories]);
+
+  // Load shipping zones from backend
+  const loadShippingZones = async () => {
+    try {
+      setLoadingShippingZones(true);
+      console.log('Loading shipping zones from backend...');
+      
+      const zones = await ShippingService.getShippingZones();
+      console.log('Loaded shipping zones:', zones);
+      
+      // Convert backend format to frontend format
+      const formattedZones = zones.map(zone => ({
+        id: zone.zoneId,
+        name: zone.name,
+        pincodes: zone.pincodes,
+        deliveryCharge: zone.deliveryCharge,
+        freeDeliveryAbove: zone.freeDeliveryAbove,
+        deliveryTime: zone.deliveryTime
+      }));
+      
+      setShippingZones(formattedZones);
+    } catch (error) {
+      console.error('Error loading shipping zones:', error);
+      
+      // Initialize default zones if backend fails
+      try {
+        console.log('Initializing default shipping zones...');
+        await ShippingService.initializeDefaultZones();
+        // Retry loading after initialization
+        const zones = await ShippingService.getShippingZones();
+        const formattedZones = zones.map(zone => ({
+          id: zone.zoneId,
+          name: zone.name,
+          pincodes: zone.pincodes,
+          deliveryCharge: zone.deliveryCharge,
+          freeDeliveryAbove: zone.freeDeliveryAbove,
+          deliveryTime: zone.deliveryTime
+        }));
+        setShippingZones(formattedZones);
+      } catch (initError) {
+        console.error('Error initializing shipping zones:', initError);
+        // Keep default hardcoded zones as fallback
+      }
+    } finally {
+      setLoadingShippingZones(false);
+    }
+  };
 
   const loadAllAdminData = async () => {
     try {
@@ -2177,13 +2262,21 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           {editingZone?.id === zone.id ? (
                             <div className="flex flex-col sm:flex-row space-y-1 sm:space-y-0 sm:space-x-1">
                               <button
-                                onClick={() => {
-                                  // Save changes
-                                  setShippingZones(prev => 
-                                    prev.map(z => z.id === zone.id ? editingZone : z)
-                                  );
-                                  setEditingZone(null);
-                                  alert('Shipping zone updated successfully!');
+                                onClick={async () => {
+                                  try {
+                                    // Save changes to backend
+                                    await ShippingService.updateShippingZone(editingZone.id, editingZone);
+                                    
+                                    // Update local state
+                                    setShippingZones(prev => 
+                                      prev.map(z => z.id === zone.id ? editingZone : z)
+                                    );
+                                    setEditingZone(null);
+                                    alert('Shipping zone updated successfully!');
+                                  } catch (error) {
+                                    console.error('Error updating shipping zone:', error);
+                                    alert('Failed to update shipping zone. Please try again.');
+                                  }
                                 }}
                                 className="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600 whitespace-nowrap"
                               >
@@ -2209,6 +2302,31 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     ))}
                   </tbody>
                 </table>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={async () => {
+                    const newZone = {
+                      name: 'New Zone',
+                      pincodes: '000000',
+                      deliveryCharge: 50,
+                      freeDeliveryAbove: 500,
+                      deliveryTime: '2-3 days'
+                    };
+                    
+                    try {
+                      const createdZone = await ShippingService.createShippingZone(newZone);
+                      setShippingZones(prev => [...prev, createdZone]);
+                      alert('New shipping zone added successfully!');
+                    } catch (error) {
+                      console.error('Error creating shipping zone:', error);
+                      alert('Failed to create shipping zone. Please try again.');
+                    }
+                  }}
+                  className="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600"
+                >
+                  + Add New Zone
+                </button>
               </div>
             </div>
           </div>
