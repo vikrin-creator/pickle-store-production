@@ -186,6 +186,16 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [editingZone, setEditingZone] = useState(null);
   const [loadingShippingZones, setLoadingShippingZones] = useState(false);
 
+  // Shipping Zone Modal States
+  const [showShippingZoneForm, setShowShippingZoneForm] = useState(false);
+  const [shippingZoneFormData, setShippingZoneFormData] = useState({
+    name: '',
+    pincodes: '',
+    deliveryCharge: 50,
+    freeDeliveryAbove: 500,
+    deliveryTime: '2-3 days'
+  });
+
   // Load all admin data on component mount
 
   useEffect(() => {
@@ -2317,26 +2327,15 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
               <div className="mt-4 flex justify-end">
                 <button
-                  onClick={async () => {
-                    // Generate a unique zone ID based on timestamp
-                    const timestamp = Date.now();
-                    const newZone = {
-                      zoneId: `zone_${timestamp}`,
-                      name: 'New Zone',
-                      pincodes: '000000',
+                  onClick={() => {
+                    setShippingZoneFormData({
+                      name: '',
+                      pincodes: '',
                       deliveryCharge: 50,
                       freeDeliveryAbove: 500,
                       deliveryTime: '2-3 days'
-                    };
-                    
-                    try {
-                      const createdZone = await ShippingService.createShippingZone(newZone);
-                      setShippingZones(prev => [...prev, createdZone]);
-                      alert('New shipping zone added successfully!');
-                    } catch (error) {
-                      console.error('Error creating shipping zone:', error);
-                      alert('Failed to create shipping zone. Please try again.');
-                    }
+                    });
+                    setShowShippingZoneForm(true);
                   }}
                   className="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600"
                 >
@@ -4140,6 +4139,112 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
               >
                 {editingTestimonial ? 'Update' : 'Save'} Testimonial
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Shipping Zone Form Modal */}
+      {showShippingZoneForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-90vh overflow-y-auto">
+            <h3 className="text-lg font-semibold mb-4">Add New Shipping Zone</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Zone Name</label>
+                <input
+                  type="text"
+                  value={shippingZoneFormData.name}
+                  onChange={(e) => setShippingZoneFormData(prev => ({...prev, name: e.target.value}))}
+                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="e.g., Express Zone"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pincodes</label>
+                <input
+                  type="text"
+                  value={shippingZoneFormData.pincodes}
+                  onChange={(e) => setShippingZoneFormData(prev => ({...prev, pincodes: e.target.value}))}
+                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="e.g., 500001-500100 or All India"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Charge (₹)</label>
+                <input
+                  type="number"
+                  value={shippingZoneFormData.deliveryCharge}
+                  onChange={(e) => setShippingZoneFormData(prev => ({...prev, deliveryCharge: parseInt(e.target.value) || 0}))}
+                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  min="0"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Free Delivery Above (₹)</label>
+                <input
+                  type="number"
+                  value={shippingZoneFormData.freeDeliveryAbove}
+                  onChange={(e) => setShippingZoneFormData(prev => ({...prev, freeDeliveryAbove: parseInt(e.target.value) || 0}))}
+                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  min="0"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Delivery Time</label>
+                <input
+                  type="text"
+                  value={shippingZoneFormData.deliveryTime}
+                  onChange={(e) => setShippingZoneFormData(prev => ({...prev, deliveryTime: e.target.value}))}
+                  className="w-full p-2 border border-gray-300 rounded focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                  placeholder="e.g., 2-3 days"
+                  required
+                />
+              </div>
+            </div>
+            
+            <div className="flex gap-3 mt-6">
+              <button
+                onClick={() => setShowShippingZoneForm(false)}
+                className="flex-1 bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (!shippingZoneFormData.name || !shippingZoneFormData.pincodes) {
+                    alert('Please fill in all required fields');
+                    return;
+                  }
+                  
+                  try {
+                    const timestamp = Date.now();
+                    const newZone = {
+                      zoneId: `zone_${timestamp}`,
+                      ...shippingZoneFormData
+                    };
+                    
+                    const createdZone = await ShippingService.createShippingZone(newZone);
+                    setShippingZones(prev => [...prev, createdZone]);
+                    setShowShippingZoneForm(false);
+                    alert('New shipping zone added successfully!');
+                  } catch (error) {
+                    console.error('Error creating shipping zone:', error);
+                    alert('Failed to create shipping zone. Please try again.');
+                  }
+                }}
+                className="flex-1 bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600"
+              >
+                Create Zone
               </button>
             </div>
           </div>
