@@ -1,5 +1,9 @@
 import { useState, useEffect } from 'react';
 import Footer from './Footer';
+import ReviewSection from './ReviewSection';
+import ReviewForm from './ReviewForm';
+import StarRating from './StarRating';
+import ReviewService from '../services/reviewService';
 
 const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onBuyNow }) => {
   const [quantity, setQuantity] = useState(1);
@@ -10,6 +14,11 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
       : { weight: '250g', price: product.price || 150 }
   );
   const [isInWishlist, setIsInWishlist] = useState(false);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [productReviews, setProductReviews] = useState({
+    averageRating: 0,
+    totalReviews: 0
+  });
 
   // Check if product is in wishlist
   useEffect(() => {
@@ -29,6 +38,25 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
     };
 
     checkWishlistStatus();
+  }, [product]);
+
+  // Load product reviews
+  useEffect(() => {
+    const loadProductReviews = async () => {
+      if (product._id || product.id) {
+        try {
+          const reviewData = await ReviewService.getProductReviews(product._id || product.id);
+          setProductReviews({
+            averageRating: reviewData.averageRating || 0,
+            totalReviews: reviewData.totalReviews || 0
+          });
+        } catch (error) {
+          console.error('Error loading product reviews:', error);
+        }
+      }
+    };
+
+    loadProductReviews();
   }, [product]);
 
   // Add error handling for missing product
@@ -110,6 +138,31 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
     }
   };
 
+  const handleWriteReview = () => {
+    setShowReviewForm(true);
+  };
+
+  const handleCloseReviewForm = () => {
+    setShowReviewForm(false);
+  };
+
+  const handleReviewSubmitted = (newReview) => {
+    // Refresh review data after new review is submitted
+    const loadProductReviews = async () => {
+      try {
+        const reviewData = await ReviewService.getProductReviews(product._id || product.id);
+        setProductReviews({
+          averageRating: reviewData.averageRating || 0,
+          totalReviews: reviewData.totalReviews || 0
+        });
+      } catch (error) {
+        console.error('Error refreshing product reviews:', error);
+      }
+    };
+    
+    loadProductReviews();
+  };
+
   return (
     <div className="min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
       {/* Header */}
@@ -185,8 +238,9 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
 
       <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Image */}
-          <div className="space-y-4">
+          {/* Product Image and Reviews */}
+          <div className="space-y-6">
+            {/* Product Image */}
             <div className="aspect-square rounded-2xl overflow-hidden bg-white shadow-lg">
               <img
                 src={product.image || `https://pickle-store-backend.onrender.com/images/${product.imageFilename}` || 'https://via.placeholder.com/600x600/ecab13/FFFFFF?text=' + encodeURIComponent(product.name)}
@@ -194,6 +248,13 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
                 className="w-full h-full object-cover"
               />
             </div>
+            
+            {/* Reviews Section */}
+            <ReviewSection 
+              productId={product._id || product.id}
+              productName={product.name}
+              onWriteReview={handleWriteReview}
+            />
           </div>
 
           {/* Product Info */}
@@ -216,16 +277,14 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
               {/* Product Rating */}
               <div className="flex items-center mb-4">
                 <div className="flex items-center">
-                  {[1, 2, 3, 4, 5].map((star) => (
-                    <svg
-                      key={star}
-                      className="w-5 h-5 text-yellow-400 fill-current"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                    </svg>
-                  ))}
-                  <span className="ml-2 text-sm text-gray-600">(5.0) 24 reviews</span>
+                  <StarRating 
+                    rating={productReviews.averageRating} 
+                    size="md" 
+                    showValue={true}
+                  />
+                  <span className="ml-2 text-sm text-gray-600">
+                    ({productReviews.totalReviews} review{productReviews.totalReviews !== 1 ? 's' : ''})
+                  </span>
                 </div>
               </div>
               
@@ -384,6 +443,15 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
           </div>
         </div>
       </div>
+      
+      {/* Review Form Modal */}
+      {showReviewForm && (
+        <ReviewForm
+          product={product}
+          onClose={handleCloseReviewForm}
+          onReviewSubmitted={handleReviewSubmitted}
+        />
+      )}
       
       {/* Footer */}
       <Footer />
