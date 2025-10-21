@@ -2318,7 +2318,10 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               <div className="mt-4 flex justify-end">
                 <button
                   onClick={async () => {
+                    // Generate a unique zone ID based on timestamp
+                    const timestamp = Date.now();
                     const newZone = {
+                      zoneId: `zone_${timestamp}`,
                       name: 'New Zone',
                       pincodes: '000000',
                       deliveryCharge: 50,
