@@ -679,11 +679,11 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </section>
 
         {/* Customer Testimonials Section - Force Deploy */}
-        <section className="py-16 px-3 sm:px-6 bg-gradient-to-br from-[#ecab13]/5 to-[#ecab13]/10 animate-fade-in-up">
-          <div className="max-w-6xl mx-auto">
+        <section className="py-12 px-3 sm:px-6 bg-gradient-to-br from-[#ecab13]/5 to-[#ecab13]/10 animate-fade-in-up">
+          <div className="max-w-5xl mx-auto">
             {/* Section Header - Updated */}
-            <div className="text-center mb-16">
-              <h2 className="font-display text-4xl md:text-6xl font-bold text-gray-800 mb-4 lowercase">
+            <div className="text-center mb-12">
+              <h2 className="font-display text-2xl md:text-3xl font-bold text-gray-800 mb-4 lowercase">
                 what our customers say
               </h2>
             </div>
@@ -732,16 +732,23 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 </button>
 
                 {/* Direct Testimonial Display */}
-                <div className="max-w-4xl mx-auto px-8 text-center">
+                <div className="max-w-3xl mx-auto px-8 text-center">
                   {testimonials && testimonials.length > 0 && testimonials[currentTestimonialIndex] && (
                     <>
                       {/* Customer Name - Red Color */}
-                      <h3 className="text-3xl md:text-4xl font-bold text-red-500 mb-4">
+                      <h3 className="text-xl md:text-2xl font-bold text-red-500 mb-2">
                         {testimonials[currentTestimonialIndex].customerName}
                       </h3>
                       
+                      {/* Decorative line under name */}
+                      <div className="flex items-center justify-center mb-4">
+                        <div className="h-px bg-gradient-to-r from-transparent via-red-300 to-transparent w-24"></div>
+                        <div className="mx-2 text-red-300">•</div>
+                        <div className="h-px bg-gradient-to-r from-transparent via-red-300 to-transparent w-24"></div>
+                      </div>
+                      
                       {/* Location and Date */}
-                      <p className="text-gray-600 text-lg mb-8">
+                      <p className="text-gray-600 text-sm mb-6">
                         {testimonials[currentTestimonialIndex].customerLocation} | {new Date(testimonials[currentTestimonialIndex].createdAt).toLocaleDateString('en-GB', { 
                           day: '2-digit', 
                           month: 'long', 
@@ -750,7 +757,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                       </p>
 
                       {/* Testimonial Text */}
-                      <blockquote className="text-xl md:text-2xl text-gray-700 leading-relaxed font-normal italic max-w-3xl mx-auto">
+                      <blockquote className="text-base md:text-lg text-gray-700 leading-relaxed font-normal italic max-w-2xl mx-auto">
                         '{testimonials[currentTestimonialIndex].testimonialText}'
                       </blockquote>
                     </>
@@ -758,7 +765,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 </div>
 
                 {/* Simple Dots Navigation */}
-                <div className="flex justify-center mt-12 space-x-2">
+                <div className="flex justify-center mt-8 space-x-2">
                   {testimonials.map((_, index) => (
                     <button
                       key={index}

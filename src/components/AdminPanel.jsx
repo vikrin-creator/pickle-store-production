@@ -119,11 +119,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [testimonials, setTestimonials] = useState([]);
   const [showTestimonialForm, setShowTestimonialForm] = useState(false);
   const [editingTestimonial, setEditingTestimonial] = useState(null);
-  const [testimonialImageUpload, setTestimonialImageUpload] = useState(null);
   const [testimonialFormData, setTestimonialFormData] = useState({
     customerName: '',
     customerLocation: '',
-    customerImage: '',
     testimonialText: '',
     rating: 5,
     productMentioned: '',
@@ -623,7 +621,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       const productData = {
         name: formData.name,
         description: formData.description,
-        category: formData.productCategory === 'Pickles' ? formData.dietaryCategory : 'Vegetarian', // Dietary category only for Pickles
+        category: formData.category === 'Pickles' ? formData.dietaryCategory : 'Vegetarian', // Dietary category only for Pickles
         productCategory: formData.category, // Dynamic category from Categories collection
         weights: weightOptions,
         image: selectedImageFile, // This should be a File object, not base64
@@ -988,31 +986,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       let testimonialData = { ...testimonialFormData };
 
-      // Handle image upload if a new image is selected
-      if (testimonialImageUpload) {
-        try {
-          const formData = new FormData();
-          formData.append('image', testimonialImageUpload);
-          formData.append('folder', 'testimonials');
-
-          const imageResponse = await fetch(`${import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com/api'}/images/upload`, {
-            method: 'POST',
-            body: formData
-          });
-
-          if (!imageResponse.ok) {
-            throw new Error('Failed to upload image');
-          }
-
-          const imageData = await imageResponse.json();
-          testimonialData.customerImage = imageData.secure_url;
-        } catch (error) {
-          console.error('Error uploading image:', error);
-          alert('Failed to upload image. Please try again.');
-          return;
-        }
-      }
-
       if (editingTestimonial) {
         // Update existing testimonial
         const updatedTestimonial = await TestimonialService.updateTestimonial(editingTestimonial._id, testimonialData);
@@ -1034,7 +1007,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       setTestimonialFormData({
         customerName: '',
         customerLocation: '',
-        customerImage: '',
         testimonialText: '',
         rating: 5,
         productMentioned: '',
@@ -1043,7 +1015,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         order: 0,
         verifiedBuyer: false
       });
-      setTestimonialImageUpload(null);
     } catch (error) {
       console.error('Error saving testimonial:', error);
       alert(`Failed to save testimonial: ${error.message}`);
@@ -1754,7 +1725,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   </div>
 
                   {/* Dietary Category - Only for Pickles */}
-                  {formData.productCategory === 'Pickles' && (
+                  {formData.category === 'Pickles' && (
                     <div>
                       <label className="block text-sm font-medium mb-1">Dietary Category</label>
                       <select
@@ -3378,18 +3349,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   {/* Header */}
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-                        {testimonial.customerImage ? (
-                          <img 
-                            src={testimonial.customerImage} 
-                            alt={testimonial.customerName}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-blue-500 flex items-center justify-center text-white font-bold">
-                            {testimonial.customerName.charAt(0).toUpperCase()}
-                          </div>
-                        )}
+                      <div className="w-10 h-10 rounded-full overflow-hidden bg-blue-500 flex items-center justify-center text-white font-bold">
+                        {testimonial.customerName.charAt(0).toUpperCase()}
                       </div>
                       <div>
                         <h3 className="font-semibold text-gray-900 text-sm">{testimonial.customerName}</h3>
@@ -3437,7 +3398,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           setTestimonialFormData({
                             customerName: testimonial.customerName,
                             customerLocation: testimonial.customerLocation,
-                            customerImage: testimonial.customerImage || '',
                             testimonialText: testimonial.testimonialText,
                             rating: testimonial.rating,
                             productMentioned: testimonial.productMentioned || '',
@@ -3502,7 +3462,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   setTestimonialFormData({
                     customerName: '',
                     customerLocation: '',
-                    customerImage: '',
                     testimonialText: '',
                     rating: 5,
                     productMentioned: '',
@@ -3511,7 +3470,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     order: 0,
                     verifiedBuyer: false
                   });
-                  setTestimonialImageUpload(null);
                 }}
                 className="text-gray-400 hover:text-gray-600"
               >
@@ -3546,18 +3504,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   placeholder="e.g., Mumbai, Maharashtra"
                   required
                 />
-              </div>
-
-              {/* Customer Image Upload */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Customer Photo</label>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setTestimonialImageUpload(e.target.files[0])}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-                <p className="text-xs text-gray-500 mt-1">Upload customer photo (optional)</p>
               </div>
 
               {/* Testimonial Text */}
@@ -3659,7 +3605,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   setTestimonialFormData({
                     customerName: '',
                     customerLocation: '',
-                    customerImage: '',
                     testimonialText: '',
                     rating: 5,
                     productMentioned: '',
@@ -3668,7 +3613,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     order: 0,
                     verifiedBuyer: false
                   });
-                  setTestimonialImageUpload(null);
                 }}
                 className="px-4 py-2 text-gray-600 border border-gray-300 rounded-md hover:bg-gray-50"
               >
