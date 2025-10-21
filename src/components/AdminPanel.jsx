@@ -231,6 +231,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       // Convert backend format to frontend format
       const formattedZones = zones.map(zone => ({
         id: zone.zoneId,
+        zoneId: zone.zoneId,  // Keep both for compatibility
         name: zone.name,
         pincodes: zone.pincodes,
         deliveryCharge: zone.deliveryCharge,
@@ -238,7 +239,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         deliveryTime: zone.deliveryTime
       }));
       
-      setShippingZones(formattedZones);
+      setShippingZones(formattedZones || []);
     } catch (error) {
       console.error('Error loading shipping zones:', error);
       
@@ -2286,8 +2287,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                               <button
                                 onClick={async () => {
                                   try {
-                                    // Save changes to backend
-                                    await ShippingService.updateShippingZone(editingZone.id, editingZone);
+                                    // Save changes to backend using zoneId
+                                    await ShippingService.updateShippingZone(editingZone.zoneId || editingZone.id, editingZone);
                                     
                                     // Update local state
                                     setShippingZones(prev => 
@@ -2324,7 +2325,10 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                                   if (window.confirm(`Are you sure you want to delete the "${zone.name}" shipping zone? This action cannot be undone.`)) {
                                     try {
                                       await ShippingService.deleteShippingZone(zone.zoneId || zone.id);
-                                      setShippingZones(prev => prev.filter(z => z.id !== zone.id && z.zoneId !== zone.zoneId));
+                                      setShippingZones(prev => {
+                                        if (!prev || !Array.isArray(prev)) return [];
+                                        return prev.filter(z => z.id !== zone.id);
+                                      });
                                       alert('Shipping zone deleted successfully!');
                                     } catch (error) {
                                       console.error('Error deleting shipping zone:', error);
@@ -4253,7 +4257,22 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     };
                     
                     const createdZone = await ShippingService.createShippingZone(newZone);
-                    setShippingZones(prev => [...prev, createdZone]);
+                    
+                    // Format the created zone to match frontend structure
+                    const formattedCreatedZone = {
+                      id: createdZone.zoneId,
+                      zoneId: createdZone.zoneId,
+                      name: createdZone.name,
+                      pincodes: createdZone.pincodes,
+                      deliveryCharge: createdZone.deliveryCharge,
+                      freeDeliveryAbove: createdZone.freeDeliveryAbove,
+                      deliveryTime: createdZone.deliveryTime
+                    };
+                    
+                    setShippingZones(prev => {
+                      if (!prev || !Array.isArray(prev)) return [];
+                      return [...prev, formattedCreatedZone];
+                    });
                     setShowShippingZoneForm(false);
                     alert('New shipping zone added successfully!');
                   } catch (error) {

@@ -1,9 +1,13 @@
 import { useState, useEffect } from 'react';
 import Footer from './Footer';
+import ShippingService from '../services/shippingService';
 
 const Cart = ({ onBack, onNavigateToCheckout }) => {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const [shippingCost, setShippingCost] = useState(200); // Default fallback
+  const [shippingInfo, setShippingInfo] = useState(null);
+  const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
 
   useEffect(() => {
     loadCartItems();
@@ -23,8 +27,28 @@ const Cart = ({ onBack, onNavigateToCheckout }) => {
   };
 
   const calculateTotal = (items) => {
-    const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    setTotal(totalAmount);
+    const subtotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    setTotal(subtotal);
+    // Calculate shipping for cart preview (using default pincode 500001 for estimation)
+    calculateShippingPreview(subtotal);
+  };
+
+  // Calculate shipping preview for cart (using a default pincode for estimation)
+  const calculateShippingPreview = async (cartTotal) => {
+    try {
+      setIsCalculatingShipping(true);
+      // Use a default pincode for shipping estimation in cart
+      const result = await ShippingService.calculateShippingCost('500001', cartTotal);
+      setShippingCost(result.shippingCost);
+      setShippingInfo(result);
+    } catch (error) {
+      console.error('Error calculating shipping preview:', error);
+      // Fallback to default shipping cost
+      setShippingCost(200);
+      setShippingInfo(null);
+    } finally {
+      setIsCalculatingShipping(false);
+    }
   };
 
   const updateQuantity = (cartId, newQuantity) => {
@@ -245,7 +269,18 @@ const Cart = ({ onBack, onNavigateToCheckout }) => {
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Shipping</span>
-                  <span>{total > 2000 ? 'Free' : '₹200'}</span>
+                  <span>
+                    {isCalculatingShipping ? (
+                      'Calculating...'
+                    ) : shippingInfo?.isFreeShipping ? (
+                      <>
+                        <span className="line-through text-gray-400">₹{shippingCost}</span>
+                        <span className="text-green-600 ml-2">Free!</span>
+                      </>
+                    ) : (
+                      `₹${shippingCost}`
+                    )}
+                  </span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span>Tax (GST)</span>
@@ -255,16 +290,25 @@ const Cart = ({ onBack, onNavigateToCheckout }) => {
                   <div className="flex justify-between font-semibold text-lg">
                     <span>Total</span>
                     <span className="text-[#ecab13]">
-                      ₹{(total + (total > 2000 ? 0 : 200) + (total * 0.18)).toFixed(2)}
+                      ₹{(total + (shippingInfo?.isFreeShipping ? 0 : shippingCost) + (total * 0.18)).toFixed(2)}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {total > 50 && (
+              {shippingInfo?.isFreeShipping && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-6">
                   <p className="text-green-800 text-sm font-medium">
-                    🎉 You've qualified for free shipping!
+                    🎉 You've qualified for free shipping! 
+                    {shippingInfo.message && <span className="block text-xs mt-1">{shippingInfo.message}</span>}
+                  </p>
+                </div>
+              )}
+
+              {!shippingInfo?.isFreeShipping && shippingInfo?.freeShippingMessage && (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 mb-6">
+                  <p className="text-yellow-800 text-sm">
+                    {shippingInfo.freeShippingMessage}
                   </p>
                 </div>
               )}
