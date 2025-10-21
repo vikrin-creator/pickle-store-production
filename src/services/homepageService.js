@@ -61,31 +61,54 @@ class HomepageService {
   // Update product in homepage section
   static async updateProductInSection(sectionType, productId, updateData, customImage = null) {
     try {
+      console.log('HomepageService.updateProductInSection called with:', {
+        sectionType,
+        productId,
+        updateData,
+        customImage: customImage ? 'File provided' : 'No file'
+      });
+
       const formData = new FormData();
       
       // Add text fields
       Object.keys(updateData).forEach(key => {
         if (updateData[key] !== undefined && updateData[key] !== null) {
+          console.log(`Adding to FormData: ${key} = ${updateData[key]}`);
           formData.append(key, updateData[key]);
         }
       });
       
       // Add image if provided
       if (customImage) {
+        console.log('Adding custom image to FormData');
         formData.append('customImage', customImage);
       }
 
+      console.log('Making API call to:', `${API_BASE_URL}/homepage/sections/${sectionType}/products/${productId}`);
+
       const response = await fetch(`${API_BASE_URL}/homepage/sections/${sectionType}/products/${productId}`, {
         method: 'PUT',
-        body: formData
+        body: formData // Always send FormData, not JSON
       });
       
+      console.log('API Response status:', response.status);
+      
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update product in section');
+        const errorText = await response.text();
+        console.error('API Error Response:', errorText);
+        let errorMessage;
+        try {
+          const errorJson = JSON.parse(errorText);
+          errorMessage = errorJson.message || 'Failed to update product in section';
+        } catch {
+          errorMessage = `HTTP ${response.status}: ${errorText}`;
+        }
+        throw new Error(errorMessage);
       }
       
-      return await response.json();
+      const result = await response.json();
+      console.log('API Success Response:', result);
+      return result;
     } catch (error) {
       console.error('Error updating product in section:', error);
       throw error;

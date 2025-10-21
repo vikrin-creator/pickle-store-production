@@ -3182,17 +3182,41 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 <button
                   onClick={async () => {
                     try {
-                      console.log('Updating favourite:', editingFavourite);
+                      console.log('=== SAVE BUTTON CLICKED ===');
+                      console.log('editingFavourite:', editingFavourite);
+                      console.log('selectedFavouriteImageFile:', selectedFavouriteImageFile);
                       
                       // Get the actual product ID from the favourite object
                       const productId = editingFavourite.productId._id || editingFavourite.productId;
-                      console.log('Using productId for update:', productId);
+                      console.log('Extracted productId:', productId);
+                      
+                      // Validate productId
+                      if (!productId) {
+                        throw new Error('Product ID is missing');
+                      }
+                      
+                      // Validate required fields
+                      if (!editingFavourite.customTitle?.trim()) {
+                        throw new Error('Custom title is required');
+                      }
+                      
+                      if (!editingFavourite.customDescription?.trim()) {
+                        throw new Error('Custom description is required');
+                      }
+                      
+                      const updateData = {
+                        customTitle: editingFavourite.customTitle.trim(),
+                        customDescription: editingFavourite.customDescription.trim()
+                      };
+                      
+                      console.log('Update data to send:', updateData);
+                      console.log('About to call HomepageService.updateProductInSection...');
                       
                       // Update customer favourite using the product ID
-                      await HomepageService.updateProductInSection('customerFavorites', productId, {
-                        customTitle: editingFavourite.customTitle,
-                        customDescription: editingFavourite.customDescription
-                      }, selectedFavouriteImageFile);
+                      const result = await HomepageService.updateProductInSection('customerFavorites', productId, updateData, selectedFavouriteImageFile);
+                      
+                      console.log('Update result:', result);
+                      console.log('Reloading customer favourites...');
                       
                       // Reload favourites
                       await loadCustomerFavourites();
@@ -3202,7 +3226,10 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       
                       alert('Customer favourite updated successfully!');
                     } catch (error) {
-                      console.error('Error updating favourite:', error);
+                      console.error('=== ERROR IN SAVE HANDLER ===');
+                      console.error('Error details:', error);
+                      console.error('Error message:', error.message);
+                      console.error('Error stack:', error.stack);
                       alert('Error updating favourite: ' + error.message);
                     }
                   }}
