@@ -66,8 +66,9 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   // Load categories from database
   const loadCategories = async () => {
     try {
-      const data = await CategoryService.getAllCategories();
-      console.log('Homepage: Loaded categories from API:', data.length);
+      // Use the SAME API call as Admin Panel for Cloudinary images
+      const data = await CategoryService.getAllCategoriesForAdmin();
+      console.log('Homepage: Loaded categories from API (same as admin):', data.length);
       setCategories(data || []);
     } catch (error) {
       console.error('Homepage: Error loading categories:', error);
@@ -552,7 +553,35 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           
           {/* Display categories as featured content */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
-            {(categories.length > 0 ? categories : [
+            {categories
+              .filter(item => item.isActive !== false && item.image) // Only show active categories with images
+              .sort((a, b) => (a.order || 0) - (b.order || 0))
+              .map((item, index) => {
+                const displayTitle = `${item.emoji || '🥒'} ${item.title}`;
+                
+                return (
+                  <button 
+                    key={item._id || index}
+                    onClick={() => handleCategoryNavigate(item.category === 'Custom' ? item.title : item.category)}
+                    className="h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger"
+                    style={{ animationDelay: `${index * 0.2}s` }}
+                  >
+                    <div 
+                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
+                      style={{ backgroundImage: `url('${item.image}')` }}
+                    ></div>
+                    <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
+                      <div>
+                        <h3 className="text-lg sm:text-xl font-bold line-clamp-2">{displayTitle}</h3>
+                        <p className="mt-2 text-sm sm:text-base text-[#221c10]/70 line-clamp-3">{item.description}</p>
+                      </div>
+                    </div>
+                  </button>
+                );
+              })}
+            
+            {/* Show fallback only if no categories loaded */}
+            {categories.length === 0 && [
               {
                 title: "🥒 Pickles (Veg & Non-Veg)",
                 description: "The heart of Janiitra – tangy, spicy, and full of flavor, prepared without preservatives for an authentic homemade experience.",
@@ -577,25 +606,25 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 image: "/assets/MixedVegetablePickle.png",
                 category: "Seafood"
               }
-            ]).sort((a, b) => (a.order || 0) - (b.order || 0)).map((item, index) => (
-                <button 
-                  key={index}
-                  onClick={() => handleCategoryNavigate(item.category === 'Custom' ? item.title : item.category)}
-                  className={`h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger`}
-                  style={{ animationDelay: `${index * 0.2}s` }}
-                >
-                  <div 
-                    className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
-                    style={{ backgroundImage: `url('${item.image}')` }}
-                  ></div>
-                  <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
-                    <div>
-                      <h3 className="text-lg sm:text-xl font-bold line-clamp-2">{item.title}</h3>
-                      <p className="mt-2 text-sm sm:text-base text-[#221c10]/70 line-clamp-3">{item.description}</p>
-                    </div>
+            ].map((item, index) => (
+              <button 
+                key={index}
+                onClick={() => handleCategoryNavigate(item.category)}
+                className="h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger"
+                style={{ animationDelay: `${index * 0.2}s` }}
+              >
+                <div 
+                  className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
+                  style={{ backgroundImage: `url('${item.image}')` }}
+                ></div>
+                <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
+                  <div>
+                    <h3 className="text-lg sm:text-xl font-bold line-clamp-2">{item.title}</h3>
+                    <p className="mt-2 text-sm sm:text-base text-[#221c10]/70 line-clamp-3">{item.description}</p>
                   </div>
-                </button>
-              ))}
+                </div>
+              </button>
+            ))}
           </div>
         </section>
 
