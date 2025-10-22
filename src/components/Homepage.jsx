@@ -580,51 +580,17 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 );
               })}
             
-            {/* Show fallback only if no categories loaded */}
-            {categories.length === 0 && [
-              {
-                title: "🥒 Pickles (Veg & Non-Veg)",
-                description: "The heart of Janiitra – tangy, spicy, and full of flavor, prepared without preservatives for an authentic homemade experience.",
-                image: "/assets/MixedVegetablePickle.png",
-                category: "Pickles"
-              },
-              {
-                title: "🌶 Spices",
-                description: "Pure Mirchi Powder and Haldi to enhance the flavor and aroma of your daily cooking.",
-                image: "/assets/Neemjar.png",
-                category: "Spices"
-              },
-              {
-                title: "🍃 Podi Varieties",
-                description: "Quick, ready-to-mix powders like Curry Leaf Podi and Kandi Podi – simple, healthy, and tasty.",
-                image: "/assets/MangoJar.png",
-                category: "Podi"
-              },
-              {
-                title: "🐟 Dry Seafood",
-                description: "Sun-dried prawns and fish sourced from the Godavari region, known for their superior quality and nutrition.",
-                image: "/assets/MixedVegetablePickle.png",
-                category: "Seafood"
-              }
-            ].map((item, index) => (
-              <button 
-                key={index}
-                onClick={() => handleCategoryNavigate(item.category)}
-                className="h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger"
-                style={{ animationDelay: `${index * 0.2}s` }}
-              >
-                <div 
-                  className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
-                  style={{ backgroundImage: `url('${item.image}')` }}
-                ></div>
-                <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
-                  <div>
-                    <h3 className="text-lg sm:text-xl font-bold line-clamp-2">{item.title}</h3>
-                    <p className="mt-2 text-sm sm:text-base text-[#221c10]/70 line-clamp-3">{item.description}</p>
-                  </div>
+            {/* Show loading message if no categories loaded from API */}
+            {categories.length === 0 && (
+              <div className="col-span-full text-center py-12">
+                <div className="text-gray-500 text-lg">
+                  🔄 Loading categories from database...
                 </div>
-              </button>
-            ))}
+                <div className="text-sm text-gray-400 mt-2">
+                  Fetching categories from MongoDB with Cloudinary images
+                </div>
+              </div>
+            )}
           </div>
         </section>
 
