@@ -14,160 +14,6 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   const [sortBy, setSortBy] = useState('Popularity');
   const [categories, setCategories] = useState([]);
 
-  // Default products data (fallback if localStorage is empty)
-  const defaultProducts = [
-    {
-      id: 1,
-      name: "Mango Tango",
-      description: "Traditional mango pickle made with organic ingredients and natural oils - Grandmothers' authentic recipe",
-      price: 12.99,
-      category: "Vegetarian",
-      spiceLevel: "Medium",
-      region: "South Indian",
-      image: "/assets/MangoTango.png",
-      weightOptions: [
-        { weight: '250g', price: 12.99 },
-        { weight: '500g', price: 22.99 },
-        { weight: '1kg', price: 42.99 }
-      ]
-    },
-    {
-      id: 2,
-      name: "Lime Zest",
-      description: "Pure zesty lime pickle without preservatives - Fresh limes with aromatic traditional spices",
-      price: 10.99,
-      category: "Vegetarian",
-      spiceLevel: "Mild",
-      region: "Gujarati",
-      image: "/assets/Limezest.png",
-      weightOptions: [
-        { weight: '200g', price: 10.99 },
-        { weight: '400g', price: 19.99 },
-        { weight: '800g', price: 37.99 }
-      ]
-    },
-    {
-      id: 3,
-      name: "Chili Kick",
-      description: "Authentic red chili pickle using age-old methods - Pure Mirchi powder, extra hot and flavorful",
-      price: 14.99,
-      category: "Vegetarian",
-      spiceLevel: "Extra Hot",
-      region: "North Indian",
-      image: "/assets/Chillikick.png",
-      weightOptions: [
-        { weight: '150g', price: 14.99 },
-        { weight: '300g', price: 27.99 },
-        { weight: '600g', price: 52.99 }
-      ]
-    },
-    {
-      id: 4,
-      name: "Garlic Burst",
-      description: "Homemade garlic pickle crafted with love - Rich, aromatic, and preservative-free",
-      price: 11.99,
-      category: "Vegetarian",
-      spiceLevel: "Hot",
-      region: "Gujarati",
-      image: "/assets/Garlic.png",
-      weightOptions: [
-        { weight: '250g', price: 11.99 },
-        { weight: '500g', price: 21.99 },
-        { weight: '1kg', price: 40.99 }
-      ]
-    },
-    {
-      id: 5,
-      name: "Mixed Veggie Medley",
-      description: "Traditional seasonal vegetables pickle - No artificial flavors, authentic taste of home",
-      price: 13.49,
-      category: "Vegetarian",
-      spiceLevel: "Medium",
-      region: "North Indian",
-      image: "/assets/MixedVegetablePickle.png",
-      weightOptions: [
-        { weight: '250g', price: 13.49 },
-        { weight: '500g', price: 24.99 },
-        { weight: '1kg', price: 46.99 }
-      ]
-    },
-    {
-      id: 6,
-      name: "Authentic Chicken Pickle",
-      description: "Traditional non-veg pickle using natural methods - Packed with nostalgia and authentic flavors",
-      price: 18.99,
-      category: "Non-Vegetarian",
-      spiceLevel: "Hot",
-      region: "South Indian",
-      image: "/assets/chicken.png",
-      weightOptions: [
-        { weight: '200g', price: 18.99 },
-        { weight: '400g', price: 35.99 },
-        { weight: '800g', price: 68.99 }
-      ]
-    },
-    {
-      id: 7,
-      name: "Mirchi Pickle",
-      description: "Traditional green chili pickle - Authentic and spicy",
-      price: 15.99,
-      category: "Vegetarian",
-      spiceLevel: "Extra Hot",
-      region: "North Indian",
-      image: "/assets/Mirchi.png",
-      weightOptions: [
-        { weight: '200g', price: 15.99 },
-        { weight: '400g', price: 29.99 },
-        { weight: '800g', price: 56.99 }
-      ]
-    },
-    {
-      id: 8,
-      name: "Garlic Seed Special",
-      description: "Special garlic seed pickle - Unique flavor combination",
-      price: 16.99,
-      category: "Vegetarian",
-      spiceLevel: "Medium",
-      region: "South Indian",
-      image: "/assets/GarlicSeed.png",
-      weightOptions: [
-        { weight: '250g', price: 16.99 },
-        { weight: '500g', price: 31.99 },
-        { weight: '1kg', price: 59.99 }
-      ]
-    },
-    {
-      id: 9,
-      name: "Mango Jar Special",
-      description: "Premium mango pickle in traditional jar - Family recipe",
-      price: 18.99,
-      category: "Vegetarian",
-      spiceLevel: "Medium",
-      region: "South Indian",
-      image: "/assets/MangoJar.png",
-      weightOptions: [
-        { weight: '250g', price: 18.99 },
-        { weight: '500g', price: 35.99 },
-        { weight: '1kg', price: 67.99 }
-      ]
-    },
-    {
-      id: 10,
-      name: "Neem Jar Pickle",
-      description: "Traditional neem-infused pickle - Health benefits included",
-      price: 20.99,
-      category: "Vegetarian",
-      spiceLevel: "Mild",
-      region: "South Indian",
-      image: "/assets/Neemjar.png",
-      weightOptions: [
-        { weight: '250g', price: 20.99 },
-        { weight: '500g', price: 39.99 },
-        { weight: '1kg', price: 74.99 }
-      ]
-    }
-  ];
-
   // Load products from API on component mount
   useEffect(() => {
     loadProducts();
@@ -201,12 +47,14 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
         }
         setProducts(data);
       } else {
-        console.error('ProductsPage: Failed to load products from API, using defaults');
-        setProducts(defaultProducts);
+        console.error('ProductsPage: Failed to load products from API, retrying...');
+        // Retry the API call or show error message, don't use empty array
+        setProducts([]);
       }
     } catch (error) {
       console.error('ProductsPage: Error loading products from API:', error);
-      setProducts(defaultProducts);
+      // Show error message to user instead of empty array
+      setProducts([]);
     }
   };
 
@@ -506,7 +354,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
               </button>
             </div>
             
-            <div className="p-4 overflow-y-auto h-full pb-20">
+            <div className="p-4 pb-20">
               {/* Category Filter */}
               <div className="filter-group mb-6">
                 <h3 className="filter-label text-base font-semibold mb-3 text-[#221c10]">Category</h3>
@@ -652,7 +500,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
             </div>
 
             {/* Products Grid */}
-            <div className="products-grid grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 max-h-[calc(100vh-120px)] overflow-y-auto">
+            <div className="products-grid grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 pb-8">
               {sortedProducts.length > 0 ? (
                 sortedProducts.map((product) => (
                   <div 

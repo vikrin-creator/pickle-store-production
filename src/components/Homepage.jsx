@@ -116,68 +116,6 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   const loadHomepageData = async () => {
     try {
       setHomepageLoading(true);
-      
-      // Check if running on localhost
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      
-      if (isLocalhost) {
-        // Use mock data for localhost development
-        setTimeout(() => {
-          setHomepageData({
-            featured: {
-              title: 'Featured Pickles',
-              products: [
-                {
-                  productId: {
-                    _id: '1',
-                    name: 'Mango Tango',
-                    description: 'Traditional mango pickle made with organic ingredients',
-                    price: 150,
-                    image: '/assets/MangoTango.png',
-                    category: 'Vegetarian'
-                  },
-                  customTitle: null,
-                  customDescription: null,
-                  customImage: null
-                },
-                {
-                  productId: {
-                    _id: '2',
-                    name: 'Lime Zest',
-                    description: 'Zesty lime pickle with a hint of spice',
-                    price: 120,
-                    image: '/assets/Limezest.png',
-                    category: 'Vegetarian'
-                  },
-                  customTitle: null,
-                  customDescription: null,
-                  customImage: null
-                }
-              ]
-            },
-            customerFavorites: {
-              title: 'Customer Favorites',
-              products: [
-                {
-                  productId: {
-                    _id: '3',
-                    name: 'Chili Kick',
-                    description: 'Spicy red chili pickle for heat lovers',
-                    price: 140,
-                    image: '/assets/ChiliKick.png',
-                    category: 'Vegetarian'
-                  },
-                  customTitle: null,
-                  customDescription: null,
-                  customImage: null
-                }
-              ]
-            }
-          });
-          setHomepageLoading(false);
-        }, 500);
-        return;
-      }
 
       const sections = await HomepageService.getAllSections();
       const sectionsMap = {};

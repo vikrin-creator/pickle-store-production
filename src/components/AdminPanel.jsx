@@ -445,30 +445,34 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   };
 
   // Offer Banner Management Functions
-  const loadOfferSettings = () => {
+  const loadOfferSettings = async () => {
     try {
-      // Load from localStorage or keep default
-      const savedSettings = localStorage.getItem('offerBannerSettings');
-      if (savedSettings) {
-        setOfferSettings(JSON.parse(savedSettings));
-      }
+      // Load from database via API
+      const { default: OfferBannerService } = await import('../services/offerBannerService');
+      const data = await OfferBannerService.getOfferBannerSettings();
+      setOfferSettings(data);
     } catch (error) {
-      console.error('Error loading offer settings:', error);
+      console.error('Error loading offer settings from database:', error);
+      // Keep default settings if API fails
     }
   };
 
-  const saveOfferSettings = (settings) => {
+  const saveOfferSettings = async (settings) => {
     try {
-      localStorage.setItem('offerBannerSettings', JSON.stringify(settings));
+      // Import OfferBannerService dynamically to avoid import issues
+      const { default: OfferBannerService } = await import('../services/offerBannerService');
+      
+      // Save to database via API
+      await OfferBannerService.updateOfferBannerSettings(settings);
       setOfferSettings(settings);
       
       // Trigger a custom event to update the banner immediately
       window.dispatchEvent(new CustomEvent('offerBannerUpdate', { detail: settings }));
       
-      alert('Offer banner settings saved successfully!');
+      alert('Offer banner settings saved successfully to database!');
     } catch (error) {
       console.error('Error saving offer settings:', error);
-      alert('Error saving offer settings');
+      alert('Failed to save offer settings to database. Please try again.');
     }
   };
 

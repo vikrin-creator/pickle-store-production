@@ -88,27 +88,25 @@ const getMinAmountFromText = (bannerText) => {
 };
 
 /**
- * Gets the current offer banner settings from localStorage
- * @returns {object|null} - Banner settings or null
+ * Gets the current offer banner settings from API
+ * @returns {Promise<object|null>} - Banner settings or null
  */
-export const getOfferBannerSettings = () => {
+export const getOfferBannerSettings = async () => {
   try {
-    const savedSettings = localStorage.getItem('offerBannerSettings');
-    if (savedSettings) {
-      return JSON.parse(savedSettings);
-    }
+    const { OfferBannerService } = await import('../services/offerBannerService');
+    return await OfferBannerService.getOfferBannerSettings();
   } catch (error) {
     console.error('Error loading offer banner settings:', error);
+    return null;
   }
-  return null;
 };
 
 /**
  * Gets the current dynamic coupon from offer banner
- * @returns {object|null} - Dynamic coupon object or null
+ * @returns {Promise<object|null>} - Dynamic coupon object or null
  */
-export const getDynamicCoupon = () => {
-  const bannerSettings = getOfferBannerSettings();
+export const getDynamicCoupon = async () => {
+  const bannerSettings = await getOfferBannerSettings();
   
   if (!bannerSettings || !bannerSettings.isActive || !bannerSettings.text) {
     return null;
@@ -118,12 +116,12 @@ export const getDynamicCoupon = () => {
 };
 
 /**
- * Validates if a coupon code matches the current banner coupon
+ * Validates a dynamic coupon code from offer banner
  * @param {string} inputCode - The coupon code entered by user
- * @returns {object|null} - Coupon object if valid, null if invalid
+ * @returns {Promise<object|null>} - Coupon object if valid, null if invalid
  */
-export const validateDynamicCoupon = (inputCode) => {
-  const dynamicCoupon = getDynamicCoupon();
+export const validateDynamicCoupon = async (inputCode) => {
+  const dynamicCoupon = await getDynamicCoupon();
   
   if (!dynamicCoupon || !inputCode) {
     return null;
@@ -138,10 +136,10 @@ export const validateDynamicCoupon = (inputCode) => {
 
 /**
  * Gets example coupon text for display in UI
- * @returns {string} - Example coupon text
+ * @returns {Promise<string>} - Example coupon text
  */
-export const getExampleCouponText = () => {
-  const dynamicCoupon = getDynamicCoupon();
+export const getExampleCouponText = async () => {
+  const dynamicCoupon = await getDynamicCoupon();
   
   if (dynamicCoupon) {
     return `Current offer: ${dynamicCoupon.code} - ${dynamicCoupon.discount}% OFF (Min ₹${dynamicCoupon.minAmount})`;

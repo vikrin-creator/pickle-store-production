@@ -55,10 +55,10 @@ const Checkout = ({ onBack, onOrderComplete }) => {
 
   // Listen for offer banner updates and refresh coupon availability
   useEffect(() => {
-    const handleBannerUpdate = () => {
+    const handleBannerUpdate = async () => {
       // If a coupon is currently applied, check if it's still valid
       if (appliedCoupon) {
-        const currentCoupon = getDynamicCoupon();
+        const currentCoupon = await getDynamicCoupon();
         if (!currentCoupon || currentCoupon.code !== appliedCoupon.code) {
           // Current coupon is no longer valid, remove it
           removeCoupon();
@@ -172,10 +172,10 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       await new Promise(resolve => setTimeout(resolve, 500));
       
       // Validate against dynamic coupon from offer banner
-      const coupon = validateDynamicCoupon(couponCode);
+      const coupon = await validateDynamicCoupon(couponCode);
       
       if (!coupon) {
-        const dynamicCoupon = getDynamicCoupon();
+        const dynamicCoupon = await getDynamicCoupon();
         if (dynamicCoupon) {
           setCouponError(`Invalid coupon code. Current active coupon: ${dynamicCoupon.code}`);
         } else {

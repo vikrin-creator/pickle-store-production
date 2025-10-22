@@ -1,32 +1,37 @@
 import { useState, useEffect } from 'react';
+import OfferBannerService from '../services/offerBannerService';
 
 const OfferBanner = () => {
   const [isVisible, setIsVisible] = useState(true);
-  const [settings, setSettings] = useState({
-    text: '🎉 Diwali Special Offer: Get 25% OFF on all pickle varieties! ✨ Free shipping on orders above ₹500 🚀 Use code: DIWALI25 ⏰ Limited time offer - Ends Oct 31st!',
-    isActive: true,
-    backgroundColor: 'from-green-600 to-emerald-600',
-    customStartColor: '#16a34a',
-    customEndColor: '#059669',
-    useCustomColors: false,
-    textColor: 'text-white',
-    animationSpeed: 30
-  });
+  const [settings, setSettings] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Load settings from localStorage
-    const loadSettings = () => {
+    // Load settings from database via API
+    const loadSettings = async () => {
       try {
-        const savedSettings = localStorage.getItem('offerBannerSettings');
-        if (savedSettings) {
-          setSettings(JSON.parse(savedSettings));
-        }
+        setLoading(true);
+        const data = await OfferBannerService.getOfferBannerSettings();
+        setSettings(data);
       } catch (error) {
         console.error('Error loading offer settings:', error);
+        // Set minimal fallback if API fails
+        setSettings({
+          text: 'Welcome to our store!',
+          isActive: true,
+          backgroundColor: 'from-orange-500 to-orange-600',
+          customStartColor: '#f97316',
+          customEndColor: '#ea580c',
+          useCustomColors: false,
+          textColor: 'text-white',
+          animationSpeed: 30
+        });
+      } finally {
+        setLoading(false);
       }
     };
 
-    // Load initial settings
+    // Load initial settings from database
     loadSettings();
 
     // Listen for updates from admin panel
@@ -41,7 +46,7 @@ const OfferBanner = () => {
     };
   }, []);
 
-  if (!isVisible || !settings.isActive) return null;
+  if (loading || !isVisible || !settings || !settings.isActive) return null;
 
   return (
     <div 

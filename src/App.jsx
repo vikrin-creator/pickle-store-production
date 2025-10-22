@@ -10,8 +10,8 @@ import AdminLogin from './components/AdminLogin'
 import Wishlist from './components/Wishlist'
 import CustomerAuth from './components/CustomerAuth'
 import FAQ from './components/FAQ'
-import WhatsAppChat from './components/WhatsAppChat'
 import OfferBanner from './components/OfferBanner'
+import WhatsAppChat from './components/WhatsAppChat'
 import authService from './services/authService'
 import './App.css'
 
@@ -506,6 +506,9 @@ function App() {
       
       {renderPage()}
       
+      {/* Show WhatsApp chat on all pages except admin */}
+      {currentPage !== 'admin' && currentPage !== 'admin-login' && <WhatsAppChat />}
+      
       {/* Customer Authentication Modal */}
       {showCustomerAuth && (
         <CustomerAuth 
@@ -520,9 +523,6 @@ function App() {
         onClose={handleCloseFaq}
         faqs={faqs}
       />
-
-      {/* WhatsApp Chat - Available on all pages */}
-      <WhatsAppChat />
     </div>
   );
 }
