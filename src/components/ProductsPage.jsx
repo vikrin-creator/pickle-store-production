@@ -226,7 +226,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   return (
     <div className="products-page min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
+      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback" style={{position: 'fixed', top: '48px', left: 0, right: 0, zIndex: 9998}}>
         {/* Logo */}
         <div className="flex items-center">
           <img
@@ -450,7 +450,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
       )}
 
       {/* Main Content */}
-      <main className="products-main pt-16 md:pt-20">
+      <main className="products-main pt-24 md:pt-28">
         <div className="products-content max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="lg:flex lg:align-start">
             {/* Sidebar Filters - Desktop */}

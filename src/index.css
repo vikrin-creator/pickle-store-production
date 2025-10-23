@@ -389,17 +389,38 @@ button {
 /* Fixed Header Styles - Ensure headers stay fixed on all devices */
 header[class*="fixed"] {
   position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9998 !important;
+  transform: none !important;
+  will-change: auto !important;
+  top: 48px !important; /* Account for offer banner */
+}
+
+/* Offer banner specific styles */
+.offer-banner, [class*="OfferBanner"] {
+  position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
   z-index: 9999 !important;
-  transform: none !important;
-  will-change: auto !important;
 }
 
 /* Mobile-specific header fixes */
 @media screen and (max-width: 768px) {
   header[class*="fixed"] {
+    position: fixed !important;
+    top: 48px !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9998 !important;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+  }
+  
+  .offer-banner, [class*="OfferBanner"] {
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -407,8 +428,6 @@ header[class*="fixed"] {
     z-index: 9999 !important;
     transform: translate3d(0, 0, 0) !important;
     -webkit-transform: translate3d(0, 0, 0) !important;
-    backface-visibility: hidden !important;
-    -webkit-backface-visibility: hidden !important;
   }
 }
 
@@ -420,31 +439,45 @@ header[class*="fixed"] {
 
 /* iOS Safari specific fixes for fixed headers */
 @supports (-webkit-touch-callout: none) {
-  header[class*="fixed"] {
+  header[class*="fixed"], .offer-banner {
     position: fixed !important;
-    top: 0 !important;
     z-index: 9999 !important;
     transform: translate3d(0, 0, 0) !important;
     -webkit-transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
   }
 }
 
 /* Additional mobile header stability */
 @media screen and (max-width: 768px) {
   /* Ensure header stays fixed during mobile scrolling */
-  header {
+  header, .offer-banner {
     position: fixed !important;
-    top: 0 !important;
     left: 0 !important;
     right: 0 !important;
     z-index: 9999 !important;
     transform: translate3d(0, 0, 0) !important;
     -webkit-transform: translate3d(0, 0, 0) !important;
     will-change: transform !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
   }
   
   /* Smooth scrolling on mobile */
   body {
     -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevent iOS bounce scrolling from affecting fixed elements */
+  html {
+    position: relative;
+    overflow-x: hidden;
+  }
+  
+  /* Force GPU acceleration for all fixed elements */
+  .fixed {
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
   }
 }

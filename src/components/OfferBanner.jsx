@@ -79,10 +79,17 @@ const OfferBanner = () => {
 
   return (
     <div 
-      className={`${settings.useCustomColors ? '' : `bg-gradient-to-r ${settings.backgroundColor || 'from-green-500 to-green-600'}`} ${settings.textColor || 'text-white'} py-3 px-4 overflow-hidden relative`}
-      style={settings.useCustomColors ? {
-        background: `linear-gradient(to right, ${settings.customStartColor || '#10b981'}, ${settings.customEndColor || '#059669'})`
-      } : {}}
+      className={`fixed top-0 left-0 right-0 z-50 ${settings.useCustomColors ? '' : `bg-gradient-to-r ${settings.backgroundColor || 'from-green-500 to-green-600'}`} ${settings.textColor || 'text-white'} py-3 px-4 overflow-hidden`}
+      style={{
+        ...(settings.useCustomColors ? {
+          background: `linear-gradient(to right, ${settings.customStartColor || '#10b981'}, ${settings.customEndColor || '#059669'})`
+        } : {}),
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 9999
+      }}
     >
       <div className="container mx-auto flex items-center">
         {/* Dynamic offer text with marquee animation */}
