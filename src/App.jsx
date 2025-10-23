@@ -372,6 +372,7 @@ function App() {
     window.navigateToPrivacy = navigateToPrivacy;
     window.navigateToTerms = navigateToTerms;
     window.navigateToShipping = navigateToShipping;
+    window.navigateToStories = navigateToStories;
     
     return () => {
       delete window.navigateToHome;
@@ -386,23 +387,9 @@ function App() {
       delete window.navigateToPrivacy;
       delete window.navigateToTerms;
       delete window.navigateToShipping;
+      delete window.navigateToStories;
     };
-  });
-
-  // Update window functions on every render
-  window.navigateToHome = navigateToHome;
-  window.navigateToProducts = navigateToProducts;
-  window.navigateToCart = navigateToCart;
-  window.navigateToWishlist = navigateToWishlist;
-  window.navigateToCheckout = navigateToCheckout;
-  window.navigateToAdmin = navigateToAdmin;
-  window.navigateToProductDetail = navigateToProductDetail;
-  window.navigateToOrderConfirmation = navigateToOrderConfirmation;
-  window.navigateToContact = navigateToContact;
-  window.navigateToPrivacy = navigateToPrivacy;
-  window.navigateToTerms = navigateToTerms;
-  window.navigateToShipping = navigateToShipping;
-  window.navigateToStories = navigateToStories;
+  }, []);
 
   // Handle URL parameters and keyboard shortcuts after navigation functions are available
   useEffect(() => {
