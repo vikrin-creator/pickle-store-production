@@ -18,7 +18,12 @@ const OfferBanner = () => {
           // Use fallback if data is invalid
           setSettings({
             text: '🎉 Welcome to Janiitra Pickles! Fresh & Authentic! 🌶️',
-            isActive: true
+            isActive: true,
+            backgroundColor: 'from-green-500 to-green-600',
+            textColor: 'text-white',
+            useCustomColors: false,
+            customStartColor: '#10b981',
+            customEndColor: '#059669'
           });
         }
       } catch (error) {
@@ -26,7 +31,12 @@ const OfferBanner = () => {
         // Set minimal fallback if API fails
         setSettings({
           text: '🎉 Welcome to Janiitra Pickles! Fresh & Authentic! 🌶️',
-          isActive: true
+          isActive: true,
+          backgroundColor: 'from-green-500 to-green-600',
+          textColor: 'text-white',
+          useCustomColors: false,
+          customStartColor: '#10b981',
+          customEndColor: '#059669'
         });
       } finally {
         setLoading(false);
@@ -55,9 +65,9 @@ const OfferBanner = () => {
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4">
+      <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4">
         <div className="container mx-auto text-center">
-          <span className="text-sm">Loading offer...</span>
+          <span className="text-sm">🔄 Loading latest offers...</span>
         </div>
       </div>
     );
@@ -68,19 +78,24 @@ const OfferBanner = () => {
   }
 
   return (
-    <div className="bg-gradient-to-r from-green-500 to-green-600 text-white py-3 px-4">
+    <div 
+      className={`${settings.useCustomColors ? '' : `bg-gradient-to-r ${settings.backgroundColor || 'from-green-500 to-green-600'}`} ${settings.textColor || 'text-white'} py-3 px-4`}
+      style={settings.useCustomColors ? {
+        background: `linear-gradient(to right, ${settings.customStartColor || '#10b981'}, ${settings.customEndColor || '#059669'})`
+      } : {}}
+    >
       <div className="container mx-auto flex items-center justify-between">
-        {/* Simple static offer text */}
+        {/* Dynamic offer text */}
         <div className="flex-1">
           <span className="text-sm md:text-base font-medium">
             {settings.text || 'Welcome to our store!'}
           </span>
         </div>
 
-        {/* Simple close button */}
+        {/* Close button with dynamic colors */}
         <button
           onClick={() => setIsVisible(false)}
-          className="ml-4 text-white hover:text-gray-200 font-bold text-lg"
+          className={`ml-4 ${settings.textColor || 'text-white'} hover:opacity-70 font-bold text-lg`}
           aria-label="Close offer banner"
         >
           ×
