@@ -16,6 +16,7 @@ import ContactPage from './components/ContactPage'
 import PrivacyPolicyPage from './components/PrivacyPolicyPage'
 import TermsConditionsPage from './components/TermsConditionsPage'
 import ShippingReturnPage from './components/ShippingReturnPage'
+import StoriesPage from './components/StoriesPage'
 import authService from './services/authService'
 import { api } from './services/api'
 import './App.css'
@@ -96,6 +97,8 @@ function App() {
         setCurrentPage('cart');
       } else if (path === '/checkout' || searchParams.get('page') === 'checkout') {
         setCurrentPage('checkout');
+      } else if (path === '/stories' || searchParams.get('page') === 'stories') {
+        setCurrentPage('stories');
       } else if (path === '/contact' || searchParams.get('page') === 'contact') {
         setCurrentPage('contact');
       } else if (path === '/privacy' || searchParams.get('page') === 'privacy') {
@@ -154,6 +157,10 @@ function App() {
           break;
         case 'checkout':
           currentURL.searchParams.set('page', 'checkout');
+          currentURL.searchParams.delete('category');
+          break;
+        case 'stories':
+          currentURL.searchParams.set('page', 'stories');
           currentURL.searchParams.delete('category');
           break;
         case 'contact':
@@ -327,23 +334,23 @@ function App() {
   };
 
   const navigateToContact = () => {
-    console.log('Navigating to contact page');
     setCurrentPage('contact');
   };
 
   const navigateToPrivacy = () => {
-    console.log('Navigating to privacy page');
     setCurrentPage('privacy');
   };
 
   const navigateToTerms = () => {
-    console.log('Navigating to terms page');
     setCurrentPage('terms');
   };
 
   const navigateToShipping = () => {
-    console.log('Navigating to shipping page');
     setCurrentPage('shipping');
+  };
+
+  const navigateToStories = () => {
+    setCurrentPage('stories');
   };
 
   const navigateToOrderConfirmation = (order) => {
@@ -380,7 +387,22 @@ function App() {
       delete window.navigateToTerms;
       delete window.navigateToShipping;
     };
-  }, [navigateToHome, navigateToProducts, navigateToCart, navigateToWishlist, navigateToCheckout, navigateToAdmin, navigateToProductDetail, navigateToOrderConfirmation, navigateToContact, navigateToPrivacy, navigateToTerms, navigateToShipping]);
+  });
+
+  // Update window functions on every render
+  window.navigateToHome = navigateToHome;
+  window.navigateToProducts = navigateToProducts;
+  window.navigateToCart = navigateToCart;
+  window.navigateToWishlist = navigateToWishlist;
+  window.navigateToCheckout = navigateToCheckout;
+  window.navigateToAdmin = navigateToAdmin;
+  window.navigateToProductDetail = navigateToProductDetail;
+  window.navigateToOrderConfirmation = navigateToOrderConfirmation;
+  window.navigateToContact = navigateToContact;
+  window.navigateToPrivacy = navigateToPrivacy;
+  window.navigateToTerms = navigateToTerms;
+  window.navigateToShipping = navigateToShipping;
+  window.navigateToStories = navigateToStories;
 
   // Handle URL parameters and keyboard shortcuts after navigation functions are available
   useEffect(() => {
@@ -469,7 +491,6 @@ function App() {
   };
 
   const renderPage = () => {
-    console.log('Current page:', currentPage);
     switch(currentPage) {
       case 'products':
         return <ProductsPage key={productsPageKey} onProductClick={handleProductClick} cartCount={cartCount} onNavigateToCart={handleNavigateToCart} onAddToCart={addToCart} onNavigateHome={handleBackToHome} categoryFilter={categoryFilter} />;
@@ -521,6 +542,8 @@ function App() {
         );
       case 'contact':
         return <ContactPage onNavigateHome={handleBackToHome} onNavigateToProducts={() => navigateToProducts()} />;
+      case 'stories':
+        return <StoriesPage onBack={handleBackToHome} />;
       case 'privacy':
         return <PrivacyPolicyPage onBack={handleBackToHome} />;
       case 'terms':

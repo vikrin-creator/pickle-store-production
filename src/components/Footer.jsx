@@ -6,8 +6,12 @@ const Footer = () => {
       <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-[#221c10]/70">
         <button 
           onClick={() => {
-            console.log('Contact button clicked');
-            window.navigateToContact?.();
+            console.log('Contact button clicked, window.navigateToContact:', window.navigateToContact);
+            if (window.navigateToContact) {
+              window.navigateToContact();
+            } else {
+              console.error('navigateToContact function not found on window');
+            }
           }} 
           className="transition-colors duration-200 hover:text-[#ecab13] cursor-pointer"
         >
@@ -15,8 +19,12 @@ const Footer = () => {
         </button>
         <button 
           onClick={() => {
-            console.log('Privacy button clicked');
-            window.navigateToPrivacy?.();
+            console.log('Privacy button clicked, window.navigateToPrivacy:', window.navigateToPrivacy);
+            if (window.navigateToPrivacy) {
+              window.navigateToPrivacy();
+            } else {
+              console.error('navigateToPrivacy function not found on window');
+            }
           }} 
           className="transition-colors duration-200 hover:text-[#ecab13] cursor-pointer"
         >
@@ -24,8 +32,12 @@ const Footer = () => {
         </button>
         <button 
           onClick={() => {
-            console.log('Terms button clicked');
-            window.navigateToTerms?.();
+            console.log('Terms button clicked, window.navigateToTerms:', window.navigateToTerms);
+            if (window.navigateToTerms) {
+              window.navigateToTerms();
+            } else {
+              console.error('navigateToTerms function not found on window');
+            }
           }} 
           className="transition-colors duration-200 hover:text-[#ecab13] cursor-pointer"
         >
@@ -33,8 +45,12 @@ const Footer = () => {
         </button>
         <button 
           onClick={() => {
-            console.log('Shipping button clicked');
-            window.navigateToShipping?.();
+            console.log('Shipping button clicked, window.navigateToShipping:', window.navigateToShipping);
+            if (window.navigateToShipping) {
+              window.navigateToShipping();
+            } else {
+              console.error('navigateToShipping function not found on window');
+            }
           }} 
           className="transition-colors duration-200 hover:text-[#ecab13] cursor-pointer"
         >

@@ -256,18 +256,24 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
             Shop
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </button>
+          <button 
+            onClick={() => window.navigateToStories && window.navigateToStories()}
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
+          >
+            Stories
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
+          </button>
           <a href="#about" className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
             About
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </a>
-          <a href="#story" className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
-            Story
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
-          </a>
-          <a href="#contact" className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
+          <button 
+            onClick={() => window.navigateToContact && window.navigateToContact()}
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
+          >
             Contact
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
-          </a>
+          </button>
         </nav>
 
         {/* Mobile Menu Button - Only visible on mobile */}
@@ -298,13 +304,15 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 >
                   Shop
                 </button>
-                <a 
-                  href="#story" 
-                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-                  onClick={() => setShowMobileMenu(false)}
+                <button 
+                  onClick={() => {
+                    window.navigateToStories && window.navigateToStories();
+                    setShowMobileMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
                 >
-                  Story
-                </a>
+                  Stories
+                </button>
                 <a 
                   href="#about" 
                   className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
@@ -312,13 +320,15 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 >
                   About
                 </a>
-                <a 
-                  href="#contact" 
-                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-                  onClick={() => setShowMobileMenu(false)}
+                <button 
+                  onClick={() => {
+                    window.navigateToContact && window.navigateToContact();
+                    setShowMobileMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
                 >
                   Contact
-                </a>
+                </button>
                 <button 
                   onClick={() => {
                     window.navigateToWishlist && window.navigateToWishlist();
