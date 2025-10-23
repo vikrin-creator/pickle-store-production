@@ -115,17 +115,7 @@ class CategoryService {
         formData.append('image', imageFile);
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/categories`, {
-        method: 'POST',
-        body: formData
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create category');
-      }
-
-      return await response.json();
+      return await api.postFormData('/api/categories', formData);
     } catch (error) {
       console.error("Error creating category:", error);
       throw error;
@@ -146,17 +136,7 @@ class CategoryService {
         formData.append('image', imageFile);
       }
 
-      const response = await fetch(`${API_BASE_URL}/api/categories/${categoryId}`, {
-        method: 'PUT',
-        body: formData
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to update category');
-      }
-
-      return await response.json();
+      return await api.putFormData(`/api/categories/${categoryId}`, formData);
     } catch (error) {
       console.error("Error updating category:", error);
       throw error;
@@ -165,16 +145,7 @@ class CategoryService {
 
   static async deleteCategory(categoryId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/categories/${categoryId}`, {
-        method: 'DELETE'
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to delete category');
-      }
-
-      return await response.json();
+      return await api.delete(`/api/categories/${categoryId}`);
     } catch (error) {
       console.error("Error deleting category:", error);
       throw error;
@@ -183,16 +154,7 @@ class CategoryService {
 
   static async toggleCategoryStatus(categoryId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/categories/${categoryId}/toggle-status`, {
-        method: 'PATCH'
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to toggle category status');
-      }
-
-      return await response.json();
+      return await api.patch(`/api/categories/${categoryId}/toggle-status`, {});
     } catch (error) {
       console.error("Error toggling category status:", error);
       throw error;

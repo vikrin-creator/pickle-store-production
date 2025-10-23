@@ -110,9 +110,7 @@ class AdminService {
   static async getDashboardStats() {
     try {
       // Fetch comprehensive stats from backend
-      const response = await fetch(`${API_BASE_URL}/admin/stats`);
-      if (!response.ok) throw new Error('Failed to fetch dashboard stats');
-      const stats = await response.json();
+      const stats = await api.get('/api/admin/stats');
       
       // Return backend stats directly with proper mapping
       return {
@@ -142,9 +140,7 @@ class AdminService {
   // Customer Management API
   static async getAllCustomers() {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/users`);
-      if (!response.ok) throw new Error('Failed to fetch customers');
-      return await response.json();
+      return await api.get('/api/admin/users');
     } catch (error) {
       console.error('Error fetching customers:', error);
       return [];
@@ -178,9 +174,7 @@ class AdminService {
   // Reviews API
   static async getAllReviews() {
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews/admin/all`);
-      if (!response.ok) throw new Error('Failed to fetch reviews');
-      return await response.json();
+      return await api.get('/api/reviews/admin/all');
     } catch (error) {
       console.error('Error fetching reviews:', error);
       throw error;
@@ -189,15 +183,7 @@ class AdminService {
 
   static async createReview(reviewData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reviewData)
-      });
-      if (!response.ok) throw new Error('Failed to create review');
-      return await response.json();
+      return await api.post('/api/reviews', reviewData);
     } catch (error) {
       console.error('Error creating review:', error);
       throw error;
@@ -206,15 +192,7 @@ class AdminService {
 
   static async updateReview(reviewId, reviewData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(reviewData)
-      });
-      if (!response.ok) throw new Error('Failed to update review');
-      return await response.json();
+      return await api.put(`/api/reviews/${reviewId}`, reviewData);
     } catch (error) {
       console.error('Error updating review:', error);
       throw error;
@@ -223,11 +201,7 @@ class AdminService {
 
   static async deleteReview(reviewId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) throw new Error('Failed to delete review');
-      return await response.json();
+      return await api.delete(`/api/reviews/${reviewId}`);
     } catch (error) {
       console.error('Error deleting review:', error);
       throw error;
@@ -237,9 +211,7 @@ class AdminService {
   // FAQs API
   static async getAllFaqs() {
     try {
-      const response = await fetch(`${API_BASE_URL}/faqs/admin/all`);
-      if (!response.ok) throw new Error('Failed to fetch FAQs');
-      return await response.json();
+      return await api.get('/api/faqs/admin/all');
     } catch (error) {
       console.error('Error fetching FAQs:', error);
       throw error;
@@ -248,9 +220,7 @@ class AdminService {
 
   static async getPublicFaqs() {
     try {
-      const response = await fetch(`${API_BASE_URL}/faqs`);
-      if (!response.ok) throw new Error('Failed to fetch public FAQs');
-      return await response.json();
+      return await api.get('/api/faqs');
     } catch (error) {
       console.error('Error fetching public FAQs:', error);
       throw error;
@@ -259,15 +229,7 @@ class AdminService {
 
   static async createFaq(faqData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/faqs`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(faqData)
-      });
-      if (!response.ok) throw new Error('Failed to create FAQ');
-      return await response.json();
+      return await api.post('/api/faqs', faqData);
     } catch (error) {
       console.error('Error creating FAQ:', error);
       throw error;
@@ -276,15 +238,7 @@ class AdminService {
 
   static async updateFaq(faqId, faqData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/faqs/${faqId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(faqData)
-      });
-      if (!response.ok) throw new Error('Failed to update FAQ');
-      return await response.json();
+      return await api.put(`/api/faqs/${faqId}`, faqData);
     } catch (error) {
       console.error('Error updating FAQ:', error);
       throw error;
@@ -293,11 +247,7 @@ class AdminService {
 
   static async deleteFaq(faqId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/faqs/${faqId}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) throw new Error('Failed to delete FAQ');
-      return await response.json();
+      return await api.delete(`/api/faqs/${faqId}`);
     } catch (error) {
       console.error('Error deleting FAQ:', error);
       throw error;
