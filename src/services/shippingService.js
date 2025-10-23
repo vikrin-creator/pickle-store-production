@@ -29,20 +29,7 @@ class ShippingService {
   // Update shipping zone
   static async updateShippingZone(zoneId, updateData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipping/zones/${zoneId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(updateData)
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to update shipping zone');
-      }
-      
-      return await response.json();
+      return await api.put(`/api/shipping/zones/${zoneId}`, updateData);
     } catch (error) {
       console.error('Error updating shipping zone:', error);
       throw error;
@@ -52,20 +39,7 @@ class ShippingService {
   // Create new shipping zone
   static async createShippingZone(zoneData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipping/zones`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(zoneData)
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to create shipping zone');
-      }
-      
-      return await response.json();
+      return await api.post('/api/shipping/zones', zoneData);
     } catch (error) {
       console.error('Error creating shipping zone:', error);
       throw error;
@@ -75,20 +49,7 @@ class ShippingService {
   // Calculate shipping cost for checkout
   static async calculateShippingCost(pincode, cartTotal) {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipping/calculate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ pincode, cartTotal })
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to calculate shipping cost');
-      }
-      
-      return await response.json();
+      return await api.post('/api/shipping/calculate', { pincode, cartTotal });
     } catch (error) {
       console.error('Error calculating shipping cost:', error);
       throw error;
@@ -98,16 +59,7 @@ class ShippingService {
   // Initialize default shipping zones (admin only)
   static async initializeDefaultZones() {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipping/initialize`, {
-        method: 'POST'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to initialize shipping zones');
-      }
-      
-      return await response.json();
+      return await api.post('/api/shipping/initialize', {});
     } catch (error) {
       console.error('Error initializing shipping zones:', error);
       throw error;
@@ -117,16 +69,7 @@ class ShippingService {
   // Delete shipping zone
   static async deleteShippingZone(zoneId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipping/zones/${zoneId}`, {
-        method: 'DELETE'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to delete shipping zone');
-      }
-      
-      return await response.json();
+      return await api.delete(`/api/shipping/zones/${zoneId}`);
     } catch (error) {
       console.error('Error deleting shipping zone:', error);
       throw error;

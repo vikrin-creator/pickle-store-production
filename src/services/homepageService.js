@@ -47,17 +47,7 @@ class HomepageService {
         formData.append('customImage', productData.customImage);
       }
       
-      const response = await fetch(`${API_BASE_URL}/homepage/sections/${sectionType}/products`, {
-        method: 'POST',
-        body: formData
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to add product to section');
-      }
-      
-      return await response.json();
+      return await api.postFormData(`/api/homepage/sections/${sectionType}/products`, formData);
     } catch (error) {
       console.error('Error adding product to section:', error);
       throw error;
@@ -81,17 +71,7 @@ class HomepageService {
         formData.append('customImage', customImage);
       }
 
-      const response = await fetch(`${API_BASE_URL}/homepage/sections/${sectionType}/products/${productId}`, {
-        method: 'PUT',
-        body: formData // Don't set Content-Type header - let browser set it with boundary
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || errorData.error || 'Failed to update product in section');
-      }
-      
-      return await response.json();
+      return await api.putFormData(`/api/homepage/sections/${sectionType}/products/${productId}`, formData);
     } catch (error) {
       console.error('Error updating product in section:', error);
       throw error;
@@ -101,16 +81,7 @@ class HomepageService {
   // Remove product from homepage section
   static async removeProductFromSection(sectionType, productId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/homepage/sections/${sectionType}/products/${productId}`, {
-        method: 'DELETE'
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to remove product from section');
-      }
-      
-      return await response.json();
+      return await api.delete(`/api/homepage/sections/${sectionType}/products/${productId}`);
     } catch (error) {
       console.error('Error removing product from section:', error);
       throw error;
@@ -120,20 +91,7 @@ class HomepageService {
   // Reorder products in section
   static async reorderProducts(sectionType, productOrders) {
     try {
-      const response = await fetch(`${API_BASE_URL}/homepage/sections/${sectionType}/reorder`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ productOrders })
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to reorder products');
-      }
-      
-      return await response.json();
+      return await api.put(`/api/homepage/sections/${sectionType}/reorder`, { productOrders });
     } catch (error) {
       console.error('Error reordering products:', error);
       throw error;
@@ -143,20 +101,7 @@ class HomepageService {
   // Update section details (title, description)
   static async updateSection(sectionType, sectionData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/homepage/sections/${sectionType}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(sectionData)
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to update section');
-      }
-      
-      return await response.json();
+      return await api.put(`/api/homepage/sections/${sectionType}`, sectionData);
     } catch (error) {
       console.error('Error updating section:', error);
       throw error;
@@ -166,16 +111,7 @@ class HomepageService {
   // Initialize default sections (for setup)
   static async initializeDefaultSections() {
     try {
-      const response = await fetch(`${API_BASE_URL}/homepage/initialize`, {
-        method: 'POST'
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.message || 'Failed to initialize sections');
-      }
-      
-      return await response.json();
+      return await api.post('/api/homepage/initialize', {});
     } catch (error) {
       console.error('Error initializing sections:', error);
       throw error;

@@ -1,12 +1,12 @@
+import { api } from './api.js';
+
 const API_BASE_URL = 'https://pickle-store-backend.onrender.com/api';
 
 class ReviewService {
   // Get all approved reviews for a specific product
   static async getProductReviews(productId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews/product/${productId}`);
-      if (!response.ok) throw new Error('Failed to fetch product reviews');
-      return await response.json();
+      return await api.get(`/api/reviews/product/${productId}`);
     } catch (error) {
       console.error('Error fetching product reviews:', error);
       return {
@@ -21,20 +21,7 @@ class ReviewService {
   // Submit a new review (public endpoint)
   static async submitReview(reviewData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(reviewData)
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to submit review');
-      }
-      
-      return await response.json();
+      return await api.post('/api/reviews', reviewData);
     } catch (error) {
       console.error('Error submitting review:', error);
       throw error;
@@ -44,9 +31,7 @@ class ReviewService {
   // Get all public reviews (with pagination)
   static async getAllReviews(limit = 10) {
     try {
-      const response = await fetch(`${API_BASE_URL}/reviews?limit=${limit}`);
-      if (!response.ok) throw new Error('Failed to fetch reviews');
-      return await response.json();
+      return await api.get(`/api/reviews?limit=${limit}`);
     } catch (error) {
       console.error('Error fetching all reviews:', error);
       return [];

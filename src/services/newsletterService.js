@@ -1,3 +1,5 @@
+import { api } from './api.js';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com/api';
 
 class NewsletterService {
@@ -10,20 +12,8 @@ class NewsletterService {
 
       console.log('Subscribing email:', email);
       
-      const response = await fetch(`${API_BASE_URL}/newsletter/subscribe`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
-
-      const data = await response.json();
+      const data = await api.post('/api/newsletter/subscribe', { email });
       
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to subscribe');
-      }
-
       console.log('Newsletter subscription successful:', data);
       return data;
     } catch (error) {
@@ -41,20 +31,7 @@ class NewsletterService {
   // Get newsletter stats (admin only)
   async getStats() {
     try {
-      const response = await fetch(`${API_BASE_URL}/newsletter/stats`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch stats');
-      }
-
-      return data;
+      return await api.get('/api/newsletter/stats');
     } catch (error) {
       console.error('Newsletter stats error:', error);
       throw error;
@@ -64,15 +41,7 @@ class NewsletterService {
   // Test email service connection
   async testEmailService() {
     try {
-      const response = await fetch(`${API_BASE_URL}/newsletter/test-email`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
-      return data;
+      return await api.get('/api/newsletter/test-email');
     } catch (error) {
       console.error('Email service test error:', error);
       throw error;

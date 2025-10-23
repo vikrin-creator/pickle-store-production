@@ -79,19 +79,7 @@ class TestimonialService {
   // Admin API - Update testimonial
   static async updateTestimonial(id, testimonialData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/testimonials/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(testimonialData)
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update testimonial');
-      }
-      return await response.json();
+      return await api.put(`/api/testimonials/${id}`, testimonialData);
     } catch (error) {
       console.error('Error updating testimonial:', error);
       throw error;
@@ -101,15 +89,7 @@ class TestimonialService {
   // Admin API - Delete testimonial
   static async deleteTestimonial(id) {
     try {
-      const response = await fetch(`${API_BASE_URL}/testimonials/${id}`, {
-        method: 'DELETE'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete testimonial');
-      }
-      return await response.json();
+      return await api.delete(`/api/testimonials/${id}`);
     } catch (error) {
       console.error('Error deleting testimonial:', error);
       throw error;
@@ -119,15 +99,7 @@ class TestimonialService {
   // Admin API - Toggle testimonial active status
   static async toggleTestimonialActive(id) {
     try {
-      const response = await fetch(`${API_BASE_URL}/testimonials/${id}/toggle-active`, {
-        method: 'PATCH'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to toggle testimonial status');
-      }
-      return await response.json();
+      return await api.patch(`/api/testimonials/${id}/toggle-active`, {});
     } catch (error) {
       console.error('Error toggling testimonial status:', error);
       throw error;
@@ -137,15 +109,7 @@ class TestimonialService {
   // Admin API - Toggle testimonial featured status
   static async toggleTestimonialFeatured(id) {
     try {
-      const response = await fetch(`${API_BASE_URL}/testimonials/${id}/toggle-featured`, {
-        method: 'PATCH'
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to toggle testimonial featured status');
-      }
-      return await response.json();
+      return await api.patch(`/api/testimonials/${id}/toggle-featured`, {});
     } catch (error) {
       console.error('Error toggling testimonial featured status:', error);
       throw error;

@@ -1,3 +1,5 @@
+import { api } from './api.js';
+
 const API_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com';
 
 class UserService {
@@ -13,19 +15,9 @@ class UserService {
   // Get user profile
   async getProfile() {
     try {
-      const response = await fetch(`${API_URL}/api/auth/profile`, {
-        method: 'GET',
-        headers: this.getAuthHeaders()
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch profile');
-      }
-
-      return data;
-
+      const token = localStorage.getItem('authToken');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      return await api.get('/api/auth/profile', {}, headers);
     } catch (error) {
       console.error('Error fetching profile:', error);
       return {
@@ -38,20 +30,9 @@ class UserService {
   // Update user profile
   async updateProfile(profileData) {
     try {
-      const response = await fetch(`${API_URL}/api/auth/profile`, {
-        method: 'PUT',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify(profileData)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update profile');
-      }
-
-      return data;
-
+      const token = localStorage.getItem('authToken');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      return await api.put('/api/auth/profile', profileData, headers);
     } catch (error) {
       console.error('Error updating profile:', error);
       return {
@@ -64,20 +45,9 @@ class UserService {
   // Change password
   async changePassword(passwordData) {
     try {
-      const response = await fetch(`${API_URL}/api/auth/change-password`, {
-        method: 'PUT',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify(passwordData)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to change password');
-      }
-
-      return data;
-
+      const token = localStorage.getItem('authToken');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      return await api.put('/api/auth/change-password', passwordData, headers);
     } catch (error) {
       console.error('Error changing password:', error);
       return {
@@ -90,22 +60,14 @@ class UserService {
   // Get user addresses
   async getAddresses() {
     try {
-      const response = await fetch(`${API_URL}/api/auth/addresses`, {
-        method: 'GET',
-        headers: this.getAuthHeaders()
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch addresses');
-      }
-
+      const token = localStorage.getItem('authToken');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      const data = await api.get('/api/auth/addresses', {}, headers);
+      
       return {
         success: true,
         addresses: data.addresses || []
       };
-
     } catch (error) {
       console.error('Error fetching addresses:', error);
       return {
@@ -119,20 +81,9 @@ class UserService {
   // Add new address
   async addAddress(addressData) {
     try {
-      const response = await fetch(`${API_URL}/api/auth/addresses`, {
-        method: 'POST',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify(addressData)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to add address');
-      }
-
-      return data;
-
+      const token = localStorage.getItem('authToken');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      return await api.post('/api/auth/addresses', addressData, headers);
     } catch (error) {
       console.error('Error adding address:', error);
       return {
@@ -145,20 +96,9 @@ class UserService {
   // Update address
   async updateAddress(addressId, addressData) {
     try {
-      const response = await fetch(`${API_URL}/api/auth/addresses/${addressId}`, {
-        method: 'PUT',
-        headers: this.getAuthHeaders(),
-        body: JSON.stringify(addressData)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to update address');
-      }
-
-      return data;
-
+      const token = localStorage.getItem('authToken');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      return await api.put(`/api/auth/addresses/${addressId}`, addressData, headers);
     } catch (error) {
       console.error('Error updating address:', error);
       return {
@@ -171,19 +111,9 @@ class UserService {
   // Delete address
   async deleteAddress(addressId) {
     try {
-      const response = await fetch(`${API_URL}/api/auth/addresses/${addressId}`, {
-        method: 'DELETE',
-        headers: this.getAuthHeaders()
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Failed to delete address');
-      }
-
-      return data;
-
+      const token = localStorage.getItem('authToken');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      return await api.delete(`/api/auth/addresses/${addressId}`, headers);
     } catch (error) {
       console.error('Error deleting address:', error);
       return {

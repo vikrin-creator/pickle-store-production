@@ -1,3 +1,5 @@
+import { api } from './api.js';
+
 const API_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com';
 
 class OrderService {
@@ -16,20 +18,11 @@ class OrderService {
       console.log('Fetching orders for authenticated user');
       console.log('API URL:', `${API_URL}/api/auth/orders`);
       
-      const response = await fetch(`${API_URL}/api/auth/orders`, {
-        method: 'GET',
-        headers: this.getAuthHeaders()
-      });
-
-      console.log('Orders response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error('Orders fetch failed:', errorData);
-        throw new Error(`Failed to fetch orders: ${response.status}`);
-      }
-
-      const data = await response.json();
+      // Use auth headers for authenticated endpoints
+      const token = localStorage.getItem('authToken');
+      const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+      
+      const data = await api.get('/api/auth/orders', {}, headers);
       console.log('Orders API response:', data);
       
       // Handle the backend response structure
@@ -104,20 +97,7 @@ class OrderService {
     try {
       console.log('Creating order:', orderData);
       
-      const response = await fetch(`${API_URL}/api/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create order');
-      }
-
-      return await response.json();
+      return await api.post('/api/orders', orderData);
     } catch (error) {
       console.error('Error creating order:', error);
       throw error;
@@ -127,18 +107,7 @@ class OrderService {
   // Get order by ID
   async getOrderById(orderId) {
     try {
-      const response = await fetch(`${API_URL}/api/orders/${orderId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch order: ${response.status}`);
-      }
-
-      return await response.json();
+      return await api.get(`/api/orders/${orderId}`);
     } catch (error) {
       console.error('Error fetching order:', error);
       throw error;

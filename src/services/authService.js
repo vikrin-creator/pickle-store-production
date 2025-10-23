@@ -1,3 +1,5 @@
+import { api } from './api.js';
+
 const API_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com';
 
 class AuthService {
@@ -53,26 +55,8 @@ class AuthService {
     try {
       console.log('Attempting registration with:', { ...userData, password: '[HIDDEN]' });
       
-      const response = await fetch(`${API_URL}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(userData),
-      });
-
-      console.log('Registration response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Registration failed:', errorData);
-        return {
-          success: false,
-          message: errorData.message || `Server error: ${response.status}`
-        };
-      }
-
-      const data = await response.json();
+      const data = await api.post('/api/auth/register', userData);
+      console.log('Registration response:', data);
 
       if (data.success) {
         this.setAuth(data.token, data.user);
@@ -105,26 +89,8 @@ class AuthService {
     try {
       console.log('Attempting login for:', email);
       
-      const response = await fetch(`${API_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      console.log('Login response status:', response.status);
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Login failed:', errorData);
-        return {
-          success: false,
-          message: errorData.message || `Server error: ${response.status}`
-        };
-      }
-
-      const data = await response.json();
+      const data = await api.post('/api/auth/login', { email, password });
+      console.log('Login response:', data);
 
       if (data.success) {
         this.setAuth(data.token, data.user);
@@ -156,13 +122,8 @@ class AuthService {
   async logout() {
     try {
       if (this.token) {
-        await fetch(`${API_URL}/api/auth/logout`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${this.token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        const headers = { 'Authorization': `Bearer ${this.token}` };
+        await api.post('/api/auth/logout', {}, headers);
       }
     } catch (error) {
       console.error('Logout error:', error);
@@ -178,15 +139,8 @@ class AuthService {
         throw new Error('No auth token');
       }
 
-      const response = await fetch(`${API_URL}/api/auth/profile`, {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Content-Type': 'application/json',
-        },
-      });
-
-      const data = await response.json();
+      const headers = { 'Authorization': `Bearer ${this.token}` };
+      const data = await api.get('/api/auth/profile', {}, headers);
 
       if (data.success) {
         this.user = data.user;
@@ -210,16 +164,8 @@ class AuthService {
         throw new Error('No auth token');
       }
 
-      const response = await fetch(`${API_URL}/api/auth/profile`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(profileData),
-      });
-
-      const data = await response.json();
+      const headers = { 'Authorization': `Bearer ${this.token}` };
+      const data = await api.put('/api/auth/profile', profileData, headers);
 
       if (data.success) {
         this.user = data.user;
@@ -243,28 +189,43 @@ class AuthService {
         throw new Error('No auth token');
       }
 
-      const defaultOptions = {
-        headers: {
-          'Authorization': `Bearer ${this.token}`,
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
+      const headers = {
+        'Authorization': `Bearer ${this.token}`,
+        ...options.headers,
       };
 
-      const response = await fetch(url, {
-        ...options,
-        ...defaultOptions,
-      });
+      // Use the api service for authenticated requests
+      const method = options.method || 'GET';
+      const body = options.body ? JSON.parse(options.body) : undefined;
 
+      let response;
+      switch (method.toUpperCase()) {
+        case 'GET':
+          response = await api.get(url.replace(API_URL, ''), {}, headers);
+          break;
+        case 'POST':
+          response = await api.post(url.replace(API_URL, ''), body, headers);
+          break;
+        case 'PUT':
+          response = await api.put(url.replace(API_URL, ''), body, headers);
+          break;
+        case 'DELETE':
+          response = await api.delete(url.replace(API_URL, ''), headers);
+          break;
+        default:
+          throw new Error(`Unsupported method: ${method}`);
+      }
+
+      return { ok: true, json: () => Promise.resolve(response) };
+    } catch (error) {
+      console.error('Authenticated request error:', error);
+      
       // Check if token is expired
-      if (response.status === 401 || response.status === 403) {
+      if (error.message && (error.message.includes('401') || error.message.includes('403'))) {
         this.clearAuth();
         window.location.reload(); // Redirect to login
       }
-
-      return response;
-    } catch (error) {
-      console.error('Authenticated request error:', error);
+      
       throw error;
     }
   }
