@@ -43,13 +43,23 @@ export const API_ENDPOINTS = {
 // API Helper Functions
 export const api = {
   // GET request
-  get: async (endpoint) => {
+  get: async (endpoint, data = {}, customHeaders = {}) => {
     try {
-      const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`);
+      const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          ...customHeaders,
+        },
+      });
       
       // Handle specific HTTP status codes
       if (response.status === 429) {
         throw new Error('Backend service is busy (rate limited). Please try again in 15-30 minutes.');
+      }
+      
+      if (response.status === 401) {
+        throw new Error('Authentication failed. Please log in again.');
       }
       
       if (!response.ok) {
