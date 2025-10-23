@@ -89,14 +89,7 @@ const OfferBanner = () => {
         <div className="flex-1 overflow-hidden relative">
           <div className="animate-marquee whitespace-nowrap inline-block">
             <span className="text-sm md:text-base font-medium">
-              {settings.text || 'Welcome to our store!'} 
-              &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; 
-              {settings.text || 'Welcome to our store!'} 
-              &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp;
-              {settings.text || 'Welcome to our store!'} 
-              &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp;
-              {settings.text || 'Welcome to our store!'} 
-              &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp;
+              {settings.text || 'Welcome to our store!'}
             </span>
           </div>
         </div>
