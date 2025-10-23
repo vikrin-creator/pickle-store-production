@@ -1,5 +1,60 @@
 /* Browser Compatibility Utilities */
 
+/* Safari Image Compatibility */
+img {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Force hardware acceleration for images on Safari */
+.safari-compatible-image {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Image loading fallback styles */
+.image-fallback {
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100px;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.5rem;
+}
+
+/* Ensure images don't break layout on Safari */
+img[src=""],
+img:not([src]) {
+  display: none;
+}
+
+/* Safari-specific image loading fixes */
+@supports (-webkit-appearance: none) {
+  img {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+  
+  /* Handle CORS issues in Safari */
+  img[crossorigin] {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}
+
+/* Smooth loading transitions for Safari */
+.image-loading-transition {
+  transition: opacity 0.3s ease-in-out;
+}
+
 /* Backdrop blur fallback for older browsers */
 .backdrop-blur-fallback {
   background-color: rgba(45, 103, 0, 0.9);

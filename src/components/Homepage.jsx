@@ -7,6 +7,7 @@ import newsletterService from '../services/newsletterService';
 import CustomerAuth from './CustomerAuth';
 import CustomerProfile from './CustomerProfile';
 import Footer from './Footer';
+import CompatibleImage from './CompatibleImage';
 
 const Homepage = ({ cartCount, onNavigateToCart }) => {
   // Hero carousel images
@@ -515,10 +516,14 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                     className="h-full flex flex-col rounded-2xl overflow-hidden bg-[#f8f7f6] shadow-lg transition-all duration-300 hover:shadow-2xl hover:scale-105 group text-left animate-fade-in-stagger"
                     style={{ animationDelay: `${index * 0.2}s` }}
                   >
-                    <div 
-                      className="h-48 sm:h-56 md:h-64 bg-cover bg-center transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0"
-                      style={{ backgroundImage: `url('${item.image}')` }}
-                    ></div>
+                    <div className="h-48 sm:h-56 md:h-64 overflow-hidden transition-transform duration-500 group-hover:scale-110 group-hover:rotate-2 flex-shrink-0">
+                      <CompatibleImage
+                        src={item.image}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                        fallbackSrc="https://via.placeholder.com/400x300/ecab13/FFFFFF?text=Category"
+                      />
+                    </div>
                     <div className="p-4 sm:p-6 group-hover:bg-[#ecab13]/5 transition-colors duration-300 flex-grow flex flex-col justify-between">
                       <div>
                         <h3 className="text-lg sm:text-xl font-bold line-clamp-2">{displayTitle}</h3>
@@ -623,17 +628,17 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 {
                   title: "Mango Pickle",
                   description: "Traditional tangy mango pickle made with organic ingredients and natural oils.",
-                  image: "/assets/MangoTango.png"
+                  image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009352/pickle-store/MangoTango.png"
                 },
                 {
                   title: "Mirchi Powder",
                   description: "Pure, aromatic red chili powder to enhance your daily cooking.",
-                  image: "/assets/Mirchi.png"
+                  image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009338/pickle-store/Chillikick.png"
                 },
                 {
                   title: "Garlic Pickle",
                   description: "Spicy garlic pickle prepared using age-old stories from grandmothers' kitchens.",
-                  image: "/assets/Garlic.png"
+                  image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009343/pickle-store/Garlic.png"
                 }
               ].map((item, index) => (
                 <div 
