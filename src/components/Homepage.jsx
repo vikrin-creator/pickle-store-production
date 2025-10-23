@@ -237,7 +237,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#f8f7f6] text-[#221c10] font-body overflow-x-hidden">
       {/* Header */}
-      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-3 sm:px-6 md:px-10 py-3 md:py-4 backdrop-blur-fallback" style={{position: 'fixed', top: '48px', left: 0, right: 0, zIndex: 9998}}>
+      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-3 sm:px-6 md:px-10 py-3 md:py-4 backdrop-blur-fallback">
         {/* Logo */}
         <div className="flex items-center animate-fade-in">
           <img 

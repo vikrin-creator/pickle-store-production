@@ -63,6 +63,22 @@ const OfferBanner = () => {
     };
   }, []);
 
+  // Effect to manage body class based on banner visibility
+  useEffect(() => {
+    const shouldShowBanner = isVisible && settings && settings.isActive;
+    
+    if (shouldShowBanner) {
+      document.body.classList.add('has-offer-banner');
+    } else {
+      document.body.classList.remove('has-offer-banner');
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('has-offer-banner');
+    };
+  }, [isVisible, settings]);
+
   if (loading) {
     return (
       <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4">
