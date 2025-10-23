@@ -116,7 +116,7 @@ function App() {
         setCurrentPage('cart');
       } else if (path === '/checkout' || searchParams.get('page') === 'checkout') {
         setCurrentPage('checkout');
-      } else if (path === '/admin' || searchParams.get('page') === 'admin') {
+      } else if (path === '/admin' || searchParams.get('page') === 'admin' || searchParams.get('admin') === 'true') {
         setCurrentPage('admin');
       } else {
         setCurrentPage('home');
@@ -171,6 +171,7 @@ function App() {
         case 'admin':
           currentURL.searchParams.set('page', 'admin');
           currentURL.searchParams.delete('category');
+          currentURL.searchParams.delete('admin'); // Remove the admin=true parameter
           break;
         case 'home':
         default:

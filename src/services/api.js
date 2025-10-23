@@ -51,12 +51,18 @@ export const api = {
   },
 
   // POST request
-  post: async (endpoint, data) => {
+  post: async (endpoint, data, customHeaders = {}) => {
     try {
+      // Validate data to prevent JSON serialization errors
+      if (data === undefined || data === null) {
+        throw new Error('POST data cannot be undefined or null');
+      }
+      
       const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...customHeaders,
         },
         body: JSON.stringify(data),
       });
@@ -71,12 +77,18 @@ export const api = {
   },
 
   // PUT request
-  put: async (endpoint, data) => {
+  put: async (endpoint, data, customHeaders = {}) => {
     try {
+      // Validate data to prevent JSON serialization errors
+      if (data === undefined || data === null) {
+        throw new Error('PUT data cannot be undefined or null');
+      }
+      
       const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
+          ...customHeaders,
         },
         body: JSON.stringify(data),
       });
@@ -143,12 +155,18 @@ export const api = {
   },
 
   // PATCH request
-  patch: async (endpoint, data) => {
+  patch: async (endpoint, data, customHeaders = {}) => {
     try {
+      // Validate data to prevent JSON serialization errors
+      if (data === undefined || data === null) {
+        throw new Error('PATCH data cannot be undefined or null');
+      }
+      
       const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
+          ...customHeaders,
         },
         body: JSON.stringify(data),
       });

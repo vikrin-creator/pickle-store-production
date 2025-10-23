@@ -333,9 +333,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       // Submit order to backend
       const token = authService.getToken();
       const savedOrder = await api.post('/api/orders', orderData, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        'Authorization': `Bearer ${token}`
       });
 
       // Save order to localStorage for reference

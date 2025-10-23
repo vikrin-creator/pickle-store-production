@@ -2280,8 +2280,16 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                               <button
                                 onClick={async () => {
                                   try {
+                                    // Prepare clean data for backend - only send required fields
+                                    const updateData = {
+                                      pincodes: editingZone.pincodes,
+                                      deliveryCharge: editingZone.deliveryCharge,
+                                      freeDeliveryAbove: editingZone.freeDeliveryAbove,
+                                      deliveryTime: editingZone.deliveryTime
+                                    };
+                                    
                                     // Save changes to backend using zoneId
-                                    await ShippingService.updateShippingZone(editingZone.zoneId || editingZone.id, editingZone);
+                                    await ShippingService.updateShippingZone(editingZone.zoneId || editingZone.id, updateData);
                                     
                                     // Update local state
                                     setShippingZones(prev => 
