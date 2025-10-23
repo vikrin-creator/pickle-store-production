@@ -418,9 +418,9 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
           </button>
         </div>
 
-        {/* Mobile Tab Navigation */}
-        <div className="block sm:hidden border-b bg-gray-50 flex-shrink-0">
-          <div className="flex overflow-x-auto scrollbar-hide">
+        {/* Mobile Tab Navigation - Always visible on screens smaller than 640px */}
+        <div className="sm:hidden border-b bg-gray-50 flex-shrink-0">
+          <div className="flex overflow-x-auto">
             {[
               { id: 'profile', label: 'Profile', icon: '👤' },
               { id: 'orders', label: 'Orders', icon: '📦' },
@@ -430,16 +430,24 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
               <button
                 key={tab.id}
                 onClick={() => handleTabSwitch(tab.id)}
-                className={`flex-shrink-0 px-3 py-2 text-xs font-medium whitespace-nowrap ${
+                className={`flex-shrink-0 px-4 py-3 text-sm font-medium whitespace-nowrap min-w-max border-r border-gray-200 last:border-r-0 ${
                   activeTab === tab.id 
-                    ? 'text-green-600 border-b-2 border-green-600 bg-white' 
-                    : 'text-gray-500 hover:text-gray-700'
+                    ? 'text-green-600 border-b-2 border-green-600 bg-white font-semibold' 
+                    : 'text-gray-700 hover:text-gray-900 hover:bg-gray-100'
                 }`}
               >
-                <span className="mr-1">{tab.icon}</span>
+                <span className="mr-2">{tab.icon}</span>
                 {tab.label}
               </button>
             ))}
+            {/* Mobile Logout Button */}
+            <button
+              onClick={handleLogout}
+              className="flex-shrink-0 px-4 py-3 text-sm font-medium whitespace-nowrap text-red-600 hover:text-red-700 hover:bg-red-50 min-w-max"
+            >
+              <span className="mr-2">🚪</span>
+              Logout
+            </button>
           </div>
         </div>
 
