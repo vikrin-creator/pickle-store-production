@@ -306,21 +306,21 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist }) => {
           {isAuthenticated ? (
             <button 
               onClick={handleProfileClick}
-              className="text-white hover:text-[#ecab13] transition-colors duration-300"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-105 group"
+              title={`Profile - ${user?.firstName || 'User'}`}
               aria-label="View profile"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
+              <span className="text-lg group-hover:scale-110 transition-transform duration-300">👤</span>
             </button>
           ) : (
             <button 
               onClick={handleShowLogin}
-              className="text-white hover:text-[#ecab13] transition-colors duration-300"
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-105 group"
+              title="Login"
               aria-label="Login"
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              <svg fill="currentColor" height="18px" viewBox="0 0 256 256" width="18px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
+                <path d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"></path>
               </svg>
             </button>
           )}
@@ -388,67 +388,6 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist }) => {
                     className="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200"
                   >
                     🚪 Logout
-                  </button>
-                )}
-              </nav>
-            </div>
-          )}
-        </div>
-
-        {/* Mobile Menu Button - Only visible on mobile */}
-        <div className="lg:hidden relative">
-          {/* Mobile Menu Dropdown */}
-          {showMobileMenu && (
-            <div 
-              className="absolute top-full right-0 z-40 bg-white border border-gray-200 shadow-lg rounded-lg mt-2 w-48"
-              data-mobile-menu
-            >
-              <nav className="py-2">
-                <button 
-                  onClick={() => {
-                    window.navigateToProducts && window.navigateToProducts();
-                    setShowMobileMenu(false);
-                  }}
-                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-                >
-                  Shop
-                </button>
-                <button 
-                  onClick={() => {
-                    window.navigateToStories && window.navigateToStories();
-                    setShowMobileMenu(false);
-                  }}
-                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-                >
-                  Stories
-                </button>
-                <a 
-                  href="#about" 
-                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-                  onClick={() => setShowMobileMenu(false)}
-                >
-                  About
-                </a>
-                <button 
-                  onClick={() => {
-                    window.navigateToContact && window.navigateToContact();
-                    setShowMobileMenu(false);
-                  }}
-                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-                >
-                  Contact
-                </button>
-                
-                {/* Authentication Options in Menu */}
-                {isAuthenticated && (
-                  <button 
-                    onClick={() => {
-                      handleLogout();
-                      setShowMobileMenu(false);
-                    }}
-                    className="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200"
-                  >
-                    � Logout
                   </button>
                 )}
               </nav>

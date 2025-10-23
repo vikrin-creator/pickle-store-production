@@ -405,10 +405,10 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-4xl h-5/6 mx-2 sm:mx-4 flex flex-col">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-lg w-full max-w-4xl max-h-full sm:h-5/6 mx-auto flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between p-4 sm:p-6 border-b">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800">My Profile</h2>
           <button 
             onClick={onClose}
@@ -419,8 +419,8 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
         </div>
 
         {/* Mobile Tab Navigation */}
-        <div className="block sm:hidden border-b bg-gray-50">
-          <div className="flex overflow-x-auto">
+        <div className="block sm:hidden border-b bg-gray-50 flex-shrink-0">
+          <div className="flex overflow-x-auto scrollbar-hide">
             {[
               { id: 'profile', label: 'Profile', icon: '👤' },
               { id: 'orders', label: 'Orders', icon: '📦' },
@@ -430,7 +430,7 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
               <button
                 key={tab.id}
                 onClick={() => handleTabSwitch(tab.id)}
-                className={`flex-shrink-0 px-4 py-3 text-sm font-medium ${
+                className={`flex-shrink-0 px-3 py-2 text-xs font-medium whitespace-nowrap ${
                   activeTab === tab.id 
                     ? 'text-green-600 border-b-2 border-green-600 bg-white' 
                     : 'text-gray-500 hover:text-gray-700'
