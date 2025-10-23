@@ -7,7 +7,7 @@ class AdminService {
   // Products API
   static async getAllProducts() {
     try {
-      const data = await api.get('/api/products');
+      const data = await api.get('/api/admin/products');
       return data;
     } catch (error) {
       console.error('Error fetching products:', error);
@@ -174,7 +174,7 @@ class AdminService {
   // Reviews API
   static async getAllReviews() {
     try {
-      return await api.get('/api/reviews/admin/all');
+      return await api.get('/api/admin/reviews');
     } catch (error) {
       console.error('Error fetching reviews:', error);
       throw error;

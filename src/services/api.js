@@ -39,7 +39,7 @@ export const api = {
   // GET request
   get: async (endpoint) => {
     try {
-      const response = await fetchWithTimeout(endpoint);
+      const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`);
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
@@ -53,7 +53,7 @@ export const api = {
   // POST request
   post: async (endpoint, data) => {
     try {
-      const response = await fetchWithTimeout(endpoint, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ export const api = {
   // PUT request
   put: async (endpoint, data) => {
     try {
-      const response = await fetchWithTimeout(endpoint, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ export const api = {
   // DELETE request
   delete: async (endpoint) => {
     try {
-      const response = await fetchWithTimeout(endpoint, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: 'DELETE',
       });
       if (!response.ok) {
@@ -109,7 +109,7 @@ export const api = {
   // POST request with FormData (for file uploads)
   postFormData: async (endpoint, formData) => {
     try {
-      const response = await fetchWithTimeout(endpoint, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: 'POST',
         body: formData, // Don't set Content-Type for FormData - browser will set it with boundary
       });
@@ -127,7 +127,7 @@ export const api = {
   // PUT request with FormData (for file uploads)
   putFormData: async (endpoint, formData) => {
     try {
-      const response = await fetchWithTimeout(endpoint, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: 'PUT',
         body: formData, // Don't set Content-Type for FormData - browser will set it with boundary
       });
@@ -145,7 +145,7 @@ export const api = {
   // PATCH request
   patch: async (endpoint, data) => {
     try {
-      const response = await fetchWithTimeout(endpoint, {
+      const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

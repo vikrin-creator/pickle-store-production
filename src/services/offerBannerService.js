@@ -1,3 +1,5 @@
+import { api } from './api.js';
+
 const API_BASE_URL = "https://pickle-store-backend.onrender.com";
 
 class OfferBannerService {
@@ -5,7 +7,7 @@ class OfferBannerService {
     try {
       console.log('OfferBannerService: Getting settings from API');
       // Use api helper with better timeout handling for cold starts
-      const data = await api.get(`${API_BASE_URL}/api/offer-banner`);
+      const data = await api.get('/api/offer-banner');
       console.log('OfferBannerService: Loaded settings from database:', data);
       return data;
     } catch (error) {
@@ -28,19 +30,7 @@ class OfferBannerService {
   static async updateOfferBannerSettings(settings) {
     try {
       console.log('OfferBannerService: Updating settings via API:', settings);
-      const response = await fetch(`${API_BASE_URL}/api/offer-banner`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(settings)
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to update offer banner settings: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await api.put('/api/offer-banner', settings);
       console.log('OfferBannerService: Successfully updated settings');
       return data;
     } catch (error) {

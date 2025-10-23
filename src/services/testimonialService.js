@@ -32,13 +32,8 @@ class TestimonialService {
       const queryParams = new URLSearchParams();
       if (filters.featured) queryParams.append('featured', 'true');
       
-      const url = `${API_BASE_URL}/testimonials${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch testimonials');
-      }
-      return await response.json();
+      const endpoint = `/api/testimonials${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      return await api.get(endpoint);
     } catch (error) {
       console.error('Error fetching testimonials with filters:', error);
       throw error;
@@ -48,11 +43,7 @@ class TestimonialService {
   // Public API - Get single testimonial by ID
   static async getTestimonialById(id) {
     try {
-      const response = await fetch(`${API_BASE_URL}/testimonials/${id}`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch testimonial');
-      }
-      return await response.json();
+      return await api.get(`/api/testimonials/${id}`);
     } catch (error) {
       console.error('Error fetching testimonial:', error);
       throw error;
@@ -67,13 +58,8 @@ class TestimonialService {
       if (filters.featured !== undefined) queryParams.append('featured', filters.featured);
       if (filters.active !== undefined) queryParams.append('active', filters.active);
       
-      const url = `${API_BASE_URL}/testimonials/admin/all${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
-      const response = await fetch(url);
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch admin testimonials');
-      }
-      return await response.json();
+      const endpoint = `/api/testimonials/admin/all${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+      return await api.get(endpoint);
     } catch (error) {
       console.error('Error fetching admin testimonials:', error);
       throw error;
@@ -83,19 +69,7 @@ class TestimonialService {
   // Admin API - Create new testimonial
   static async createTestimonial(testimonialData) {
     try {
-      const response = await fetch(`${API_BASE_URL}/testimonials`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(testimonialData)
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create testimonial');
-      }
-      return await response.json();
+      return await api.post('/api/testimonials', testimonialData);
     } catch (error) {
       console.error('Error creating testimonial:', error);
       throw error;
