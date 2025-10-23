@@ -3304,22 +3304,6 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             </div>
             
             <div className="p-6 space-y-6">
-              {/* Original Product Info */}
-              <div className="bg-gray-50 p-4 rounded-lg">
-                <h4 className="font-medium text-gray-700 mb-2">Original Product:</h4>
-                <div className="flex items-center space-x-4">
-                  <img 
-                    src={editingFavourite.productId?.image || '/placeholder.jpg'} 
-                    alt="Original product"
-                    className="w-16 h-16 object-cover rounded-lg"
-                  />
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">{editingFavourite.productId?.name || 'Unknown Product'}</p>
-                    <p className="text-xs text-gray-500">{editingFavourite.productId?.category || 'Unknown Category'}</p>
-                  </div>
-                </div>
-              </div>
-
               {/* Custom Image Upload */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

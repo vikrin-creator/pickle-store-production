@@ -76,7 +76,7 @@ const Footer = () => {
             rel="noopener noreferrer"
             className="text-[#221c10]/70 hover:text-[#ecab13] transition-colors duration-200 text-sm underline"
           >
-            Built By Vikrin
+            Built and Developed By Vikrin
           </a>
         </div>
       </div>
