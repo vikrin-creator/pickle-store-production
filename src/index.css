@@ -29,6 +29,9 @@ body {
   overflow-x: hidden;
   line-height: 1.6;
   letter-spacing: -0.01em;
+  /* Prevent scrolling issues on mobile */
+  -webkit-overflow-scrolling: touch;
+  position: relative;
 }
 
 code {
@@ -391,6 +394,22 @@ header[class*="fixed"] {
   right: 0 !important;
   z-index: 9999 !important;
   transform: none !important;
+  will-change: auto !important;
+}
+
+/* Mobile-specific header fixes */
+@media screen and (max-width: 768px) {
+  header[class*="fixed"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    backface-visibility: hidden !important;
+    -webkit-backface-visibility: hidden !important;
+  }
 }
 
 /* Ensure backdrop filter fallback */
@@ -402,16 +421,30 @@ header[class*="fixed"] {
 /* iOS Safari specific fixes for fixed headers */
 @supports (-webkit-touch-callout: none) {
   header[class*="fixed"] {
-    position: -webkit-sticky !important;
-    position: sticky !important;
+    position: fixed !important;
     top: 0 !important;
     z-index: 9999 !important;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+  }
+}
+
+/* Additional mobile header stability */
+@media screen and (max-width: 768px) {
+  /* Ensure header stays fixed during mobile scrolling */
+  header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 9999 !important;
+    transform: translate3d(0, 0, 0) !important;
+    -webkit-transform: translate3d(0, 0, 0) !important;
+    will-change: transform !important;
   }
   
-  /* For iOS 13+ which supports position: fixed properly */
-  @media screen and (-webkit-min-device-pixel-ratio: 2) {
-    header[class*="fixed"] {
-      position: fixed !important;
-    }
+  /* Smooth scrolling on mobile */
+  body {
+    -webkit-overflow-scrolling: touch;
   }
 }
