@@ -2607,11 +2607,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           </p>
                         </div>
 
-                        <div className="mb-3">
+                        {/* <div className="mb-3">
                           <span className="text-sm text-gray-500">
                             Original: {favourite.productId?.name || 'Unknown'}
                           </span>
-                        </div>
+                        </div> */}
 
                         {/* Edit Button */}
                         <div className="flex space-x-2">
