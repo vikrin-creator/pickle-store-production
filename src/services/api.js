@@ -1,8 +1,8 @@
 // API Configuration
 const API_BASE_URL = 'https://pickle-store-backend.onrender.com';
 
-// Request timeout in milliseconds (15 seconds for Vercel)
-const REQUEST_TIMEOUT = 15000;
+// Request timeout in milliseconds (45 seconds to handle cold starts)
+const REQUEST_TIMEOUT = 45000;
 
 // Create fetch with timeout to prevent Vercel timeouts
 const fetchWithTimeout = async (url, options = {}) => {
