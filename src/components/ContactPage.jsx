@@ -51,7 +51,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
   return (
     <div className="min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
       {/* Header */}
-      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
+      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
         {/* Logo */}
         <div className="flex items-center">
           <img 
@@ -110,7 +110,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
         </button>
       </header>
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-20 md:pt-24 pb-12">
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-16 md:pt-20 pb-12">
         {/* Page Header */}
         <div className="text-center mb-12">
           <h1 className="text-3xl sm:text-4xl font-bold text-[#2d6700] mb-4">Contact Us</h1>

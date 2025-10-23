@@ -185,7 +185,7 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
   return (
     <div className="min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
       {/* Header */}
-      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
+      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
         {/* Logo */}
         <div className="flex items-center">
           <img 
@@ -274,7 +274,7 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
         </div>
       </header>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-20 md:pt-24 pb-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-16 md:pt-20 pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Product Image and Reviews */}
           <div className="space-y-6">

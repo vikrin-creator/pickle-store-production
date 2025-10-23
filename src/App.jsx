@@ -553,8 +553,8 @@ function App() {
 
   return (
     <div className="App">
-      {/* Show offer banner on all pages except admin */}
-      {currentPage !== 'admin' && currentPage !== 'admin-login' && <OfferBanner />}
+      {/* Show offer banner only on homepage */}
+      {currentPage === 'home' && <OfferBanner />}
       
       {renderPage()}
       

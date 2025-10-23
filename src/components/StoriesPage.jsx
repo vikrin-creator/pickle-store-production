@@ -152,7 +152,7 @@ const StoriesPage = ({ onBack }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8f7f6] to-[#f1f0ef]">
       {/* Header */}
-      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
+      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
         {/* Logo */}
         <div className="flex items-center">
           <img 
@@ -212,7 +212,7 @@ const StoriesPage = ({ onBack }) => {
       </header>
 
       {/* Hero Section */}
-      <section className="pt-20 md:pt-24 pb-16 px-4">
+      <section className="pt-16 md:pt-20 pb-16 px-4">
         <div className="max-w-6xl mx-auto text-center">
           <h2 className="text-4xl md:text-5xl font-bold text-[#2d6700] mb-6">
             Every Jar Tells a Story
