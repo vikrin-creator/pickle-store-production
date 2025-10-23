@@ -18,6 +18,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [exampleCouponText, setExampleCouponText] = useState('Loading coupon info...');
   
   // Shipping state
   const [shippingCost, setShippingCost] = useState(200); // Default fallback
@@ -52,11 +53,25 @@ const Checkout = ({ onBack, onOrderComplete }) => {
   useEffect(() => {
     loadCartItems();
     checkAuthStatus();
+    loadExampleCouponText();
   }, []);
+
+  const loadExampleCouponText = async () => {
+    try {
+      const text = await getExampleCouponText();
+      setExampleCouponText(text);
+    } catch (error) {
+      console.error('Error loading example coupon text:', error);
+      setExampleCouponText('Coupon system temporarily unavailable');
+    }
+  };
 
   // Listen for offer banner updates and refresh coupon availability
   useEffect(() => {
     const handleBannerUpdate = async () => {
+      // Refresh example coupon text
+      await loadExampleCouponText();
+      
       // If a coupon is currently applied, check if it's still valid
       if (appliedCoupon) {
         const currentCoupon = await getDynamicCoupon();
@@ -813,7 +828,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                       <div className="mt-3 text-xs text-gray-600">
                         <p className="font-medium mb-1">Current Offer:</p>
                         <div className="p-2 bg-yellow-50 border border-yellow-200 rounded">
-                          <p className="text-yellow-800">{getExampleCouponText()}</p>
+                          <p className="text-yellow-800">{exampleCouponText}</p>
                         </div>
                         <p className="mt-1 text-gray-500">
                           ℹ️ Coupon codes are from the current offer banner

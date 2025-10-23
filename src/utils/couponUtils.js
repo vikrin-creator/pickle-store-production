@@ -94,6 +94,11 @@ const getMinAmountFromText = (bannerText) => {
  */
 export const getOfferBannerSettings = async () => {
   try {
+    // Check if OfferBannerService is properly imported
+    if (!OfferBannerService || typeof OfferBannerService.getOfferBannerSettings !== 'function') {
+      console.warn('OfferBannerService not properly loaded, using fallback');
+      return null;
+    }
     return await OfferBannerService.getOfferBannerSettings();
   } catch (error) {
     console.error('Error loading offer banner settings:', error);
@@ -106,13 +111,18 @@ export const getOfferBannerSettings = async () => {
  * @returns {Promise<object|null>} - Dynamic coupon object or null
  */
 export const getDynamicCoupon = async () => {
-  const bannerSettings = await getOfferBannerSettings();
-  
-  if (!bannerSettings || !bannerSettings.isActive || !bannerSettings.text) {
+  try {
+    const bannerSettings = await getOfferBannerSettings();
+    
+    if (!bannerSettings || !bannerSettings.isActive || !bannerSettings.text) {
+      return null;
+    }
+
+    return parseCouponFromBanner(bannerSettings.text);
+  } catch (error) {
+    console.error('Error in getDynamicCoupon:', error);
     return null;
   }
-
-  return parseCouponFromBanner(bannerSettings.text);
 };
 
 /**
@@ -121,17 +131,22 @@ export const getDynamicCoupon = async () => {
  * @returns {Promise<object|null>} - Coupon object if valid, null if invalid
  */
 export const validateDynamicCoupon = async (inputCode) => {
-  const dynamicCoupon = await getDynamicCoupon();
-  
-  if (!dynamicCoupon || !inputCode) {
+  try {
+    const dynamicCoupon = await getDynamicCoupon();
+    
+    if (!dynamicCoupon || !inputCode) {
+      return null;
+    }
+
+    if (inputCode.toUpperCase() === dynamicCoupon.code) {
+      return dynamicCoupon;
+    }
+
+    return null;
+  } catch (error) {
+    console.error('Error in validateDynamicCoupon:', error);
     return null;
   }
-
-  if (inputCode.toUpperCase() === dynamicCoupon.code) {
-    return dynamicCoupon;
-  }
-
-  return null;
 };
 
 /**
@@ -139,11 +154,16 @@ export const validateDynamicCoupon = async (inputCode) => {
  * @returns {Promise<string>} - Example coupon text
  */
 export const getExampleCouponText = async () => {
-  const dynamicCoupon = await getDynamicCoupon();
-  
-  if (dynamicCoupon) {
-    return `Current offer: ${dynamicCoupon.code} - ${dynamicCoupon.discount}% OFF (Min ₹${dynamicCoupon.minAmount})`;
+  try {
+    const dynamicCoupon = await getDynamicCoupon();
+    
+    if (dynamicCoupon) {
+      return `Current offer: ${dynamicCoupon.code} - ${dynamicCoupon.discount}% OFF (Min ₹${dynamicCoupon.minAmount})`;
+    }
+    
+    return "No active coupon available";
+  } catch (error) {
+    console.error('Error in getExampleCouponText:', error);
+    return "Coupon system temporarily unavailable";
   }
-  
-  return "No active coupon available";
 };
