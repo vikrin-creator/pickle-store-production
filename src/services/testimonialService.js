@@ -1,15 +1,14 @@
 // Frontend service for testimonials management
+import { api } from './api.js';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com/api';
 
 class TestimonialService {
   // Public API - Get all active testimonials
   static async getAllTestimonials() {
     try {
-      const response = await fetch(`${API_BASE_URL}/testimonials`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch testimonials');
-      }
-      return await response.json();
+      const data = await api.get('/api/testimonials');
+      return data;
     } catch (error) {
       console.error('Error fetching testimonials:', error);
       throw error;
@@ -19,11 +18,8 @@ class TestimonialService {
   // Public API - Get featured testimonials only
   static async getFeaturedTestimonials() {
     try {
-      const response = await fetch(`${API_BASE_URL}/testimonials/featured`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch featured testimonials');
-      }
-      return await response.json();
+      const data = await api.get('/api/testimonials/featured');
+      return data;
     } catch (error) {
       console.error('Error fetching featured testimonials:', error);
       throw error;

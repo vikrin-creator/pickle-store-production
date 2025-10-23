@@ -1,15 +1,14 @@
 // Frontend service for homepage management
+import { api } from './api.js';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com/api';
 
 class HomepageService {
   // Get all homepage sections
   static async getAllSections() {
     try {
-      const response = await fetch(`${API_BASE_URL}/homepage/sections`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch homepage sections');
-      }
-      return await response.json();
+      const data = await api.get('/api/homepage/sections');
+      return data;
     } catch (error) {
       console.error('Error fetching homepage sections:', error);
       throw error;
@@ -24,11 +23,8 @@ class HomepageService {
   // Get specific section by type
   static async getSection(sectionType) {
     try {
-      const response = await fetch(`${API_BASE_URL}/homepage/sections/${sectionType}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch ${sectionType} section`);
-      }
-      return await response.json();
+      const data = await api.get(`/api/homepage/sections/${sectionType}`);
+      return data;
     } catch (error) {
       console.error(`Error fetching ${sectionType} section:`, error);
       throw error;

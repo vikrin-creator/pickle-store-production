@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { api } from '../services/api';
+import API_BASE_URL from '../services/api';
 
 const ImageManager = () => {
   const [images, setImages] = useState([]);
@@ -12,8 +14,7 @@ const ImageManager = () => {
 
   const fetchImages = async () => {
     try {
-      const response = await fetch('https://pickle-store-backend.onrender.com/api/images/list');
-      const data = await response.json();
+      const data = await api.get('/api/images/list');
       setImages(data);
     } catch (error) {
       console.error('Failed to fetch images:', error);
@@ -34,9 +35,11 @@ const ImageManager = () => {
     formData.append('image', selectedFile);
 
     try {
-      const response = await fetch('https://pickle-store-backend.onrender.com/api/images/upload', {
+      // For file uploads, we need to use fetch directly but with our base URL
+      const response = await fetch(`${API_BASE_URL}/api/images/upload`, {
         method: 'POST',
-        body: formData
+        body: formData,
+        // Don't set Content-Type header for FormData - browser will set it with boundary
       });
 
       if (response.ok) {
@@ -59,17 +62,9 @@ const ImageManager = () => {
     if (!confirm(`Are you sure you want to delete ${filename}?`)) return;
 
     try {
-      const response = await fetch(`https://pickle-store-backend.onrender.com/api/images/delete/${filename}`, {
-        method: 'DELETE'
-      });
-
-      if (response.ok) {
-        alert('Image deleted successfully!');
-        fetchImages(); // Refresh the list
-      } else {
-        const error = await response.json();
-        alert(`Delete failed: ${error.error}`);
-      }
+      await api.delete(`/api/images/delete/${filename}`);
+      alert('Image deleted successfully!');
+      fetchImages(); // Refresh the list
     } catch (error) {
       alert('Delete failed: ' + error.message);
     }

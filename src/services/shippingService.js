@@ -1,15 +1,14 @@
 // Frontend service for shipping zones management
+import { api } from './api.js';
+
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com/api';
 
 class ShippingService {
   // Get all shipping zones
   static async getShippingZones() {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipping/zones`);
-      if (!response.ok) {
-        throw new Error('Failed to fetch shipping zones');
-      }
-      return await response.json();
+      const data = await api.get('/api/shipping/zones');
+      return data;
     } catch (error) {
       console.error('Error fetching shipping zones:', error);
       throw error;
@@ -19,11 +18,8 @@ class ShippingService {
   // Get specific shipping zone
   static async getShippingZone(zoneId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/shipping/zones/${zoneId}`);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch shipping zone: ${zoneId}`);
-      }
-      return await response.json();
+      const data = await api.get(`/api/shipping/zones/${zoneId}`);
+      return data;
     } catch (error) {
       console.error(`Error fetching shipping zone ${zoneId}:`, error);
       throw error;

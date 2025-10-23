@@ -1,13 +1,14 @@
 // Admin Service - Real-time backend API integration
+import { api } from './api.js';
+
 const API_BASE_URL = 'https://pickle-store-backend.onrender.com/api';
 
 class AdminService {
   // Products API
   static async getAllProducts() {
     try {
-      const response = await fetch(`${API_BASE_URL}/products`);
-      if (!response.ok) throw new Error('Failed to fetch products');
-      return await response.json();
+      const data = await api.get('/api/products');
+      return data;
     } catch (error) {
       console.error('Error fetching products:', error);
       throw error;
@@ -34,17 +35,7 @@ class AdminService {
         formData.append('image', productData.image);
       }
       
-      const response = await fetch(`${API_BASE_URL}/admin/products`, {
-        method: 'POST',
-        body: formData // Don't set Content-Type header - let browser set it with boundary
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create product');
-      }
-      
-      return await response.json();
+      return await api.postFormData('/api/admin/products', formData);
     } catch (error) {
       console.error('Error creating product:', error);
       throw error;
@@ -71,17 +62,7 @@ class AdminService {
         formData.append('image', productData.image);
       }
       
-      const response = await fetch(`${API_BASE_URL}/admin/products/${productId}`, {
-        method: 'PUT',
-        body: formData // Don't set Content-Type header - let browser set it with boundary
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update product');
-      }
-      
-      return await response.json();
+      return await api.putFormData(`/api/admin/products/${productId}`, formData);
     } catch (error) {
       console.error('Error updating product:', error);
       throw error;
@@ -90,11 +71,7 @@ class AdminService {
 
   static async deleteProduct(productId) {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/products/${productId}`, {
-        method: 'DELETE'
-      });
-      if (!response.ok) throw new Error('Failed to delete product');
-      return await response.json();
+      return await api.delete(`/api/admin/products/${productId}`);
     } catch (error) {
       console.error('Error deleting product:', error);
       throw error;
@@ -103,15 +80,7 @@ class AdminService {
 
   static async toggleCODStatus(productId, codAvailable) {
     try {
-      const response = await fetch(`${API_BASE_URL}/admin/products/${productId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ codAvailable })
-      });
-      if (!response.ok) throw new Error('Failed to toggle COD status');
-      return await response.json();
+      return await api.put(`/api/admin/products/${productId}`, { codAvailable });
     } catch (error) {
       console.error('Error toggling COD status:', error);
       throw error;
@@ -121,9 +90,7 @@ class AdminService {
   // Orders API
   static async getAllOrders() {
     try {
-      const response = await fetch(`${API_BASE_URL}/orders`);
-      if (!response.ok) throw new Error('Failed to fetch orders');
-      return await response.json();
+      return await api.get('/api/orders');
     } catch (error) {
       console.error('Error fetching orders:', error);
       throw error;
@@ -132,15 +99,7 @@ class AdminService {
 
   static async updateOrderStatus(orderId, status) {
     try {
-      const response = await fetch(`${API_BASE_URL}/orders/${orderId}/status`, {
-        method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ status })
-      });
-      if (!response.ok) throw new Error('Failed to update order status');
-      return await response.json();
+      return await api.patch(`/api/orders/${orderId}/status`, { status });
     } catch (error) {
       console.error('Error updating order status:', error);
       throw error;

@@ -4,6 +4,7 @@ import authService from '../services/authService';
 import ShippingService from '../services/shippingService';
 import Footer from './Footer';
 import { getDynamicCoupon, validateDynamicCoupon, getExampleCouponText } from '../utils/couponUtils';
+import { api } from '../services/api';
 
 const Checkout = ({ onBack, onOrderComplete }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -331,22 +332,11 @@ const Checkout = ({ onBack, onOrderComplete }) => {
 
       // Submit order to backend
       const token = authService.getToken();
-      const response = await fetch('https://pickle-store-backend.onrender.com/api/orders', {
-        method: 'POST',
+      const savedOrder = await api.post('/api/orders', orderData, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(orderData)
+        }
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        console.error('Order creation failed:', response.status, errorData);
-        throw new Error(errorData.message || `Server error: ${response.status}`);
-      }
-
-      const savedOrder = await response.json();
 
       // Save order to localStorage for reference
       const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');

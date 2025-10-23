@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Footer from './Footer';
 import CategoryService from '../services/categoryService';
+import { api } from '../services/api';
 
 const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart, onNavigateHome, categoryFilter = 'all' }) => {
   const [products, setProducts] = useState([]);
@@ -31,26 +32,19 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   const loadProducts = async () => {
     try {
       console.log('ProductsPage: Loading products from API');
-      const response = await fetch('https://pickle-store-backend.onrender.com/api/products');
-      if (response.ok) {
-        const data = await response.json();
-        console.log('ProductsPage: Loaded products from API:', data.length);
-        if (data && data.length > 0) {
-          console.log('ProductsPage: Sample product structure:', data[0]);
-          // Log all product categories for debugging
-          const productCategories = data.map(p => ({
-            name: p.name,
-            category: p.category,
-            productCategory: p.productCategory
-          }));
-          console.log('ProductsPage: All product categories:', productCategories);
-        }
-        setProducts(data);
-      } else {
-        console.error('ProductsPage: Failed to load products from API, retrying...');
-        // Retry the API call or show error message, don't use empty array
-        setProducts([]);
+      const data = await api.get('/api/products');
+      console.log('ProductsPage: Loaded products from API:', data.length);
+      if (data && data.length > 0) {
+        console.log('ProductsPage: Sample product structure:', data[0]);
+        // Log all product categories for debugging
+        const productCategories = data.map(p => ({
+          name: p.name,
+          category: p.category,
+          productCategory: p.productCategory
+        }));
+        console.log('ProductsPage: All product categories:', productCategories);
       }
+      setProducts(data || []);
     } catch (error) {
       console.error('ProductsPage: Error loading products from API:', error);
       // Show error message to user instead of empty array

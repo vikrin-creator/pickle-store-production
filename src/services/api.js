@@ -104,6 +104,62 @@ export const api = {
       console.error('API DELETE Error:', error);
       throw error;
     }
+  },
+
+  // POST request with FormData (for file uploads)
+  postFormData: async (endpoint, formData) => {
+    try {
+      const response = await fetchWithTimeout(endpoint, {
+        method: 'POST',
+        body: formData, // Don't set Content-Type for FormData - browser will set it with boundary
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('API FormData POST Error:', error);
+      throw error;
+    }
+  },
+
+  // PUT request with FormData (for file uploads)
+  putFormData: async (endpoint, formData) => {
+    try {
+      const response = await fetchWithTimeout(endpoint, {
+        method: 'PUT',
+        body: formData, // Don't set Content-Type for FormData - browser will set it with boundary
+      });
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('API FormData PUT Error:', error);
+      throw error;
+    }
+  },
+
+  // PATCH request
+  patch: async (endpoint, data) => {
+    try {
+      const response = await fetchWithTimeout(endpoint, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('API PATCH Error:', error);
+      throw error;
+    }
   }
 };
 

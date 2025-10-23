@@ -6,49 +6,9 @@ class CategoryService {
   static async getAllCategoriesForAdmin() {
     console.log('CategoryService: getAllCategoriesForAdmin called');
     try {
-      const response = await fetch(`${API_BASE_URL}/api/categories/admin`);
-      if (!response.ok) {
-        // Return categories that match what you see in Categories tab
-        return [
-          { 
-            _id: "1", 
-            title: "Pickles", 
-            category: "Pickles", 
-            emoji: "🥒", 
-            isActive: true,
-            image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009352/pickle-store/MangoTango.png",
-            description: "Traditional homemade pickles with authentic flavors"
-          },
-          { 
-            _id: "2", 
-            title: "Seafood", 
-            category: "Seafood", 
-            emoji: "🐟", 
-            isActive: true,
-            image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760796102/pickle-store/homepage-seafood.png",
-            description: "Fresh seafood products and preparations"
-          },
-          { 
-            _id: "3", 
-            title: "Podi", 
-            category: "Podi", 
-            emoji: "🌶️", 
-            isActive: true,
-            image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009354/pickle-store/Mirchi.png",
-            description: "Spicy powder blends and traditional podi varieties"
-          },
-          { 
-            _id: "4", 
-            title: "Spices", 
-            category: "Spices", 
-            emoji: "🌿", 
-            isActive: true,
-            image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009343/pickle-store/Garlic.png",
-            description: "Pure and aromatic spice blends"
-          }
-        ];
-      }
-      return await response.json();
+      const data = await api.get('/api/categories/admin');
+      console.log('CategoryService: Loaded categories from API:', data);
+      return data || [];
     } catch (error) {
       console.error("Error fetching categories:", error);
       // Return fallback categories with images
@@ -95,48 +55,8 @@ class CategoryService {
 
   static async getAllCategories() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/categories`);
-      if (!response.ok) {
-        return [
-          { 
-            _id: "1", 
-            title: "Pickles", 
-            category: "Pickles", 
-            emoji: "🥒", 
-            isActive: true,
-            image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009352/pickle-store/MangoTango.png",
-            description: "Traditional homemade pickles with authentic flavors"
-          },
-          { 
-            _id: "2", 
-            title: "Seafood", 
-            category: "Seafood", 
-            emoji: "🐟", 
-            isActive: true,
-            image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760796102/pickle-store/homepage-seafood.png",
-            description: "Fresh seafood products and preparations"
-          },
-          { 
-            _id: "3", 
-            title: "Podi", 
-            category: "Podi", 
-            emoji: "🌶️", 
-            isActive: true,
-            image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009354/pickle-store/Mirchi.png",
-            description: "Spicy powder blends and traditional podi varieties"
-          },
-          { 
-            _id: "4", 
-            title: "Spices", 
-            category: "Spices", 
-            emoji: "🌿", 
-            isActive: true,
-            image: "https://res.cloudinary.com/janiitra-pickles/image/upload/v1760009343/pickle-store/Garlic.png",
-            description: "Pure and aromatic spice blends"
-          }
-        ];
-      }
-      return await response.json();
+      const data = await api.get('/api/categories');
+      return data || [];
     } catch (error) {
       console.error("Error fetching categories:", error);
       return [
