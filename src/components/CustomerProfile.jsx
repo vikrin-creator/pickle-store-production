@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import authService from '../services/authService';
 import orderService from '../services/orderService';
 import userService from '../services/userService';
+import { api } from '../services/api';
 
 const CustomerProfile = ({ onNavigateHome, onClose }) => {
   const [user, setUser] = useState(null);
@@ -322,15 +323,9 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   const autoMigrateAddresses = async () => {
     try {
       console.log('Auto-migrating addresses from orders...');
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com'}/api/auth/migrate-addresses`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${authService.getToken()}`
-        }
+      const result = await api.post('/api/auth/migrate-addresses', {}, {
+        'Authorization': `Bearer ${authService.getToken()}`
       });
-
-      const result = await response.json();
       console.log('Migration result:', result);
       
       return result;

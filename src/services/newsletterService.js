@@ -1,6 +1,6 @@
 import { api } from './api.js';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com';
 
 class NewsletterService {
   // Subscribe to newsletter using backend API (with SendGrid)

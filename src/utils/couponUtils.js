@@ -1,4 +1,5 @@
 // Utility functions for parsing coupon information from offer banner text
+import OfferBannerService from '../services/offerBannerService.js';
 
 /**
  * Parses offer banner text to extract coupon information
@@ -93,7 +94,6 @@ const getMinAmountFromText = (bannerText) => {
  */
 export const getOfferBannerSettings = async () => {
   try {
-    const { OfferBannerService } = await import('../services/offerBannerService');
     return await OfferBannerService.getOfferBannerSettings();
   } catch (error) {
     console.error('Error loading offer banner settings:', error);

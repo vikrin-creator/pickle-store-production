@@ -1,6 +1,6 @@
 import { api } from './api.js';
 
-const API_BASE_URL = 'https://pickle-store-backend.onrender.com/api';
+const API_BASE_URL = 'https://pickle-store-backend.onrender.com';
 
 class ReviewService {
   // Get all approved reviews for a specific product

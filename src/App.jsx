@@ -13,6 +13,7 @@ import FAQ from './components/FAQ'
 import OfferBanner from './components/OfferBanner'
 import WhatsAppChat from './components/WhatsAppChat'
 import authService from './services/authService'
+import { api } from './services/api'
 import './App.css'
 
 function App() {
@@ -37,48 +38,11 @@ function App() {
   // Load FAQs from API
   const loadFaqs = async () => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/faqs`);
-      if (response.ok) {
-        const data = await response.json();
-        setFaqs(data);
-      } else {
-        // Fallback to sample data if API fails
-        setFaqs([
-          {
-            _id: '1',
-            question: 'What makes Janiitra pickles special?',
-            answer: 'Our pickles are made using traditional recipes passed down through generations, with authentic spices and natural ingredients. We use no artificial preservatives and follow time-tested methods to ensure the best taste and quality.',
-            category: 'General'
-          },
-          {
-            _id: '2',
-            question: 'How long do the pickles last?',
-            answer: 'Our pickles have a shelf life of 12-18 months when stored properly in a cool, dry place. Once opened, they should be consumed within 2-3 months and kept refrigerated.',
-            category: 'Products'
-          },
-          {
-            _id: '3',
-            question: 'Do you offer free shipping?',
-            answer: 'Yes! We offer free shipping on orders above ₹500. For orders below ₹500, a nominal shipping charge of ₹50 applies.',
-            category: 'Shipping'
-          },
-          {
-            _id: '4',
-            question: 'Can I return or exchange products?',
-            answer: 'We accept returns within 7 days of delivery if the product is damaged or not as described. Due to the nature of food products, we do not accept returns for change of mind.',
-            category: 'Returns'
-          },
-          {
-            _id: '5',
-            question: 'What payment methods do you accept?',
-            answer: 'We accept all major credit/debit cards, UPI payments, net banking, and cash on delivery (COD) for most locations.',
-            category: 'Payment'
-          }
-        ]);
-      }
+      const data = await api.get('/api/faqs');
+      setFaqs(data);
     } catch (error) {
       console.error('Error loading FAQs:', error);
-      // Fallback to sample data
+      // Fallback to sample data if API fails
       setFaqs([
         {
           _id: '1',
@@ -97,6 +61,18 @@ function App() {
           question: 'Do you offer free shipping?',
           answer: 'Yes! We offer free shipping on orders above ₹500. For orders below ₹500, a nominal shipping charge of ₹50 applies.',
           category: 'Shipping'
+        },
+        {
+          _id: '4',
+          question: 'Can I return or exchange products?',
+          answer: 'We accept returns within 7 days of delivery if the product is damaged or not as described. Due to the nature of food products, we do not accept returns for change of mind.',
+          category: 'Returns'
+        },
+        {
+          _id: '5',
+          question: 'What payment methods do you accept?',
+          answer: 'We accept all major credit/debit cards, UPI payments, net banking, and cash on delivery (COD) for most locations.',
+          category: 'Payment'
         }
       ]);
     }

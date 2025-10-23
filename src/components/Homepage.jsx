@@ -871,7 +871,6 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
       {/* Customer Profile Modal */}
       {showProfile && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50">
-          {console.log('Rendering CustomerProfile component')}
           <CustomerProfile 
             onClose={handleProfileClose}
             onNavigateHome={() => {
@@ -882,8 +881,6 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </div>
       )}
       
-      {/* Debug info */}
-      {console.log('Homepage render - showProfile:', showProfile, 'isAuthenticated:', isAuthenticated)}
     </div>
   );
 };

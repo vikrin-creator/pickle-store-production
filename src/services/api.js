@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'https://pickle-store-backend.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com';
 
 // Request timeout in milliseconds (45 seconds to handle cold starts)
 const REQUEST_TIMEOUT = 45000;
@@ -210,6 +210,42 @@ export const api = {
       return await response.json();
     } catch (error) {
       console.error('API PATCH Error:', error);
+      throw error;
+    }
+  },
+
+  // File upload (FormData)
+  upload: async (endpoint, formData, customHeaders = {}) => {
+    try {
+      const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`, {
+        method: 'POST',
+        headers: {
+          // Don't set Content-Type for FormData - browser will set it with boundary
+          ...customHeaders,
+        },
+        body: formData,
+      });
+      
+      // Handle specific HTTP status codes
+      if (response.status === 429) {
+        throw new Error('Server is busy (rate limited). Please try again in a few minutes.');
+      }
+      
+      if (response.status === 401) {
+        throw new Error('Authentication failed. Please log in again.');
+      }
+      
+      if (response.status === 500) {
+        throw new Error('Server error. Please try again later.');
+      }
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API Upload Error:', error);
       throw error;
     }
   }

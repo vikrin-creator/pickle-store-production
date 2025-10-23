@@ -1,7 +1,7 @@
-// Frontend service for shipping zones management
+// Frontend service for shipping management
 import { api } from './api.js';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com/api';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com';
 
 class ShippingService {
   // Get all shipping zones

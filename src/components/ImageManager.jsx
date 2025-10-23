@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { api } from '../services/api';
-import API_BASE_URL from '../services/api';
 
 const ImageManager = () => {
   const [images, setImages] = useState([]);
@@ -35,22 +34,11 @@ const ImageManager = () => {
     formData.append('image', selectedFile);
 
     try {
-      // For file uploads, we need to use fetch directly but with our base URL
-      const response = await fetch(`${API_BASE_URL}/api/images/upload`, {
-        method: 'POST',
-        body: formData,
-        // Don't set Content-Type header for FormData - browser will set it with boundary
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        alert('Image uploaded successfully!');
-        setSelectedFile(null);
-        fetchImages(); // Refresh the list
-      } else {
-        const error = await response.json();
-        alert(`Upload failed: ${error.error}`);
-      }
+      // Use API service upload method for file uploads
+      const result = await api.upload('/api/images/upload', formData);
+      alert('Image uploaded successfully!');
+      setSelectedFile(null);
+      fetchImages(); // Refresh the list
     } catch (error) {
       alert('Upload failed: ' + error.message);
     } finally {
