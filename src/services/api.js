@@ -21,6 +21,12 @@ const fetchWithTimeout = async (url, options = {}) => {
     if (error.name === 'AbortError') {
       throw new Error('Request timeout - server may be slow, please try again');
     }
+    
+    // Handle CORS and network errors that indicate backend is down/rate limited
+    if (error.message.includes('CORS') || error.message === 'Failed to fetch') {
+      throw new Error('Backend service unavailable - please try again later');
+    }
+    
     throw error;
   }
 };
@@ -40,12 +46,25 @@ export const api = {
   get: async (endpoint) => {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}${endpoint}`);
+      
+      // Handle specific HTTP status codes
+      if (response.status === 429) {
+        throw new Error('Backend service is busy (rate limited). Please try again in 15-30 minutes.');
+      }
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
       return await response.json();
     } catch (error) {
       console.error('API GET Error:', error);
+      
+      // For backend unavailable errors, throw a more user-friendly message
+      if (error.message.includes('Backend service unavailable')) {
+        throw new Error('Backend service is temporarily unavailable. Please try again later.');
+      }
+      
       throw error;
     }
   },
@@ -66,9 +85,24 @@ export const api = {
         },
         body: JSON.stringify(data),
       });
+      
+      // Handle specific HTTP status codes
+      if (response.status === 429) {
+        throw new Error('Server is busy (rate limited). Please try again in a few minutes.');
+      }
+      
+      if (response.status === 401) {
+        throw new Error('Authentication failed. Please log in again.');
+      }
+      
+      if (response.status === 500) {
+        throw new Error('Server error. Please try again later.');
+      }
+      
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
+      
       return await response.json();
     } catch (error) {
       console.error('API POST Error:', error);
