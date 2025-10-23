@@ -860,15 +860,13 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist }) => {
 
       {/* Customer Profile Modal */}
       {showProfile && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-50">
-          <CustomerProfile 
-            onClose={handleProfileClose}
-            onNavigateHome={() => {
-              setShowProfile(false);
-              // Could add any additional navigation logic here
-            }}
-          />
-        </div>
+        <CustomerProfile 
+          onClose={handleProfileClose}
+          onNavigateHome={() => {
+            setShowProfile(false);
+            // Could add any additional navigation logic here
+          }}
+        />
       )}
       
     </div>

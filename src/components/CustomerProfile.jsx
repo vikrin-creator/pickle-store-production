@@ -405,14 +405,26 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
-      <div className="bg-white rounded-lg w-full max-w-4xl max-h-full sm:h-5/6 mx-auto flex flex-col overflow-hidden relative z-[9999]">
+    <div className="fixed inset-0 bg-white z-[9999]">
+      <div className="bg-white w-full h-full flex flex-col overflow-hidden relative z-[9999]">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">My Profile</h2>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 transition-colors duration-200 p-1"
+              title="Back to Homepage"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-800">My Profile</h2>
+          </div>
           <button 
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-xl sm:text-2xl font-bold"
+            className="text-gray-500 hover:text-gray-700 text-xl sm:text-2xl font-bold transition-colors duration-200"
+            title="Close Profile"
           >
             ×
           </button>
@@ -453,8 +465,8 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
 
         <div className="flex flex-1 overflow-hidden">
           {/* Desktop Sidebar - Hidden on mobile */}
-          <div className="hidden sm:block w-1/4 bg-gray-50 p-4 border-r">
-            <div className="space-y-2">
+          <div className="hidden sm:block w-64 lg:w-80 bg-gray-50 p-6 border-r">
+            <div className="space-y-3">
               {[
                 { id: 'profile', label: 'Profile Info', icon: '👤' },
                 { id: 'orders', label: 'My Orders', icon: '📦' },
@@ -490,7 +502,7 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto">
-            <div className="p-3 sm:p-6 min-h-full">
+            <div className="p-4 sm:p-8 lg:p-12 min-h-full max-w-6xl mx-auto">
             {/* Profile Tab */}
             {activeTab === 'profile' && (
               <div className="space-y-4">
