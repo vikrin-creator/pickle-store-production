@@ -140,7 +140,7 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
                 <img 
                   src="/assets/logo.png" 
                   alt="Janiitra Pickles" 
-                  className="w-12 h-12 sm:w-14 sm:h-14"
+                  className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
                   onError={(e) => {
                     // Fallback to a spice/pickle icon if logo fails
                     e.target.style.display = 'none';
@@ -148,7 +148,7 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
                   }}
                 />
                 <svg 
-                  className="h-12 w-12 sm:h-14 sm:w-14 text-orange-500 hidden" 
+                  className="h-14 w-14 sm:h-16 sm:w-16 text-orange-500 hidden" 
                   fill="none" 
                   viewBox="0 0 48 48" 
                   xmlns="http://www.w3.org/2000/svg"
