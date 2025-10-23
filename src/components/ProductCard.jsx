@@ -1,25 +1,29 @@
+import CompatibleImage from './CompatibleImage';
+
 // ProductCard Component
 const ProductCard = ({ product }) => {
+  const getImageSrc = () => {
+    if (!product.image) return "https://via.placeholder.com/300x200";
+    
+    if (product.image.startsWith('https://res.cloudinary.com/')) {
+      return product.image;
+    }
+    
+    if (product.image.startsWith('/api/')) {
+      return `https://pickle-store-backend.onrender.com${product.image}`;
+    }
+    
+    return product.image;
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition duration-300">
       <div className="relative">
-        <img
-          src={product.image ? 
-            (product.image.startsWith('https://res.cloudinary.com/') ? 
-              product.image : 
-              (product.image.startsWith('/api/') ? 
-                `https://pickle-store-backend.onrender.com${product.image}` : 
-                product.image
-              )
-            ) : 
-            "https://via.placeholder.com/300x200"
-          }
+        <CompatibleImage
+          src={getImageSrc()}
           alt={product.name}
           className="w-full h-48 object-cover"
-          onError={(e) => {
-            console.log('ProductCard: Image failed to load:', product.image);
-            e.target.src = "https://via.placeholder.com/300x200";
-          }}
+          fallbackSrc="https://via.placeholder.com/300x200"
         />
         <button className="absolute top-2 right-2 p-2 bg-white rounded-full shadow-md hover:bg-gray-50">
           <svg className="h-5 w-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

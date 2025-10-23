@@ -132,7 +132,7 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
         }}></div>
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-orange-50/50 via-orange-50 to-orange-50 rounded-xl"></div>
         
-        <div className="relative z-20 flex flex-col bg-white/90 rounded-xl shadow-2xl backdrop-blur-sm min-h-[500px] max-h-[90vh] overflow-y-auto">
+        <div className="relative z-20 flex flex-col bg-white bg-opacity-90 rounded-xl shadow-2xl backdrop-blur-fallback min-h-[500px] max-h-[90vh] overflow-y-auto">
           {/* Header with Logo */}
           <header className="px-6 py-4 flex-shrink-0">
             <div className="flex items-center justify-between text-amber-900">

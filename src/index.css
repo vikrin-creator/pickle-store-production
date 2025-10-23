@@ -1,3 +1,4 @@
+@import './browser-compat.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -124,16 +125,52 @@ h1, h2, h3 {
 }
 
 h1 {
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-size: 4rem;
   font-weight: 700;
 }
 
+@media (max-width: 768px) {
+  h1 {
+    font-size: 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h1 {
+    font-size: 2.5rem;
+  }
+}
+
 h2 {
-  font-size: clamp(2rem, 4vw, 3rem);
+  font-size: 3rem;
+}
+
+@media (max-width: 768px) {
+  h2 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h2 {
+    font-size: 2rem;
+  }
 }
 
 h3 {
-  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-size: 2rem;
+}
+
+@media (max-width: 768px) {
+  h3 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  h3 {
+    font-size: 1.5rem;
+  }
 }
 
 /* Enhanced Body Text */

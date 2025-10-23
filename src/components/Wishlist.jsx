@@ -50,7 +50,7 @@ const Wishlist = ({ onBack, onNavigateToCart, onAddToCart }) => {
   return (
     <div className="min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
       {/* Header */}
-      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700]/90 px-4 sm:px-10 py-4 backdrop-blur-sm">
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}

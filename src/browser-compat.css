@@ -1,0 +1,196 @@
+/* Browser Compatibility Utilities */
+
+/* Backdrop blur fallback for older browsers */
+.backdrop-blur-fallback {
+  background-color: rgba(45, 103, 0, 0.9);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Fallback for browsers that don't support backdrop-filter */
+@supports not (backdrop-filter: blur(8px)) {
+  .backdrop-blur-fallback {
+    background-color: rgba(45, 103, 0, 0.95);
+  }
+}
+
+/* Grid fallback for older browsers */
+.grid-fallback {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Fallback for browsers that don't support CSS Grid */
+@supports not (display: grid) {
+  .grid-fallback {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .grid-fallback > * {
+    flex: 1 1 250px;
+    margin: 0.75rem;
+  }
+}
+
+/* Aspect ratio fallback */
+.aspect-ratio-fallback {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 100%; /* 1:1 aspect ratio */
+}
+
+.aspect-ratio-fallback > * {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Object-fit fallback */
+@supports not (object-fit: cover) {
+  .object-fit-fallback {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+  }
+}
+
+/* Flex gap fallback */
+.flex-gap-fallback {
+  display: flex;
+  gap: 1rem;
+}
+
+@supports not (gap: 1rem) {
+  .flex-gap-fallback {
+    margin: -0.5rem;
+  }
+  
+  .flex-gap-fallback > * {
+    margin: 0.5rem;
+  }
+}
+
+/* Transform fallback for older browsers */
+.transform-fallback {
+  transform: translateX(-50%);
+  -webkit-transform: translateX(-50%);
+  -moz-transform: translateX(-50%);
+  -ms-transform: translateX(-50%);
+}
+
+/* Gradient fallback */
+.gradient-fallback {
+  background: linear-gradient(to right, #16a34a, #059669);
+  background: -webkit-linear-gradient(to right, #16a34a, #059669);
+  background: -moz-linear-gradient(to right, #16a34a, #059669);
+  background: -ms-linear-gradient(to right, #16a34a, #059669);
+}
+
+/* Sticky position fallback */
+.sticky-fallback {
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+}
+
+/* For browsers that don't support sticky */
+@supports not (position: sticky) {
+  .sticky-fallback {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+  }
+}
+
+/* Image loading fallback */
+.image-fallback {
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+
+.image-fallback::before {
+  content: "🖼️ Image";
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Animation fallback - disable animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* IE-specific fixes */
+@media screen and (-ms-high-contrast: active), (-ms-high-contrast: none) {
+  .ie-fix {
+    /* Flexbox fixes for IE */
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+  }
+}
+
+/* Image loading and error fallbacks */
+.image-fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  min-height: 100px;
+  width: 100%;
+}
+
+.image-fallback span {
+  padding: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Image loading performance improvements */
+img {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+  /* Fallback for older browsers */
+  -ms-interpolation-mode: bicubic;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Cross-browser image format support */
+@supports (image-rendering: crisp-edges) {
+  img.crisp {
+    image-rendering: crisp-edges;
+  }
+}
+
+/* For older Safari versions */
+@supports (-webkit-appearance: none) {
+  img {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+  }
+}

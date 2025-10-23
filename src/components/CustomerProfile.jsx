@@ -35,7 +35,6 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   
   // Settings form state
   const [settingsForm, setSettingsForm] = useState({
-    currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
@@ -198,14 +197,12 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
     try {
       console.log('Changing password');
       const result = await userService.changePassword({
-        currentPassword: settingsForm.currentPassword,
         newPassword: settingsForm.newPassword
       });
       
       if (result.success) {
         alert('Password changed successfully!');
         setSettingsForm({
-          currentPassword: '',
           newPassword: '',
           confirmPassword: ''
         });
@@ -841,18 +838,6 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                 <div className="bg-gray-50 p-6 rounded-lg">
                   <h4 className="text-lg font-medium mb-4">Change Password</h4>
                   <form onSubmit={handlePasswordChange} className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
-                        Current Password
-                      </label>
-                      <input
-                        type="password"
-                        value={settingsForm.currentPassword}
-                        onChange={(e) => setSettingsForm({...settingsForm, currentPassword: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-                        required
-                      />
-                    </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         New Password
