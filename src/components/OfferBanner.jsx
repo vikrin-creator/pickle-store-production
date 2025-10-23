@@ -33,7 +33,24 @@ const OfferBanner = () => {
       }
     };
 
+    // Load initial settings
     loadSettings();
+
+    // Listen for updates from admin panel
+    const handleOfferUpdate = (event) => {
+      console.log('OfferBanner received update:', event.detail);
+      if (event.detail && typeof event.detail === 'object') {
+        setSettings(event.detail);
+        // If banner was closed, make it visible again for new offer
+        setIsVisible(true);
+      }
+    };
+
+    window.addEventListener('offerBannerUpdate', handleOfferUpdate);
+
+    return () => {
+      window.removeEventListener('offerBannerUpdate', handleOfferUpdate);
+    };
   }, []);
 
   if (loading) {
