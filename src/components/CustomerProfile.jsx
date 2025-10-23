@@ -405,8 +405,8 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg w-full max-w-4xl max-h-full sm:h-5/6 mx-auto flex flex-col overflow-hidden">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999] p-4">
+      <div className="bg-white rounded-lg w-full max-w-4xl max-h-full sm:h-5/6 mx-auto flex flex-col overflow-hidden relative z-[9999]">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b flex-shrink-0">
           <h2 className="text-xl sm:text-2xl font-bold text-gray-800">My Profile</h2>
@@ -419,7 +419,7 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
         </div>
 
         {/* Mobile Tab Navigation - Always visible on screens smaller than 640px */}
-        <div className="sm:hidden border-b bg-gray-50 flex-shrink-0">
+        <div className="sm:hidden border-b bg-gray-50 flex-shrink-0 relative z-[9999]">
           <div className="flex overflow-x-auto">
             {[
               { id: 'profile', label: 'Profile', icon: '👤' },
