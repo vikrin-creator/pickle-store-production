@@ -382,3 +382,36 @@ button {
 .animate-marquee-slow:hover {
   animation-play-state: paused;
 }
+
+/* Fixed Header Styles - Ensure headers stay fixed on all devices */
+header[class*="fixed"] {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 9999 !important;
+  transform: none !important;
+}
+
+/* Ensure backdrop filter fallback */
+.backdrop-blur-fallback {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* iOS Safari specific fixes for fixed headers */
+@supports (-webkit-touch-callout: none) {
+  header[class*="fixed"] {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 0 !important;
+    z-index: 9999 !important;
+  }
+  
+  /* For iOS 13+ which supports position: fixed properly */
+  @media screen and (-webkit-min-device-pixel-ratio: 2) {
+    header[class*="fixed"] {
+      position: fixed !important;
+    }
+  }
+}
