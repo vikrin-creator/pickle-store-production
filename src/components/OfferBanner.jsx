@@ -79,23 +79,32 @@ const OfferBanner = () => {
 
   return (
     <div 
-      className={`${settings.useCustomColors ? '' : `bg-gradient-to-r ${settings.backgroundColor || 'from-green-500 to-green-600'}`} ${settings.textColor || 'text-white'} py-3 px-4`}
+      className={`${settings.useCustomColors ? '' : `bg-gradient-to-r ${settings.backgroundColor || 'from-green-500 to-green-600'}`} ${settings.textColor || 'text-white'} py-3 px-4 overflow-hidden relative`}
       style={settings.useCustomColors ? {
         background: `linear-gradient(to right, ${settings.customStartColor || '#10b981'}, ${settings.customEndColor || '#059669'})`
       } : {}}
     >
-      <div className="container mx-auto flex items-center justify-between">
-        {/* Dynamic offer text */}
-        <div className="flex-1">
-          <span className="text-sm md:text-base font-medium">
-            {settings.text || 'Welcome to our store!'}
-          </span>
+      <div className="container mx-auto flex items-center">
+        {/* Dynamic offer text with marquee animation */}
+        <div className="flex-1 overflow-hidden relative">
+          <div className="animate-marquee whitespace-nowrap inline-block">
+            <span className="text-sm md:text-base font-medium">
+              {settings.text || 'Welcome to our store!'} 
+              &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp; 
+              {settings.text || 'Welcome to our store!'} 
+              &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp;
+              {settings.text || 'Welcome to our store!'} 
+              &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp;
+              {settings.text || 'Welcome to our store!'} 
+              &nbsp;&nbsp;&nbsp;&nbsp;•&nbsp;&nbsp;&nbsp;&nbsp;
+            </span>
+          </div>
         </div>
 
         {/* Close button with dynamic colors */}
         <button
           onClick={() => setIsVisible(false)}
-          className={`ml-4 ${settings.textColor || 'text-white'} hover:opacity-70 font-bold text-lg`}
+          className={`ml-4 ${settings.textColor || 'text-white'} hover:opacity-70 font-bold text-lg z-10 flex-shrink-0 transition-opacity duration-200`}
           aria-label="Close offer banner"
         >
           ×
