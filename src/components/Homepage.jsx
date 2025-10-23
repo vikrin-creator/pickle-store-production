@@ -237,13 +237,13 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#f8f7f6] text-[#221c10] font-body overflow-x-hidden">
       {/* Header */}
-      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-3 sm:px-6 md:px-10 py-3 md:py-4 backdrop-blur-fallback">
+      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
         {/* Logo */}
         <div className="flex items-center animate-fade-in">
           <img 
             src="/assets/logo.png" 
             alt="Janiitra - Authentic Indian Pickles Logo" 
-            className="h-5 w-28 sm:h-6 sm:w-36 md:h-8 md:w-48 object-contain hover:scale-105 transition-transform duration-300 cursor-pointer"
+            className="h-6 w-36 sm:h-8 sm:w-48 object-contain hover:scale-105 transition-transform duration-300 cursor-pointer"
             onClick={() => window.navigateToHome && window.navigateToHome()}
           />
         </div>
@@ -279,7 +279,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </nav>
 
         {/* Mobile Actions - Cart, Wishlist, Profile, Menu */}
-        <div className="lg:hidden flex items-center gap-3">
+        <div className="lg:hidden flex items-center gap-3 ml-auto relative">
           {/* Wishlist Button */}
           <button 
             onClick={() => window.navigateToWishlist && window.navigateToWishlist()}
@@ -335,6 +335,64 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showMobileMenu ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
             </svg>
           </button>
+
+          {/* Mobile Menu Dropdown */}
+          {showMobileMenu && (
+            <div 
+              className="absolute top-full right-0 z-40 bg-white border border-gray-200 shadow-lg rounded-lg mt-2 w-48"
+              data-mobile-menu
+            >
+              <nav className="py-2">
+                <button 
+                  onClick={() => {
+                    window.navigateToProducts && window.navigateToProducts();
+                    setShowMobileMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+                >
+                  Shop
+                </button>
+                <button 
+                  onClick={() => {
+                    window.navigateToStories && window.navigateToStories();
+                    setShowMobileMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+                >
+                  Stories
+                </button>
+                <a 
+                  href="#about" 
+                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+                  onClick={() => setShowMobileMenu(false)}
+                >
+                  About
+                </a>
+                <button 
+                  onClick={() => {
+                    window.navigateToContact && window.navigateToContact();
+                    setShowMobileMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+                >
+                  Contact
+                </button>
+                
+                {/* Authentication Options in Menu */}
+                {isAuthenticated && (
+                  <button 
+                    onClick={() => {
+                      handleLogout();
+                      setShowMobileMenu(false);
+                    }}
+                    className="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200"
+                  >
+                    🚪 Logout
+                  </button>
+                )}
+              </nav>
+            </div>
+          )}
         </div>
 
         {/* Mobile Menu Button - Only visible on mobile */}
