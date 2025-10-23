@@ -543,6 +543,7 @@ function App() {
           <Homepage 
             cartCount={cartCount} 
             onNavigateToCart={handleNavigateToCart}
+            onNavigateToWishlist={navigateToWishlist}
             isAuthenticated={isCustomerAuthenticated}
             user={currentUser}
             onLogout={handleCustomerLogout}

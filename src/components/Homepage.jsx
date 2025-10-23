@@ -9,7 +9,7 @@ import CustomerProfile from './CustomerProfile';
 import Footer from './Footer';
 import CompatibleImage from './CompatibleImage';
 
-const Homepage = ({ cartCount, onNavigateToCart }) => {
+const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist }) => {
   // Hero carousel images
   const heroImages = [
     '/assets/PickleBackgroundjars.png',
