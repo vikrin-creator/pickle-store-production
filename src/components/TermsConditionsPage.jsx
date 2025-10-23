@@ -1,4 +1,26 @@
+import Footer from './Footer';
+import { useEffect } from 'react';
+
 const TermsConditionsPage = ({ onNavigateHome, onNavigateToProducts }) => {
+  useEffect(() => {
+    // Define navigation functions
+    window.navigateToHome = () => {
+      window.location.href = '/';
+    };
+    
+    window.navigateToProducts = () => {
+      window.location.href = '/#products';
+    };
+    
+    window.navigateToStories = () => {
+      window.location.href = '/stories';
+    };
+    
+    window.navigateToContact = () => {
+      window.location.href = '/contact';
+    };
+  }, []);
+
   return (
     <div className="min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
       {/* Header */}
@@ -9,30 +31,45 @@ const TermsConditionsPage = ({ onNavigateHome, onNavigateToProducts }) => {
             src="/assets/logo.png"
             alt="Janiitra Logo"
             className="h-6 w-36 sm:h-8 sm:w-48 object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
-            onClick={onNavigateHome}
+            onClick={() => window.navigateToHome && window.navigateToHome()}
           />
         </div>
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           <button 
-            onClick={onNavigateHome}
+            onClick={() => window.navigateToHome && window.navigateToHome()}
             className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
           >
             Home
           </button>
           <button 
-            onClick={onNavigateToProducts}
+            onClick={() => window.navigateToProducts && window.navigateToProducts()}
             className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
           >
             Shop
+          </button>
+          <button 
+            onClick={() => window.navigateToStories && window.navigateToStories()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Stories
+          </button>
+          <a href="#about" className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]">
+            About
+          </a>
+          <button 
+            onClick={() => window.navigateToContact && window.navigateToContact()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Contact
           </button>
           <span className="text-base font-medium text-[#ecab13]">Terms & Conditions</span>
         </nav>
 
         {/* Back Button */}
         <button
-          onClick={onNavigateHome}
+          onClick={() => window.navigateToHome && window.navigateToHome()}
           className="flex items-center gap-2 text-white hover:text-[#ecab13] transition-colors duration-200"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -281,19 +318,22 @@ const TermsConditionsPage = ({ onNavigateHome, onNavigateToProducts }) => {
         {/* Action Buttons */}
         <div className="text-center mt-12 space-y-4">
           <button
-            onClick={onNavigateHome}
+            onClick={() => window.navigateToHome && window.navigateToHome()}
             className="bg-[#ecab13] text-[#221c10] px-8 py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity duration-200 mr-4"
           >
             Back to Home
           </button>
           <button
-            onClick={onNavigateToProducts}
+            onClick={() => window.navigateToProducts && window.navigateToProducts()}
             className="border-2 border-[#ecab13] text-[#ecab13] px-8 py-3 rounded-lg font-semibold hover:bg-[#ecab13] hover:text-[#221c10] transition-all duration-200"
           >
             Start Shopping
           </button>
         </div>
       </div>
+      
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

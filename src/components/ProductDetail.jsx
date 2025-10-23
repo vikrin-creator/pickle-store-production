@@ -59,6 +59,25 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
     loadProductReviews();
   }, [product]);
 
+  // Define navigation functions
+  useEffect(() => {
+    window.navigateToHome = () => {
+      window.location.href = '/';
+    };
+    
+    window.navigateToProducts = () => {
+      window.location.href = '/#products';
+    };
+    
+    window.navigateToStories = () => {
+      window.location.href = '/stories';
+    };
+    
+    window.navigateToContact = () => {
+      window.location.href = '/contact';
+    };
+  }, []);
+
   // Add error handling for missing product
   if (!product) {
     return (
@@ -191,12 +210,31 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
           >
             Shop
           </button>
-          <a href="#" className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]">
+          <button 
+            onClick={() => window.navigateToStories && window.navigateToStories()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Stories
+          </button>
+          <button 
+            onClick={() => {
+              const aboutSection = document.getElementById('about');
+              if (aboutSection) {
+                aboutSection.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                window.navigateToHome && window.navigateToHome();
+              }
+            }}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
             About
-          </a>
-          <a href="#" className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]">
+          </button>
+          <button 
+            onClick={() => window.navigateToContact && window.navigateToContact()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
             Contact
-          </a>
+          </button>
         </nav>
 
         {/* Header Actions */}

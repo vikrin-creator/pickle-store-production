@@ -1,7 +1,27 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Footer from './Footer';
 
 const StoriesPage = ({ onBack }) => {
   const [selectedStory, setSelectedStory] = useState(null);
+
+  useEffect(() => {
+    // Define navigation functions
+    window.navigateToHome = () => {
+      window.location.href = '/';
+    };
+    
+    window.navigateToProducts = () => {
+      window.location.href = '/#products';
+    };
+    
+    window.navigateToStories = () => {
+      window.location.href = '/stories';
+    };
+    
+    window.navigateToContact = () => {
+      window.location.href = '/contact';
+    };
+  }, []);
 
   const stories = [
     {
@@ -132,25 +152,63 @@ const StoriesPage = ({ onBack }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f8f7f6] to-[#f1f0ef]">
       {/* Header */}
-      <header className="bg-gradient-to-r from-[#2d6700] to-[#3d8b00] text-white py-6 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex items-center justify-between">
-            <button
-              onClick={onBack}
-              className="flex items-center gap-2 text-white hover:text-[#ecab13] transition-colors duration-200"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Back to Home
-            </button>
-            <div className="text-center">
-              <h1 className="text-3xl md:text-4xl font-bold">Our Stories</h1>
-              <p className="text-lg text-green-100 mt-2">Tales of Tradition, Taste & Heritage</p>
-            </div>
-            <div className="w-24"></div> {/* Spacer for alignment */}
-          </div>
+      <header className="sticky top-0 z-10 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
+        {/* Logo */}
+        <div className="flex items-center">
+          <img 
+            src="/assets/logo.png"
+            alt="Janiitra Logo"
+            className="h-6 w-36 sm:h-8 sm:w-48 object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
+            onClick={() => window.navigateToHome && window.navigateToHome()}
+          />
         </div>
+
+        {/* Navigation */}
+        <nav className="hidden md:flex items-center gap-8">
+          <button 
+            onClick={() => window.navigateToHome && window.navigateToHome()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Home
+          </button>
+          <button 
+            onClick={() => window.navigateToProducts && window.navigateToProducts()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Shop
+          </button>
+          <span className="text-base font-medium text-[#ecab13]">Stories</span>
+          <button 
+            onClick={() => {
+              const aboutSection = document.getElementById('about');
+              if (aboutSection) {
+                aboutSection.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                window.navigateToHome && window.navigateToHome();
+              }
+            }}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            About
+          </button>
+          <button 
+            onClick={() => window.navigateToContact && window.navigateToContact()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Contact
+          </button>
+        </nav>
+
+        {/* Back Button */}
+        <button
+          onClick={() => window.navigateToHome && window.navigateToHome()}
+          className="flex items-center gap-2 text-white hover:text-[#ecab13] transition-colors duration-200"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Home
+        </button>
       </header>
 
       {/* Hero Section */}
@@ -294,12 +352,7 @@ const StoriesPage = ({ onBack }) => {
       </section>
 
       {/* Footer */}
-      <footer className="bg-[#f8f7f6] py-8 px-4 border-t border-gray-200">
-        <div className="max-w-6xl mx-auto text-center text-gray-600">
-          <p>&copy; 2025 Janiitra Pickles. All rights reserved.</p>
-          <p className="mt-2">Preserving traditions, one jar at a time.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

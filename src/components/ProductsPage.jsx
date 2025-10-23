@@ -29,6 +29,25 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
     }));
   }, [categoryFilter]);
 
+  // Define navigation functions
+  useEffect(() => {
+    window.navigateToHome = () => {
+      window.location.href = '/';
+    };
+    
+    window.navigateToProducts = () => {
+      window.location.href = '/#products';
+    };
+    
+    window.navigateToStories = () => {
+      window.location.href = '/stories';
+    };
+    
+    window.navigateToContact = () => {
+      window.location.href = '/contact';
+    };
+  }, []);
+
   const loadProducts = async () => {
     try {
       console.log('ProductsPage: Loading products from API');
@@ -221,20 +240,42 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
         {/* Navigation - Hidden on mobile, shown on larger screens */}
         <nav className="hidden md:flex items-center gap-8">
           <button 
-            onClick={() => onNavigateHome && onNavigateHome()}
+            onClick={() => window.navigateToHome && window.navigateToHome()}
             className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
           >
             Home
           </button>
-          <button className="text-base font-medium text-[#ecab13]">
+          <button 
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            className="text-base font-medium text-[#ecab13] hover:text-white transition-colors duration-200"
+          >
             Shop
           </button>
-          <a href="#" className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]">
+          <button 
+            onClick={() => window.navigateToStories && window.navigateToStories()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Stories
+          </button>
+          <button 
+            onClick={() => {
+              const aboutSection = document.getElementById('about');
+              if (aboutSection) {
+                aboutSection.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                window.navigateToHome && window.navigateToHome();
+              }
+            }}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
             About
-          </a>
-          <a href="#" className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]">
+          </button>
+          <button 
+            onClick={() => window.navigateToContact && window.navigateToContact()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
             Contact
-          </a>
+          </button>
         </nav>
 
         {/* Header Actions */}

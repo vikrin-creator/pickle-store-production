@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { api } from '../services/api';
+import Footer from './Footer';
 
 const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
   const [formData, setFormData] = useState({
@@ -57,30 +58,49 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
             src="/assets/logo.png"
             alt="Janiitra Logo"
             className="h-6 w-36 sm:h-8 sm:w-48 object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
-            onClick={onNavigateHome}
+            onClick={() => window.navigateToHome && window.navigateToHome()}
           />
         </div>
 
         {/* Navigation */}
         <nav className="hidden md:flex items-center gap-8">
           <button 
-            onClick={onNavigateHome}
+            onClick={() => window.navigateToHome && window.navigateToHome()}
             className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
           >
             Home
           </button>
           <button 
-            onClick={onNavigateToProducts}
+            onClick={() => window.navigateToProducts && window.navigateToProducts()}
             className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
           >
             Shop
           </button>
-          <span className="text-base font-medium text-[#ecab13]">Contact</span>
+          <button 
+            onClick={() => window.navigateToStories && window.navigateToStories()}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            Stories
+          </button>
+          <button 
+            onClick={() => {
+              const aboutSection = document.getElementById('about');
+              if (aboutSection) {
+                aboutSection.scrollIntoView({ behavior: 'smooth' });
+              } else {
+                window.navigateToHome && window.navigateToHome();
+              }
+            }}
+            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+          >
+            About
+          </button>
+          <span className="text-base font-medium text-[#ecab13] border-b-2 border-[#ecab13]">Contact</span>
         </nav>
 
         {/* Back Button */}
         <button
-          onClick={onNavigateHome}
+          onClick={() => window.navigateToHome && window.navigateToHome()}
           className="flex items-center gap-2 text-white hover:text-[#ecab13] transition-colors duration-200"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -310,6 +330,9 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
           </div>
         </div>
       </div>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };
