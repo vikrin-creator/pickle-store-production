@@ -4,9 +4,42 @@ const Footer = () => {
     <footer className="border-t border-[#ecab13]/20 bg-[#f8f7f6] pt-8 sm:pt-10 text-center px-3 sm:px-6">
       {/* Footer Links */}
       <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-6 text-xs sm:text-sm text-[#221c10]/70">
-        <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Contact Us</a>
-        <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Privacy Policy</a>
-        <a href="#" className="transition-colors duration-200 hover:text-[#ecab13]">Terms of Service</a>
+        <button 
+          onClick={() => {
+            console.log('Contact button clicked');
+            window.navigateToContact?.();
+          }} 
+          className="transition-colors duration-200 hover:text-[#ecab13] cursor-pointer"
+        >
+          Contact Us
+        </button>
+        <button 
+          onClick={() => {
+            console.log('Privacy button clicked');
+            window.navigateToPrivacy?.();
+          }} 
+          className="transition-colors duration-200 hover:text-[#ecab13] cursor-pointer"
+        >
+          Privacy Policy
+        </button>
+        <button 
+          onClick={() => {
+            console.log('Terms button clicked');
+            window.navigateToTerms?.();
+          }} 
+          className="transition-colors duration-200 hover:text-[#ecab13] cursor-pointer"
+        >
+          Terms & Conditions
+        </button>
+        <button 
+          onClick={() => {
+            console.log('Shipping button clicked');
+            window.navigateToShipping?.();
+          }} 
+          className="transition-colors duration-200 hover:text-[#ecab13] cursor-pointer"
+        >
+          Shipping & Return
+        </button>
         <button onClick={() => window.showFaqModal?.()} className="transition-colors duration-200 hover:text-[#ecab13]">FAQ</button>
       </div>
 

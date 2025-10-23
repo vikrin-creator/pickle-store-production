@@ -12,6 +12,10 @@ import CustomerAuth from './components/CustomerAuth'
 import FAQ from './components/FAQ'
 import OfferBanner from './components/OfferBanner'
 import WhatsAppChat from './components/WhatsAppChat'
+import ContactPage from './components/ContactPage'
+import PrivacyPolicyPage from './components/PrivacyPolicyPage'
+import TermsConditionsPage from './components/TermsConditionsPage'
+import ShippingReturnPage from './components/ShippingReturnPage'
 import authService from './services/authService'
 import { api } from './services/api'
 import './App.css'
@@ -92,6 +96,14 @@ function App() {
         setCurrentPage('cart');
       } else if (path === '/checkout' || searchParams.get('page') === 'checkout') {
         setCurrentPage('checkout');
+      } else if (path === '/contact' || searchParams.get('page') === 'contact') {
+        setCurrentPage('contact');
+      } else if (path === '/privacy' || searchParams.get('page') === 'privacy') {
+        setCurrentPage('privacy');
+      } else if (path === '/terms' || searchParams.get('page') === 'terms') {
+        setCurrentPage('terms');
+      } else if (path === '/shipping' || searchParams.get('page') === 'shipping') {
+        setCurrentPage('shipping');
       } else if (path === '/admin' || searchParams.get('page') === 'admin' || searchParams.get('admin') === 'true') {
         setCurrentPage('admin');
       } else {
@@ -142,6 +154,22 @@ function App() {
           break;
         case 'checkout':
           currentURL.searchParams.set('page', 'checkout');
+          currentURL.searchParams.delete('category');
+          break;
+        case 'contact':
+          currentURL.searchParams.set('page', 'contact');
+          currentURL.searchParams.delete('category');
+          break;
+        case 'privacy':
+          currentURL.searchParams.set('page', 'privacy');
+          currentURL.searchParams.delete('category');
+          break;
+        case 'terms':
+          currentURL.searchParams.set('page', 'terms');
+          currentURL.searchParams.delete('category');
+          break;
+        case 'shipping':
+          currentURL.searchParams.set('page', 'shipping');
           currentURL.searchParams.delete('category');
           break;
         case 'admin':
@@ -298,6 +326,26 @@ function App() {
     setCurrentPage('productDetail');
   };
 
+  const navigateToContact = () => {
+    console.log('Navigating to contact page');
+    setCurrentPage('contact');
+  };
+
+  const navigateToPrivacy = () => {
+    console.log('Navigating to privacy page');
+    setCurrentPage('privacy');
+  };
+
+  const navigateToTerms = () => {
+    console.log('Navigating to terms page');
+    setCurrentPage('terms');
+  };
+
+  const navigateToShipping = () => {
+    console.log('Navigating to shipping page');
+    setCurrentPage('shipping');
+  };
+
   const navigateToOrderConfirmation = (order) => {
     setCurrentOrder(order);
     setCurrentPage('orderConfirmation');
@@ -313,6 +361,10 @@ function App() {
     window.navigateToAdmin = navigateToAdmin;
     window.navigateToProductDetail = navigateToProductDetail;
     window.navigateToOrderConfirmation = navigateToOrderConfirmation;
+    window.navigateToContact = navigateToContact;
+    window.navigateToPrivacy = navigateToPrivacy;
+    window.navigateToTerms = navigateToTerms;
+    window.navigateToShipping = navigateToShipping;
     
     return () => {
       delete window.navigateToHome;
@@ -323,8 +375,12 @@ function App() {
       delete window.navigateToAdmin;
       delete window.navigateToProductDetail;
       delete window.navigateToOrderConfirmation;
+      delete window.navigateToContact;
+      delete window.navigateToPrivacy;
+      delete window.navigateToTerms;
+      delete window.navigateToShipping;
     };
-  }, []);
+  }, [navigateToHome, navigateToProducts, navigateToCart, navigateToWishlist, navigateToCheckout, navigateToAdmin, navigateToProductDetail, navigateToOrderConfirmation, navigateToContact, navigateToPrivacy, navigateToTerms, navigateToShipping]);
 
   // Handle URL parameters and keyboard shortcuts after navigation functions are available
   useEffect(() => {
@@ -413,6 +469,7 @@ function App() {
   };
 
   const renderPage = () => {
+    console.log('Current page:', currentPage);
     switch(currentPage) {
       case 'products':
         return <ProductsPage key={productsPageKey} onProductClick={handleProductClick} cartCount={cartCount} onNavigateToCart={handleNavigateToCart} onAddToCart={addToCart} onNavigateHome={handleBackToHome} categoryFilter={categoryFilter} />;
@@ -462,6 +519,14 @@ function App() {
         ) : (
           <AdminLogin onLoginSuccess={handleAdminLogin} />
         );
+      case 'contact':
+        return <ContactPage onNavigateHome={handleBackToHome} onNavigateToProducts={() => navigateToProducts()} />;
+      case 'privacy':
+        return <PrivacyPolicyPage onBack={handleBackToHome} />;
+      case 'terms':
+        return <TermsConditionsPage onBack={handleBackToHome} />;
+      case 'shipping':
+        return <ShippingReturnPage onBack={handleBackToHome} />;
       case 'home':
       default:
         return (
