@@ -237,7 +237,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
   return (
     <div className="min-h-screen w-full flex flex-col bg-[#f8f7f6] text-[#221c10] font-body overflow-x-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-50 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-3 sm:px-6 md:px-10 py-3 md:py-4 backdrop-blur-fallback animate-slide-down">
+      <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-3 sm:px-6 md:px-10 py-3 md:py-4 backdrop-blur-fallback animate-slide-down">
         {/* Logo */}
         <div className="flex items-center animate-fade-in">
           <img 
@@ -278,8 +278,54 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
           </button>
         </nav>
 
-        {/* Mobile Menu Button - Only visible on mobile */}
-        <div className="lg:hidden relative">
+        {/* Mobile Actions - Cart, Wishlist, Profile, Menu */}
+        <div className="lg:hidden flex items-center gap-3">
+          {/* Wishlist Button */}
+          <button 
+            onClick={() => window.navigateToWishlist && window.navigateToWishlist()}
+            className="text-white hover:text-[#ecab13] transition-colors duration-300"
+            aria-label="View wishlist"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+
+          {/* Cart Button */}
+          <button 
+            onClick={() => window.navigateToCart && window.navigateToCart()}
+            className="text-white hover:text-[#ecab13] transition-colors duration-300"
+            aria-label="View cart"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.5 5L2 21" />
+            </svg>
+          </button>
+
+          {/* Profile Button */}
+          {isAuthenticated ? (
+            <button 
+              onClick={handleProfileClick}
+              className="text-white hover:text-[#ecab13] transition-colors duration-300"
+              aria-label="View profile"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </button>
+          ) : (
+            <button 
+              onClick={handleShowLogin}
+              className="text-white hover:text-[#ecab13] transition-colors duration-300"
+              aria-label="Login"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          )}
+
+          {/* Mobile Menu Button */}
           <button 
             onClick={toggleMobileMenu}
             className="text-white hover:text-[#ecab13] transition-colors duration-300"
@@ -289,7 +335,10 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showMobileMenu ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
             </svg>
           </button>
+        </div>
 
+        {/* Mobile Menu Button - Only visible on mobile */}
+        <div className="lg:hidden relative">
           {/* Mobile Menu Dropdown */}
           {showMobileMenu && (
             <div 
@@ -331,47 +380,17 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
                 >
                   Contact
                 </button>
-                <button 
-                  onClick={() => {
-                    window.navigateToWishlist && window.navigateToWishlist();
-                    setShowMobileMenu(false);
-                  }}
-                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-                >
-                  My Wishlist
-                </button>
                 
-                {/* Authentication/Profile Options */}
-                {isAuthenticated ? (
-                  <>
-                    <button 
-                      onClick={() => {
-                        handleProfileClick();
-                        setShowMobileMenu(false);
-                      }}
-                      className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-                    >
-                      👤 My Profile
-                    </button>
-                    <button 
-                      onClick={() => {
-                        handleLogout();
-                        setShowMobileMenu(false);
-                      }}
-                      className="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200"
-                    >
-                      🚪 Logout
-                    </button>
-                  </>
-                ) : (
+                {/* Authentication Options in Menu */}
+                {isAuthenticated && (
                   <button 
                     onClick={() => {
-                      handleShowLogin();
+                      handleLogout();
                       setShowMobileMenu(false);
                     }}
-                    className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200"
+                    className="block w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200"
                   >
-                    👤 Login / Sign Up
+                    � Logout
                   </button>
                 )}
               </nav>
@@ -438,7 +457,7 @@ const Homepage = ({ cartCount, onNavigateToCart }) => {
         </div>
       </header>
 
-      <main role="main">
+      <main role="main" className="pt-16 md:pt-20">
         {/* Hero Section with Carousel */}
         <section 
           className="relative flex items-center justify-center min-h-[50vh] sm:min-h-[60vh] lg:min-h-[70vh] bg-cover bg-center text-center text-[#e8e1e1] px-3 sm:px-6 py-12 sm:py-16 lg:py-20 animate-fade-in overflow-hidden"

@@ -406,21 +406,46 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg w-full max-w-4xl h-5/6 mx-4 flex flex-col">
+      <div className="bg-white rounded-lg w-full max-w-4xl h-5/6 mx-2 sm:mx-4 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-2xl font-bold text-gray-800">My Profile</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-800">My Profile</h2>
           <button 
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+            className="text-gray-500 hover:text-gray-700 text-xl sm:text-2xl font-bold"
           >
             ×
           </button>
         </div>
 
+        {/* Mobile Tab Navigation */}
+        <div className="block sm:hidden border-b bg-gray-50">
+          <div className="flex overflow-x-auto">
+            {[
+              { id: 'profile', label: 'Profile', icon: '👤' },
+              { id: 'orders', label: 'Orders', icon: '📦' },
+              { id: 'addresses', label: 'Address', icon: '📍' },
+              { id: 'settings', label: 'Settings', icon: '⚙️' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => handleTabSwitch(tab.id)}
+                className={`flex-shrink-0 px-4 py-3 text-sm font-medium ${
+                  activeTab === tab.id 
+                    ? 'text-green-600 border-b-2 border-green-600 bg-white' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <span className="mr-1">{tab.icon}</span>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
         <div className="flex flex-1 overflow-hidden">
-          {/* Sidebar */}
-          <div className="w-1/4 bg-gray-50 p-4 border-r">
+          {/* Desktop Sidebar - Hidden on mobile */}
+          <div className="hidden sm:block w-1/4 bg-gray-50 p-4 border-r">
             <div className="space-y-2">
               {[
                 { id: 'profile', label: 'Profile Info', icon: '👤' },
@@ -451,18 +476,19 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                   <span className="mr-2">🚪</span>
                   Logout
                 </button>
-              </div>
+                </div>
             </div>
           </div>
 
           {/* Content */}
-          <div className="flex-1 p-6 overflow-y-auto">
+          <div className="flex-1 overflow-y-auto">
+            <div className="p-3 sm:p-6 min-h-full">
             {/* Profile Tab */}
             {activeTab === 'profile' && (
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Profile Information</h3>
+              <div className="space-y-4">
+                <h3 className="text-lg sm:text-xl font-semibold">Profile Information</h3>
                 <form onSubmit={handleProfileUpdate} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         First Name
@@ -525,14 +551,14 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
 
             {/* Orders Tab */}
             {activeTab === 'orders' && (
-              <div>
-                <h3 className="text-xl font-semibold mb-4">My Orders</h3>
+              <div className="space-y-4">
+                <h3 className="text-lg sm:text-xl font-semibold">My Orders</h3>
                 
                 {/* Order Status Filter Tabs */}
-                <div className="mb-6">
-                  <div className="flex space-x-1 bg-gray-100 p-1 rounded-lg">
+                <div>
+                  <div className="flex flex-wrap gap-1 sm:flex-nowrap sm:space-x-1 bg-gray-100 p-1 rounded-lg">
                     {[
-                      { key: 'all', label: 'All Orders' },
+                      { key: 'all', label: 'All' },
                       { key: 'confirmed', label: 'Active' },
                       { key: 'delivered', label: 'Delivered' },
                       { key: 'shipped', label: 'Shipped' }
@@ -540,7 +566,7 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                       <button
                         key={filter.key}
                         onClick={() => setOrderFilter(filter.key)}
-                        className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                        className={`flex-1 sm:flex-none px-2 sm:px-4 py-2 rounded-md text-xs sm:text-sm font-medium transition-colors ${
                           orderFilter === filter.key
                             ? 'bg-white text-green-600 shadow-sm'
                             : 'text-gray-600 hover:text-gray-900'
@@ -560,13 +586,13 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                 ) : getFilteredOrders().length > 0 ? (
                   <div className="space-y-4">
                     {getFilteredOrders().map((order) => (
-                      <div key={order.id} className="border rounded-lg p-4 bg-gray-50">
-                        <div className="flex justify-between items-start mb-2">
-                          <div>
-                            <h4 className="font-semibold">Order #{order.orderNumber}</h4>
-                            <p className="text-sm text-gray-600">{formatDate(order.date)}</p>
+                      <div key={order.id} className="border rounded-lg p-3 sm:p-4 bg-gray-50">
+                        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-3">
+                          <div className="flex-1">
+                            <h4 className="font-semibold text-sm sm:text-base">Order #{order.orderNumber}</h4>
+                            <p className="text-xs sm:text-sm text-gray-600">{formatDate(order.date)}</p>
                           </div>
-                          <span className={`px-3 py-1 rounded-full text-sm ${
+                          <span className={`self-start px-2 sm:px-3 py-1 rounded-full text-xs sm:text-sm ${
                             order.status === 'delivered' ? 'bg-green-100 text-green-800' :
                             order.status === 'shipped' ? 'bg-blue-100 text-blue-800' :
                             order.status === 'confirmed' ? 'bg-orange-100 text-orange-800' :
@@ -578,19 +604,19 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                         </div>
                         <div className="space-y-1">
                           {order.items.map((item, index) => (
-                            <div key={index} className="flex justify-between text-sm">
-                              <span>{item.name} x{item.quantity}</span>
-                              <span>{formatPrice(item.price * item.quantity)}</span>
+                            <div key={index} className="flex justify-between text-xs sm:text-sm">
+                              <span className="flex-1 pr-2">{item.name} x{item.quantity}</span>
+                              <span className="font-medium">{formatPrice(item.price * item.quantity)}</span>
                             </div>
                           ))}
                         </div>
-                        <div className="mt-2 pt-2 border-t border-gray-200">
-                          <div className="flex justify-between font-semibold">
+                        <div className="mt-3 pt-2 border-t border-gray-200">
+                          <div className="flex justify-between font-semibold text-sm sm:text-base">
                             <span>Total:</span>
                             <span>{formatPrice(order.total)}</span>
                           </div>
                           {order.deliveryAddress && (
-                            <p className="text-sm text-gray-600 mt-1">
+                            <p className="text-xs sm:text-sm text-gray-600 mt-1 break-words">
                               Delivery: {order.deliveryAddress}
                             </p>
                           )}
@@ -616,9 +642,9 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
 
             {/* Addresses Tab */}
             {activeTab === 'addresses' && (
-              <div>
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-xl font-semibold">My Addresses</h3>
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                  <h3 className="text-lg sm:text-xl font-semibold">My Addresses</h3>
                   <button
                     onClick={() => {
                       setEditingAddress(null);
@@ -635,7 +661,7 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                       });
                       setShowAddAddress(true);
                     }}
-                    className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                    className="w-full sm:w-auto bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors text-sm"
                   >
                     Add New Address
                   </button>
@@ -644,30 +670,30 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                 {addresses.length > 0 ? (
                   <div className="space-y-4">
                     {addresses.map((address) => (
-                      <div key={address.id} className="border rounded-lg p-4 relative">
+                      <div key={address.id} className="border rounded-lg p-3 sm:p-4 relative">
                         {address.isDefault && (
                           <span className="absolute top-2 right-2 bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
                             Default
                           </span>
                         )}
-                        <div className="pr-20">
-                          <h4 className="font-semibold">{address.label}</h4>
-                          <p className="text-gray-700">{address.firstName} {address.lastName}</p>
-                          <p className="text-gray-600">{address.phone}</p>
-                          <p className="text-gray-600">
+                        <div className="pr-2 pb-8 sm:pr-20 sm:pb-0">
+                          <h4 className="font-semibold text-sm sm:text-base">{address.label}</h4>
+                          <p className="text-gray-700 text-sm">{address.firstName} {address.lastName}</p>
+                          <p className="text-gray-600 text-sm">{address.phone}</p>
+                          <p className="text-gray-600 text-sm break-words">
                             {address.address}, {address.city}, {address.state} - {address.pincode}
                           </p>
                         </div>
-                        <div className="absolute top-4 right-4 space-x-2">
+                        <div className="absolute bottom-2 right-2 sm:top-4 sm:right-4 sm:bottom-auto flex gap-2">
                           <button
                             onClick={() => handleEditAddress(address)}
-                            className="text-blue-500 hover:text-blue-700 text-sm"
+                            className="text-blue-500 hover:text-blue-700 text-xs sm:text-sm bg-blue-50 px-2 py-1 rounded"
                           >
                             Edit
                           </button>
                           <button
                             onClick={() => handleDeleteAddress(address.id)}
-                            className="text-red-500 hover:text-red-700 text-sm"
+                            className="text-red-500 hover:text-red-700 text-xs sm:text-sm bg-red-50 px-2 py-1 rounded"
                           >
                             Delete
                           </button>
@@ -831,12 +857,12 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
 
             {/* Settings Tab */}
             {activeTab === 'settings' && (
-              <div>
-                <h3 className="text-xl font-semibold mb-4">Account Settings</h3>
+              <div className="space-y-4">
+                <h3 className="text-lg sm:text-xl font-semibold">Account Settings</h3>
                 
                 {/* Change Password Section */}
-                <div className="bg-gray-50 p-6 rounded-lg">
-                  <h4 className="text-lg font-medium mb-4">Change Password</h4>
+                <div className="bg-gray-50 p-4 sm:p-6 rounded-lg">
+                  <h4 className="text-base sm:text-lg font-medium mb-4">Change Password</h4>
                   <form onSubmit={handlePasswordChange} className="space-y-4">
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -866,7 +892,7 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                     </div>
                     <button
                       type="submit"
-                      className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
+                      className="w-full sm:w-auto bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors"
                     >
                       Change Password
                     </button>
@@ -874,6 +900,18 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                 </div>
               </div>
             )}
+            
+            {/* Mobile Logout Button - Show at bottom of each section on mobile */}
+            <div className="block sm:hidden mt-8 pt-6 border-t border-gray-200">
+              <button
+                onClick={handleLogout}
+                className="w-full bg-red-500 text-white px-4 py-3 rounded-lg hover:bg-red-600 transition-colors font-medium"
+              >
+                <span className="mr-2">🚪</span>
+                Logout
+              </button>
+            </div>
+            </div>
           </div>
         </div>
       </div>
