@@ -151,7 +151,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-[#221c10] mb-2">Phone</h3>
-                    <p className="text-[#221c10]/70">+91 778 0197 494</p>
+                    <p className="text-[#221c10]/70">+91 789 3819 202</p>
                   </div>
                 </div>
 
@@ -163,7 +163,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-[#221c10] mb-2">Email</h3>
-                    <p className="text-[#221c10]/70">info@janiitra.com</p>
+                    <p className="text-[#221c10]/70">janiitra.official@gmail.com</p>
                   </div>
                 </div>
 
@@ -196,7 +196,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
               </div>
               <p className="text-green-700 mb-4">Quick support for orders, delivery, and product inquiries</p>
               <a 
-                href="https://wa.me/917780197494" 
+                href="https://wa.me/917893819202" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors duration-200"
@@ -329,6 +329,13 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Company Details */}
+      <div className="bg-[#f8f7f6] border-t border-[#ecab13]/20 py-4 text-center">
+        <p className="text-sm text-[#221c10]/80">
+          © 2025 Janiitra Foods Pvt. Ltd. | CIN: U47213TS2025PTC194771
+        </p>
       </div>
 
       {/* Footer */}
