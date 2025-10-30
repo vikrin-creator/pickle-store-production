@@ -170,33 +170,25 @@ const Checkout = ({ onBack, onOrderComplete }) => {
 
   // Calculate shipping cost dynamically based on pincode and cart total
   const calculateShipping = async (pincode, cartTotal) => {
+    console.log('📍 calculateShipping called with:', { pincode, cartTotal });
+    
     if (!pincode || pincode.length < 6) {
-      // Use default shipping from admin settings (fetch with empty pincode)
-      setIsCalculatingShipping(true);
-      try {
-        // Try to get default/free shipping from admin settings
-        const result = await ShippingService.calculateShippingCost('', cartTotal);
-        setShippingCost(result.shippingCost || 0);
-        setShippingInfo(result);
-        return result.shippingCost || 0;
-      } catch (error) {
-        console.error('Error calculating default shipping:', error);
-        setShippingCost(0); // Use 0 instead of hardcoded 200
-        setShippingInfo(null);
-        return 0;
-      } finally {
-        setIsCalculatingShipping(false);
-      }
+      console.log('⚠️ Invalid pincode, skipping shipping calculation');
+      setShippingCost(0);
+      setShippingInfo(null);
+      return 0;
     }
 
     setIsCalculatingShipping(true);
     try {
+      console.log('🔗 Calling shipping API with pincode:', pincode, 'cartTotal:', cartTotal);
       const result = await ShippingService.calculateShippingCost(pincode, cartTotal);
+      console.log('✅ Shipping result:', result);
       setShippingCost(result.shippingCost);
       setShippingInfo(result);
       return result.shippingCost;
     } catch (error) {
-      console.error('Error calculating shipping:', error);
+      console.error('❌ Error calculating shipping:', error);
       // Fallback to 0 instead of hardcoded 200
       setShippingCost(0);
       setShippingInfo(null);
@@ -282,7 +274,11 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     
     // Calculate shipping when zipCode changes
     if (name === 'zipCode' && value.length >= 6) {
-      calculateShipping(value);
+      // Calculate subtotal for shipping calculation
+      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      const discountAmount = appliedCoupon ? (subtotal * appliedCoupon.discount / 100) : 0;
+      const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+      calculateShipping(value, discountedSubtotal);
     }
   };
 
@@ -435,11 +431,11 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       }
       const discountedSubtotal = subtotal - discountAmount;
       
-      // Calculate shipping using API if not already calculated
+      // Calculate shipping using API if not already calculated or if zipcode just entered
       let finalShippingCost = shippingCost;
-      if (formData.zipCode && shippingCost === 0) {
+      if (formData.zipCode && formData.zipCode.length >= 6) {
         try {
-          const shippingResult = await calculateShipping(formData.zipCode);
+          const shippingResult = await calculateShipping(formData.zipCode, discountedSubtotal);
           finalShippingCost = shippingResult;
         } catch (error) {
           console.error('Error calculating shipping during checkout:', error);
