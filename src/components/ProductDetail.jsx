@@ -7,7 +7,6 @@ import ReviewService from '../services/reviewService';
 
 const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onBuyNow }) => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedSpiceLevel, setSelectedSpiceLevel] = useState(product.spiceLevel || 'Medium');
   const [selectedWeight, setSelectedWeight] = useState(
     (product.weightOptions || product.weights) && (product.weightOptions || product.weights).length > 0 
       ? (product.weightOptions || product.weights)[0] 
@@ -100,7 +99,6 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
       ...product,
       id: product._id || product.id, // Ensure we use MongoDB _id
       quantity: quantity,
-      selectedSpiceLevel: selectedSpiceLevel,
       selectedWeight: selectedWeight,
       price: selectedWeight?.price || 150, // Use the selected weight's price
       cartId: Date.now() // Unique ID for cart item
@@ -334,31 +332,6 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
               <div className="text-3xl font-bold text-[#ecab13]">₹{selectedWeight?.price?.toFixed(2) || '150.00'}</div>
               <p className="text-xs text-[#221c10]/60 mt-1">
                 {selectedWeight?.weight || '250g'}
-              </p>
-            </div>
-
-            {/* Spice Level Selection */}
-            <div className="space-y-3 text-center">
-              <label className="block text-sm font-medium text-[#221c10]">
-                Spice Level
-              </label>
-              <div className="flex flex-wrap gap-2 justify-center">
-                {['Mild', 'Medium', 'Hot', 'Extra Hot'].map((level) => (
-                  <button
-                    key={level}
-                    onClick={() => setSelectedSpiceLevel(level)}
-                    className={`px-4 py-2 rounded-lg border-2 transition-all duration-200 ${
-                      selectedSpiceLevel === level
-                        ? 'border-[#ecab13] bg-[#ecab13] text-white'
-                        : 'border-[#ecab13]/30 text-[#221c10] hover:border-[#ecab13]/60'
-                    }`}
-                  >
-                    {level}
-                  </button>
-                ))}
-              </div>
-              <p className="text-xs text-[#221c10]/60">
-                Default: {product.category || 'Medium'} (You can customize the spice level)
               </p>
             </div>
 

@@ -4,6 +4,9 @@ import authService from '../services/authService';
 const CustomerAuth = ({ onClose, onSuccess }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [showOTPVerification, setShowOTPVerification] = useState(false);
+  const [otpEmail, setOtpEmail] = useState('');
+  const [otp, setOtp] = useState('');
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -81,30 +84,78 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
       if (isLogin) {
         // Use authService for login
         result = await authService.login(formData.email, formData.password);
+        
+        if (result.success) {
+          // Call success callback with user data
+          onSuccess(result.user);
+          
+          // Close modal
+          onClose();
+        } else {
+          setErrors({ submit: result.message || 'Authentication failed' });
+        }
       } else {
-        // Use authService for registration
-        const userData = {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          phone: formData.phone
-        };
-        result = await authService.register(userData);
+        // Registration - will require OTP verification
+        result = await authService.register(formData);
+        
+        if (result.success) {
+          // Show OTP verification screen
+          setOtpEmail(formData.email);
+          setShowOTPVerification(true);
+          setErrors({});
+        } else {
+          setErrors({ submit: result.message || 'Registration failed' });
+        }
       }
+    } catch (error) {
+      console.error('Auth error:', error);
+      setErrors({ submit: 'Network error. Please try again.' });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Handle OTP verification
+  const handleOTPVerify = async (e) => {
+    e.preventDefault();
+    
+    if (!otp || otp.length !== 6) {
+      setErrors({ otp: 'Please enter a valid 6-digit OTP' });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Call verify OTP endpoint
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: otpEmail,
+          otp: otp
+        })
+      });
+
+      const result = await response.json();
 
       if (result.success) {
-        // Call success callback with user data
+        // Set auth token and user data
+        authService.setAuth(result.token, result.user);
+        
+        // Call success callback
         onSuccess(result.user);
         
         // Close modal
         onClose();
       } else {
-        setErrors({ submit: result.message || 'Authentication failed' });
+        setErrors({ otp: result.message || 'OTP verification failed' });
       }
     } catch (error) {
-      console.error('Auth error:', error);
-      setErrors({ submit: 'Network error. Please try again.' });
+      console.error('OTP verification error:', error);
+      setErrors({ otp: 'Network error. Please try again.' });
     } finally {
       setIsLoading(false);
     }
@@ -172,7 +223,78 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
           {/* Main Auth Form */}
           <main className="flex-1 py-4 px-6">
             <div className="w-full">
-              {/* Tab Buttons */}
+              {/* OTP Verification Screen */}
+              {showOTPVerification ? (
+                <div className="space-y-4">
+                  <div className="text-center mb-6">
+                    <h2 className="text-2xl font-bold text-amber-900 mb-2">Verify Your Email</h2>
+                    <p className="text-sm text-amber-700">
+                      We've sent a 6-digit verification code to<br />
+                      <span className="font-semibold">{otpEmail}</span>
+                    </p>
+                  </div>
+
+                  <form onSubmit={handleOTPVerify} className="space-y-4">
+                    {/* OTP Input */}
+                    <div>
+                      <label className="block text-sm font-medium text-amber-900 mb-2">
+                        Enter OTP Code
+                      </label>
+                      <input
+                        type="text"
+                        maxLength="6"
+                        value={otp}
+                        onChange={(e) => {
+                          setOtp(e.target.value.replace(/\D/g, ''));
+                          if (errors.otp) setErrors({ otp: '' });
+                        }}
+                        className={`w-full rounded-lg border p-4 text-center text-2xl font-bold letter-spacing-4 placeholder-amber-600 ring-1 ring-inset ring-transparent transition-all focus:border-orange-500 focus:ring-2 focus:ring-inset focus:ring-orange-500 ${
+                          errors.otp ? 'border-red-500' : 'border-orange-300'
+                        }`}
+                        placeholder="000000"
+                      />
+                      {errors.otp && (
+                        <p className="text-red-500 text-sm mt-1">{errors.otp}</p>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-amber-700 text-center">
+                      ⏱️ The code will expire in 10 minutes
+                    </p>
+
+                    {/* Verify Button */}
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full rounded-lg bg-orange-500 px-4 py-3 text-lg font-bold text-white transition-transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                    >
+                      {isLoading ? (
+                        <div className="flex items-center justify-center">
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Verifying...
+                        </div>
+                      ) : (
+                        'Verify Email'
+                      )}
+                    </button>
+
+                    {/* Back Button */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowOTPVerification(false);
+                        setOtp('');
+                        setErrors({});
+                      }}
+                      className="w-full rounded-lg border border-orange-300 px-4 py-3 text-base font-semibold text-orange-600 transition-colors hover:bg-orange-50"
+                    >
+                      ← Back to Sign Up
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                <>
+                {/* Tab Buttons */}
               <div className="mb-6 flex rounded-lg border border-orange-200 bg-orange-50 p-1">
                 <button 
                   onClick={() => setIsLogin(true)}
@@ -391,6 +513,8 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
                   {isLogin ? 'Sign up' : 'Login'}
                 </button>
               </p>
+                </>
+              )}
             </div>
           </main>
         </div>

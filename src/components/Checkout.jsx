@@ -569,7 +569,6 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       window.dispatchEvent(new Event('cartUpdated'));
 
       setIsProcessing(false);
-      onOrderComplete(savedOrder);
     } catch (error) {
       console.error('Order creation failed:', error);
       setIsProcessing(false);
