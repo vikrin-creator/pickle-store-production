@@ -287,55 +287,77 @@ const Checkout = ({ onBack, onOrderComplete }) => {
   };
 
   // Initialize Razorpay payment
-  const initializeRazorpayPayment = async (order) => {
-    const scriptLoaded = await loadRazorpayScript();
-    if (!scriptLoaded) {
-      alert('Razorpay SDK failed to load. Please try again.');
-      return false;
-    }
-
-    const options = {
-      key: RAZORPAY_KEY_ID,
-      amount: order.razorpayOrder.amount,
-      currency: order.razorpayOrder.currency,
-      name: "Janiitra Pickles",
-      description: `Order #${order.order.orderNumber}`,
-      order_id: order.razorpayOrder.orderId,
-      handler: async (response) => {
-        try {
-          const verificationResponse = await orderService.verifyPayment({
-            orderId: order.order._id,
-            razorpayOrderId: response.razorpay_order_id,
-            razorpayPaymentId: response.razorpay_payment_id,
-            razorpaySignature: response.razorpay_signature
-          });
-
-          if (verificationResponse.success) {
-            onOrderComplete(order.order._id);
-          } else {
-            alert('Payment verification failed. Please contact support.');
-          }
-        } catch (error) {
-          console.error('Payment verification error:', error);
-          alert('Error verifying payment. Please contact support.');
-        }
-      },
-      prefill: {
-        name: `${formData.firstName} ${formData.lastName}`,
-        email: formData.email,
-        contact: formData.phone
-      },
-      notes: {
-        address: `${formData.address}, ${formData.city}, ${formData.state}, ${formData.zipCode}`
-      },
-      theme: {
-        color: "#2d6700"
+  const initializeRazorpayPayment = async (paymentData) => {
+    try {
+      console.log('Initializing Razorpay with data:', paymentData);
+      
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        throw new Error('Razorpay SDK failed to load');
       }
-    };
 
-    const razorpayInstance = new window.Razorpay(options);
-    razorpayInstance.open();
-    return true;
+      const { order, razorpayOrder } = paymentData;
+
+      if (!razorpayOrder || !razorpayOrder.orderId) {
+        throw new Error('Invalid Razorpay order data');
+      }
+
+      const options = {
+        key: RAZORPAY_KEY_ID,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency || "INR",
+        name: "Janiitra Pickles",
+        description: `Order #${order.orderNumber}`,
+        order_id: razorpayOrder.orderId,
+        handler: async (response) => {
+          try {
+            console.log('Payment successful, verifying:', response);
+            const verificationResponse = await orderService.verifyPayment({
+              orderId: order._id,
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature
+            });
+
+            if (verificationResponse.success) {
+              localStorage.setItem('cartItems', JSON.stringify([]));
+              window.dispatchEvent(new Event('cartUpdated'));
+              onOrderComplete(order._id);
+            } else {
+              alert('Payment verification failed. Please contact support.');
+            }
+          } catch (error) {
+            console.error('Payment verification error:', error);
+            alert('Error verifying payment. Please contact support.');
+          }
+        },
+        prefill: {
+          name: `${formData.firstName} ${formData.lastName}`,
+          email: formData.email,
+          contact: formData.phone
+        },
+        notes: {
+          address: `${formData.address}, ${formData.city}, ${formData.state}, ${formData.zipCode}`
+        },
+        theme: {
+          color: "#2d6700"
+        }
+      };
+
+      console.log('Razorpay options:', options);
+      const razorpayInstance = new window.Razorpay(options);
+      
+      razorpayInstance.on('payment.failed', function(response) {
+        console.error('Payment failed:', response.error);
+        alert(`Payment failed: ${response.error.description}`);
+      });
+
+      razorpayInstance.open();
+      return true;
+    } catch (error) {
+      console.error('Error initializing Razorpay:', error);
+      throw error;
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -418,30 +440,59 @@ const Checkout = ({ onBack, onOrderComplete }) => {
 
       // Submit order to backend
       try {
+        console.log('Creating order with data:', orderData);
         const orderResponse = await orderService.createOrder(orderData);
+        console.log('Order response:', orderResponse);
         
         if (formData.paymentMethod === 'online') {
-          // Initialize Razorpay payment
-          const paymentInitiated = await initializeRazorpayPayment(orderResponse);
+          // For online payment, we need to create a Razorpay order
+          console.log('Creating Razorpay payment for order:', orderResponse);
           
-          if (!paymentInitiated) {
-            throw new Error('Failed to initialize payment');
+          // Get the actual order object - handle different response structures
+          const order = orderResponse.order || orderResponse._id ? orderResponse : orderResponse;
+          
+          if (!order || !order._id) {
+            throw new Error('Invalid order response - no order ID');
           }
           
-          // Don't clear cart yet - wait for payment confirmation
+          // Create Razorpay order
+          console.log('Creating Razorpay order for orderId:', order._id, 'amount:', order.total);
+          const razorpayOrderResponse = await orderService.createPayment({
+            orderId: order._id,
+            amount: order.total
+          });
+          
+          console.log('Razorpay order response:', razorpayOrderResponse);
+          
+          if (!razorpayOrderResponse || !razorpayOrderResponse.success) {
+            throw new Error('Failed to create Razorpay order');
+          }
+          
+          // Initialize Razorpay with the payment details
+          const paymentInitiated = await initializeRazorpayPayment({
+            order: order,
+            razorpayOrder: razorpayOrderResponse.razorpayOrder
+          });
+          
+          if (!paymentInitiated) {
+            throw new Error('Failed to initialize Razorpay');
+          }
+          
           setIsProcessing(false);
           return;
         } else {
           // For COD, proceed as normal
+          const order = orderResponse.order || orderResponse._id ? orderResponse : orderResponse;
+          
           // Clear cart
           localStorage.setItem('cartItems', JSON.stringify([]));
           
           // Complete the order
-          onOrderComplete(orderResponse.order._id);
+          onOrderComplete(order._id);
         }
       } catch (error) {
         console.error('Error processing order:', error);
-        alert('Error processing order. Please try again.');
+        alert('Error: ' + error.message);
         setIsProcessing(false);
         return;
       }
