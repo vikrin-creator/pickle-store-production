@@ -11,6 +11,8 @@ import orderService from '../services/orderService';
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
 console.log('🔑 Razorpay Key ID loaded:', RAZORPAY_KEY_ID ? '✅ Present' : '❌ Missing');
+console.log('🔑 Razorpay Key ID value:', RAZORPAY_KEY_ID);
+console.log('🔑 All env vars:', import.meta.env);
 
 const Checkout = ({ onBack, onOrderComplete }) => {
   const [cartItems, setCartItems] = useState([]);
