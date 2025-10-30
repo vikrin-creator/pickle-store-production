@@ -363,7 +363,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
               console.log('✅ Payment verified successfully');
               localStorage.setItem('cartItems', JSON.stringify([]));
               window.dispatchEvent(new Event('cartUpdated'));
-              onOrderComplete(order._id);
+              onOrderComplete(order);
             } else {
               console.error('❌ Payment verification failed');
               alert('Payment verification failed. Please contact support.');
@@ -556,7 +556,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
           localStorage.setItem('cartItems', JSON.stringify([]));
           
           // Complete the order
-          onOrderComplete(order._id);
+          onOrderComplete(order);
         }
       } catch (error) {
         console.error('❌ Error processing order:', error);
