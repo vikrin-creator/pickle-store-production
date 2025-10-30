@@ -10,6 +10,8 @@ import orderService from '../services/orderService';
 
 const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
+console.log('🔑 Razorpay Key ID loaded:', RAZORPAY_KEY_ID ? '✅ Present' : '❌ Missing');
+
 const Checkout = ({ onBack, onOrderComplete }) => {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
@@ -289,16 +291,27 @@ const Checkout = ({ onBack, onOrderComplete }) => {
   // Initialize Razorpay payment
   const initializeRazorpayPayment = async (paymentData) => {
     try {
-      console.log('Initializing Razorpay with data:', paymentData);
+      console.log('🎯 Initializing Razorpay with data:', paymentData);
+      console.log('🔑 RAZORPAY_KEY_ID:', RAZORPAY_KEY_ID);
+      console.log('🪟 window.Razorpay available:', typeof window.Razorpay);
       
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded) {
-        throw new Error('Razorpay SDK failed to load');
+      if (!RAZORPAY_KEY_ID) {
+        throw new Error('❌ RAZORPAY_KEY_ID is not set in environment variables');
+      }
+
+      if (typeof window.Razorpay === 'undefined') {
+        console.log('⚠️ window.Razorpay not yet available, loading script...');
+        const scriptLoaded = await loadRazorpayScript();
+        if (!scriptLoaded) {
+          throw new Error('Razorpay SDK failed to load');
+        }
+        console.log('✅ Razorpay script loaded');
       }
 
       const { order, razorpayOrder } = paymentData;
 
       if (!razorpayOrder || !razorpayOrder.orderId) {
+        console.error('❌ Invalid Razorpay order data:', razorpayOrder);
         throw new Error('Invalid Razorpay order data');
       }
 
@@ -311,7 +324,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
         order_id: razorpayOrder.orderId,
         handler: async (response) => {
           try {
-            console.log('Payment successful, verifying:', response);
+            console.log('✅ Payment successful, verifying:', response);
             const verificationResponse = await orderService.verifyPayment({
               orderId: order._id,
               razorpayOrderId: response.razorpay_order_id,
@@ -320,14 +333,16 @@ const Checkout = ({ onBack, onOrderComplete }) => {
             });
 
             if (verificationResponse.success) {
+              console.log('✅ Payment verified successfully');
               localStorage.setItem('cartItems', JSON.stringify([]));
               window.dispatchEvent(new Event('cartUpdated'));
               onOrderComplete(order._id);
             } else {
+              console.error('❌ Payment verification failed');
               alert('Payment verification failed. Please contact support.');
             }
           } catch (error) {
-            console.error('Payment verification error:', error);
+            console.error('❌ Payment verification error:', error);
             alert('Error verifying payment. Please contact support.');
           }
         },
@@ -344,18 +359,26 @@ const Checkout = ({ onBack, onOrderComplete }) => {
         }
       };
 
-      console.log('Razorpay options:', options);
+      console.log('💳 Creating Razorpay instance with options:', options);
+      
+      if (typeof window.Razorpay === 'undefined') {
+        throw new Error('Razorpay SDK not available after loading');
+      }
+      
       const razorpayInstance = new window.Razorpay(options);
+      console.log('✅ Razorpay instance created');
       
       razorpayInstance.on('payment.failed', function(response) {
-        console.error('Payment failed:', response.error);
+        console.error('❌ Payment failed:', response.error);
         alert(`Payment failed: ${response.error.description}`);
       });
 
+      console.log('🚀 Opening Razorpay modal...');
       razorpayInstance.open();
+      console.log('✅ Razorpay modal opened');
       return true;
     } catch (error) {
-      console.error('Error initializing Razorpay:', error);
+      console.error('❌ Error initializing Razorpay:', error);
       throw error;
     }
   };
@@ -440,35 +463,39 @@ const Checkout = ({ onBack, onOrderComplete }) => {
 
       // Submit order to backend
       try {
-        console.log('Creating order with data:', orderData);
+        console.log('📝 Creating order with data:', orderData);
         const orderResponse = await orderService.createOrder(orderData);
-        console.log('Order response:', orderResponse);
+        console.log('✅ Order created successfully:', orderResponse);
         
         if (formData.paymentMethod === 'online') {
-          // For online payment, we need to create a Razorpay order
-          console.log('Creating Razorpay payment for order:', orderResponse);
+          console.log('💰 Online payment selected, creating Razorpay order...');
           
           // Get the actual order object - handle different response structures
           const order = orderResponse.order || orderResponse._id ? orderResponse : orderResponse;
           
           if (!order || !order._id) {
+            console.error('❌ Invalid order response:', orderResponse);
             throw new Error('Invalid order response - no order ID');
           }
           
+          console.log('📦 Order ID:', order._id, 'Total amount:', order.total);
+          
           // Create Razorpay order
-          console.log('Creating Razorpay order for orderId:', order._id, 'amount:', order.total);
+          console.log('🔗 Calling createPayment API...');
           const razorpayOrderResponse = await orderService.createPayment({
             orderId: order._id,
             amount: order.total
           });
           
-          console.log('Razorpay order response:', razorpayOrderResponse);
+          console.log('✅ Razorpay order created:', razorpayOrderResponse);
           
           if (!razorpayOrderResponse || !razorpayOrderResponse.success) {
+            console.error('❌ Razorpay order creation failed:', razorpayOrderResponse);
             throw new Error('Failed to create Razorpay order');
           }
           
           // Initialize Razorpay with the payment details
+          console.log('🎯 Initializing Razorpay payment...');
           const paymentInitiated = await initializeRazorpayPayment({
             order: order,
             razorpayOrder: razorpayOrderResponse.razorpayOrder
@@ -478,10 +505,12 @@ const Checkout = ({ onBack, onOrderComplete }) => {
             throw new Error('Failed to initialize Razorpay');
           }
           
+          console.log('✅ Razorpay payment flow completed');
           setIsProcessing(false);
           return;
         } else {
           // For COD, proceed as normal
+          console.log('🏪 Cash on Delivery selected');
           const order = orderResponse.order || orderResponse._id ? orderResponse : orderResponse;
           
           // Clear cart
@@ -491,7 +520,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
           onOrderComplete(order._id);
         }
       } catch (error) {
-        console.error('Error processing order:', error);
+        console.error('❌ Error processing order:', error);
         alert('Error: ' + error.message);
         setIsProcessing(false);
         return;
@@ -808,10 +837,10 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                         </p>
                       </div>
                     </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      <img src="https://cdn.razorpay.com/static/assets/pay-methods/upi.svg" alt="UPI" className="h-6" />
-                      <img src="https://cdn.razorpay.com/static/assets/pay-methods/card.svg" alt="Cards" className="h-6" />
-                      <img src="https://cdn.razorpay.com/static/assets/pay-methods/netbanking.svg" alt="Net Banking" className="h-6" />
+                    <div className="mt-3 flex flex-wrap gap-3">
+                      <span className="text-sm">💳 UPI</span>
+                      <span className="text-sm">🏦 Cards</span>
+                      <span className="text-sm">🏛️ Net Banking</span>
                     </div>
                   </div>
                 )}
