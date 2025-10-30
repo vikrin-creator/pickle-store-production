@@ -96,7 +96,15 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
         }
       } else {
         // Registration - will require OTP verification
-        result = await authService.register(formData);
+        // Only send required fields to backend (exclude confirmPassword)
+        const registrationData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone
+        };
+        result = await authService.register(registrationData);
         
         if (result.success) {
           // Show OTP verification screen
