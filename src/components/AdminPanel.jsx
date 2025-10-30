@@ -1346,7 +1346,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       )}
 
       {/* Top Header - Fixed */}
-      <header className="bg-gradient-to-r from-green-700 to-green-600 shadow-md border-b border-green-800 px-4 lg:px-8 py-4 z-50 fixed top-0 left-0 right-0">
+      <header className="bg-gradient-to-r from-green-700 to-green-600 shadow-md border-b border-green-800 px-4 lg:px-8 py-2 z-50 fixed top-0 left-0 right-0">
         <div className="flex justify-between items-center">
           {/* Left side - Logo and Mobile menu */}
           <div className="flex items-center space-x-4">
@@ -1361,7 +1361,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             <img
               src="/assets/logo.png"
               alt="Janiitra - Authentic Indian Pickles Logo"
-              className="h-6 w-32 sm:h-7 sm:w-40 md:h-8 md:w-48 object-contain"
+              className="h-5 w-24 sm:h-6 sm:w-32 md:h-7 md:w-40 object-contain"
             />
           </div>
 
@@ -1391,9 +1391,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       </header>
 
       {/* Middle Section with Sidebar and Content */}
-      <div className="flex flex-1 pt-20">
+      <div className="flex flex-1 pt-14">
         {/* Category Section (Sidebar Navigation) - Fixed Position */}
-        <div className={`w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed top-20 bottom-0 z-40 transition-transform duration-300 flex flex-col ${
+        <div className={`w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed top-14 bottom-0 z-40 transition-transform duration-300 flex flex-col ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         }`}>
         <div className="p-4 flex-1 overflow-y-auto">          
@@ -3639,8 +3639,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Order View Modal */}
       {showOrderViewModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 mt-20">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto mt-20">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 mt-14">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto mt-14">
             <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">Order Details</h3>
@@ -3736,8 +3736,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Order Update Modal */}
       {showOrderUpdateModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 mt-20">
-          <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-y-auto mt-20">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 mt-14">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-y-auto mt-14">
             <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">Update Order Status</h3>

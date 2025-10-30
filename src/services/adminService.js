@@ -150,7 +150,8 @@ class AdminService {
   // Transactions API
   static async getTransactions() {
     try {
-      const orders = await this.getAllOrders();
+      // Call new endpoint that returns ALL orders (pending, failed, confirmed)
+      const orders = await api.get('/api/orders/admin/transactions');
       
       return orders.map(order => ({
         _id: order._id,
@@ -160,8 +161,9 @@ class AdminService {
         customer: order.customerInfo?.name || 'Anonymous',
         amount: order.total || 0,
         method: order.paymentMethod === 'cod' ? 'COD' : 'Online',
-        status: order.paymentStatus === 'paid' ? 'Success' : 
-                order.paymentMethod === 'cod' ? 'Pending' : 'Failed',
+        status: order.status === 'confirmed' ? 'Success' : 
+                order.status === 'pending' ? 'Pending' : 
+                order.status === 'failed' ? 'Failed' : 'Unknown',
         date: new Date(order.createdAt).toLocaleString(),
         createdAt: order.createdAt
       }));

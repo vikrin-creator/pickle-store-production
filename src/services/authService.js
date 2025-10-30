@@ -21,12 +21,16 @@ class AuthService {
 
   // Check if user is authenticated
   isAuthenticated() {
-    return !!(this.token && this.user);
+    // Always check localStorage directly for fresh data, not instance variables
+    const token = localStorage.getItem('authToken');
+    const user = localStorage.getItem('userData');
+    return !!(token && user);
   }
 
   // Get current user
   getCurrentUser() {
-    return this.user;
+    // Always fetch fresh from localStorage
+    return this.getUserFromStorage();
   }
 
   // Get auth token
