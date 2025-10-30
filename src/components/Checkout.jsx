@@ -312,9 +312,15 @@ const Checkout = ({ onBack, onOrderComplete }) => {
 
       const { order, razorpayOrder } = paymentData;
 
+      console.log('🔍 Checking razorpayOrder structure:');
+      console.log('  - razorpayOrder:', razorpayOrder);
+      console.log('  - razorpayOrder.orderId:', razorpayOrder?.orderId);
+      console.log('  - razorpayOrder.amount:', razorpayOrder?.amount);
+      console.log('  - razorpayOrder.currency:', razorpayOrder?.currency);
+
       if (!razorpayOrder || !razorpayOrder.orderId) {
         console.error('❌ Invalid Razorpay order data:', razorpayOrder);
-        throw new Error('Invalid Razorpay order data');
+        throw new Error('Invalid Razorpay order data - missing orderId');
       }
 
       const options = {
@@ -484,10 +490,22 @@ const Checkout = ({ onBack, onOrderComplete }) => {
           
           // Create Razorpay order
           console.log('🔗 Calling createPayment API...');
-          const razorpayOrderResponse = await orderService.createPayment({
-            orderId: order._id,
-            amount: order.total
-          });
+          console.log('📍 API URL:', `${import.meta.env.VITE_API_URL}/api/orders/create-payment`);
+          console.log('📍 Order ID:', order._id);
+          console.log('📍 Amount:', order.total);
+          
+          let razorpayOrderResponse;
+          try {
+            razorpayOrderResponse = await orderService.createPayment({
+              orderId: order._id,
+              amount: order.total
+            });
+          } catch (apiError) {
+            console.error('❌ API Error during createPayment:', apiError);
+            console.error('❌ Error message:', apiError.message);
+            console.error('❌ Error details:', apiError);
+            throw apiError;
+          }
           
           console.log('✅ Razorpay order created:', razorpayOrderResponse);
           
