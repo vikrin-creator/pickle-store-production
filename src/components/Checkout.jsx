@@ -1048,7 +1048,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                 {/* Free Shipping Messages */}
                 {shippingInfo && (
                   <div className="mb-4">
-                    {shippingInfo.isFreeDelivery ? (
+                    {shippingInfo && shippingInfo.isFreeDelivery ? (
                       <div className="bg-green-50 border border-green-200 rounded-lg p-3">
                         <p className="text-green-700 font-medium text-sm text-center">
                           🎉 You've qualified for free shipping!
@@ -1057,16 +1057,16 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                           Delivery Time: {shippingInfo.deliveryTime}
                         </p>
                       </div>
-                    ) : (
+                    ) : shippingInfo && shippingInfo.freeDeliveryAbove && shippingCost > 0 ? (
                       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
                         <p className="text-yellow-700 font-medium text-sm text-center">
-                          Add ₹{(shippingInfo.freeDeliveryAbove - cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2)} more to get free shipping!
+                          Add ₹{Math.max(0, (shippingInfo.freeDeliveryAbove - cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)).toFixed(2))} more to get free shipping!
                         </p>
                         <p className="text-yellow-600 text-xs text-center mt-1">
                           Delivery Time: {shippingInfo.deliveryTime} • Zone: {shippingInfo.zone}
                         </p>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 )}
 
