@@ -5,6 +5,10 @@ import ShippingService from '../services/shippingService';
 import Footer from './Footer';
 import { getDynamicCoupon, validateDynamicCoupon, getExampleCouponText } from '../utils/couponUtils';
 import { api } from '../services/api';
+import { loadRazorpayScript } from '../utils/razorpayUtils';
+import orderService from '../services/orderService';
+
+const RAZORPAY_KEY_ID = import.meta.env.VITE_RAZORPAY_KEY_ID;
 
 const Checkout = ({ onBack, onOrderComplete }) => {
   const [cartItems, setCartItems] = useState([]);
@@ -41,10 +45,6 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     
     // Payment Information
     paymentMethod: 'cod', // 'cod' or 'online'
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
-    cardName: '',
     
     // Special Instructions
     specialInstructions: ''
@@ -286,6 +286,58 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     }
   };
 
+  // Initialize Razorpay payment
+  const initializeRazorpayPayment = async (order) => {
+    const scriptLoaded = await loadRazorpayScript();
+    if (!scriptLoaded) {
+      alert('Razorpay SDK failed to load. Please try again.');
+      return false;
+    }
+
+    const options = {
+      key: RAZORPAY_KEY_ID,
+      amount: order.razorpayOrder.amount,
+      currency: order.razorpayOrder.currency,
+      name: "Janiitra Pickles",
+      description: `Order #${order.order.orderNumber}`,
+      order_id: order.razorpayOrder.orderId,
+      handler: async (response) => {
+        try {
+          const verificationResponse = await orderService.verifyPayment({
+            orderId: order.order._id,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpaySignature: response.razorpay_signature
+          });
+
+          if (verificationResponse.success) {
+            onOrderComplete(order.order._id);
+          } else {
+            alert('Payment verification failed. Please contact support.');
+          }
+        } catch (error) {
+          console.error('Payment verification error:', error);
+          alert('Error verifying payment. Please contact support.');
+        }
+      },
+      prefill: {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        contact: formData.phone
+      },
+      notes: {
+        address: `${formData.address}, ${formData.city}, ${formData.state}, ${formData.zipCode}`
+      },
+      theme: {
+        color: "#2d6700"
+      }
+    };
+
+    const razorpayInstance = new window.Razorpay(options);
+    razorpayInstance.open();
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -365,36 +417,34 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       };
 
       // Submit order to backend
-      const token = authService.getToken();
-      let savedOrder;
-      
       try {
-        savedOrder = await api.post('/api/orders', orderData, {
-          'Authorization': `Bearer ${token}`
-        });
-      } catch (apiError) {
-        console.warn('Backend API failed, using fallback mode:', apiError.message);
+        const orderResponse = await orderService.createOrder(orderData);
         
-        // Fallback: Create a mock order for testing when backend is down
-        savedOrder = {
-          _id: `offline_${Date.now()}`,
-          orderNumber: `TEST_${Date.now()}`,
-          ...orderData,
-          status: 'pending_backend',
-          createdAt: new Date().toISOString()
-        };
-        
-        // Show warning about offline mode
-        alert('⚠️ Backend is currently unavailable. Order saved locally in test mode. Please contact support to confirm your order.');
+        if (formData.paymentMethod === 'online') {
+          // Initialize Razorpay payment
+          const paymentInitiated = await initializeRazorpayPayment(orderResponse);
+          
+          if (!paymentInitiated) {
+            throw new Error('Failed to initialize payment');
+          }
+          
+          // Don't clear cart yet - wait for payment confirmation
+          setIsProcessing(false);
+          return;
+        } else {
+          // For COD, proceed as normal
+          // Clear cart
+          localStorage.setItem('cartItems', JSON.stringify([]));
+          
+          // Complete the order
+          onOrderComplete(orderResponse.order._id);
+        }
+      } catch (error) {
+        console.error('Error processing order:', error);
+        alert('Error processing order. Please try again.');
+        setIsProcessing(false);
+        return;
       }
-
-      // Save order to localStorage for reference
-      const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-      existingOrders.push(savedOrder);
-      localStorage.setItem('orders', JSON.stringify(existingOrders));
-
-      // Clear cart
-      localStorage.setItem('cartItems', JSON.stringify([]));
       
       // Trigger cart update event
       window.dispatchEvent(new Event('cartUpdated'));
@@ -715,61 +765,25 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                   </div>
                 </div>
 
-                {/* Online Payment Form - Only show when online payment is selected */}
+                {/* Online Payment Information */}
                 {formData.paymentMethod === 'online' && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                    <input
-                      type="text"
-                      name="cardNumber"
-                      value={formData.cardNumber}
-                      onChange={handleInputChange}
-                      placeholder="1234 5678 9012 3456"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                      required
-                    />
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-                      <input
-                        type="text"
-                        name="expiryDate"
-                        value={formData.expiryDate}
-                        onChange={handleInputChange}
-                        placeholder="MM/YY"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                        required
-                      />
+                  <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div className="flex items-center">
+                      <span className="text-blue-500 text-xl mr-2">🔒</span>
+                      <div>
+                        <h4 className="text-sm font-medium text-blue-800">Secure Online Payment</h4>
+                        <p className="text-xs text-blue-600 mt-1">
+                          You'll be redirected to our secure payment gateway to complete your payment.
+                          We support UPI, Credit/Debit Cards, and Net Banking.
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                      <input
-                        type="text"
-                        name="cvv"
-                        value={formData.cvv}
-                        onChange={handleInputChange}
-                        placeholder="123"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                        required
-                      />
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <img src="https://cdn.razorpay.com/static/assets/pay-methods/upi.svg" alt="UPI" className="h-6" />
+                      <img src="https://cdn.razorpay.com/static/assets/pay-methods/card.svg" alt="Cards" className="h-6" />
+                      <img src="https://cdn.razorpay.com/static/assets/pay-methods/netbanking.svg" alt="Net Banking" className="h-6" />
                     </div>
                   </div>
-                  
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
-                    <input
-                      type="text"
-                      name="cardName"
-                      value={formData.cardName}
-                      onChange={handleInputChange}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13]"
-                      required
-                    />
-                  </div>
-                </div>
                 )}
                 
                 {/* COD Information - Only show when COD is selected */}

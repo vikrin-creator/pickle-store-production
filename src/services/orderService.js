@@ -97,9 +97,38 @@ class OrderService {
     try {
       console.log('Creating order:', orderData);
       
-      return await api.post('/api/orders', orderData);
+      // First create the order
+      const orderResponse = await api.post('/api/orders', orderData);
+      console.log('Order creation response:', orderResponse);
+      
+      // Then create Razorpay order
+      if (orderResponse.success) {
+        console.log('Creating Razorpay order for orderId:', orderResponse.order._id);
+        const razorpayOrder = await api.post('/api/orders/create-payment', {
+          orderId: orderResponse.order._id,
+          amount: orderResponse.order.total * 100 // Convert to paise
+        });
+        console.log('Razorpay order creation response:', razorpayOrder);
+        
+        return {
+          ...orderResponse,
+          razorpayOrder: razorpayOrder
+        };
+      }
+      
+      return orderResponse;
     } catch (error) {
       console.error('Error creating order:', error);
+      throw error;
+    }
+  }
+
+  // Verify Razorpay payment
+  async verifyPayment(paymentData) {
+    try {
+      return await api.post('/api/orders/verify-payment', paymentData);
+    } catch (error) {
+      console.error('Error verifying payment:', error);
       throw error;
     }
   }
