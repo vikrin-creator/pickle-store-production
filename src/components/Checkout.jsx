@@ -29,7 +29,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
   const [exampleCouponText, setExampleCouponText] = useState('Loading coupon info...');
   
   // Shipping state
-  const [shippingCost, setShippingCost] = useState(200); // Default fallback
+  const [shippingCost, setShippingCost] = useState(0); // Will be calculated from admin settings
   const [shippingInfo, setShippingInfo] = useState(null);
   const [isCalculatingShipping, setIsCalculatingShipping] = useState(false);
   
@@ -122,6 +122,17 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     }
   }, [formData.zipCode, cartItems]);
 
+  // Calculate default shipping when cart items load
+  useEffect(() => {
+    if (cartItems.length > 0 && shippingCost === 0) {
+      const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      // Try to get default shipping if no zipcode yet
+      if (!formData.zipCode) {
+        calculateShipping('', subtotal);
+      }
+    }
+  }, [cartItems]);
+
   const checkAuthStatus = () => {
     if (authService.isAuthenticated()) {
       const user = authService.getCurrentUser();
@@ -160,10 +171,22 @@ const Checkout = ({ onBack, onOrderComplete }) => {
   // Calculate shipping cost dynamically based on pincode and cart total
   const calculateShipping = async (pincode, cartTotal) => {
     if (!pincode || pincode.length < 6) {
-      // Use default shipping if no valid pincode
-      setShippingCost(200);
-      setShippingInfo(null);
-      return 200;
+      // Use default shipping from admin settings (fetch with empty pincode)
+      setIsCalculatingShipping(true);
+      try {
+        // Try to get default/free shipping from admin settings
+        const result = await ShippingService.calculateShippingCost('', cartTotal);
+        setShippingCost(result.shippingCost || 0);
+        setShippingInfo(result);
+        return result.shippingCost || 0;
+      } catch (error) {
+        console.error('Error calculating default shipping:', error);
+        setShippingCost(0); // Use 0 instead of hardcoded 200
+        setShippingInfo(null);
+        return 0;
+      } finally {
+        setIsCalculatingShipping(false);
+      }
     }
 
     setIsCalculatingShipping(true);
@@ -174,10 +197,10 @@ const Checkout = ({ onBack, onOrderComplete }) => {
       return result.shippingCost;
     } catch (error) {
       console.error('Error calculating shipping:', error);
-      // Fallback to default shipping on error
-      setShippingCost(200);
+      // Fallback to 0 instead of hardcoded 200
+      setShippingCost(0);
       setShippingInfo(null);
-      return 200;
+      return 0;
     } finally {
       setIsCalculatingShipping(false);
     }
@@ -420,8 +443,8 @@ const Checkout = ({ onBack, onOrderComplete }) => {
           finalShippingCost = shippingResult;
         } catch (error) {
           console.error('Error calculating shipping during checkout:', error);
-          // Fallback to current shipping cost or default
-          finalShippingCost = shippingCost || 200;
+          // Fallback to current shipping cost or 0
+          finalShippingCost = shippingCost || 0;
         }
       }
       
