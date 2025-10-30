@@ -3736,9 +3736,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Order Update Modal */}
       {showOrderUpdateModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-lg w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 mt-20">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-y-auto mt-20">
+            <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">Update Order Status</h3>
                 <button
