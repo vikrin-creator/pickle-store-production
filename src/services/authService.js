@@ -57,33 +57,12 @@ class AuthService {
   // Register new user
   async register(userData) {
     try {
-      console.log('Attempting registration with:', { ...userData, password: '[HIDDEN]' });
-      
       const data = await api.post('/api/auth/register', userData);
-      console.log('Registration response:', data);
-
-      if (data.success) {
-        this.setAuth(data.token, data.user);
-        console.log('Registration successful');
-      }
-
       return data;
     } catch (error) {
-      console.error('Registration network error:', error);
-      console.error('API_URL being used:', API_URL);
-      console.error('Full URL attempted:', `${API_URL}/api/auth/register`);
-      
-      // Check if it's a CORS or network connectivity issue
-      if (error.name === 'TypeError' && (error.message.includes('fetch') || error.message.includes('Failed to fetch'))) {
-        return {
-          success: false,
-          message: 'Unable to connect to server. This could be a network or CORS issue. Please try again.'
-        };
-      }
-      
       return {
         success: false,
-        message: 'Network error occurred. The server might be temporarily unavailable. Please try again in a few moments.'
+        message: error.message || 'Registration failed'
       };
     }
   }

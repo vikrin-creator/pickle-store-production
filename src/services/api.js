@@ -96,24 +96,33 @@ export const api = {
         body: JSON.stringify(data),
       });
       
+      // Parse response body first, regardless of status
+      let responseData;
+      try {
+        responseData = await response.json();
+      } catch (e) {
+        responseData = { success: false, message: 'Invalid server response' };
+      }
+      
       // Handle specific HTTP status codes
       if (response.status === 429) {
-        throw new Error('Server is busy (rate limited). Please try again in a few minutes.');
+        return { success: false, message: 'Server is busy. Please try again in a few minutes.' };
       }
       
       if (response.status === 401) {
-        throw new Error('Authentication failed. Please log in again.');
+        return { success: false, message: 'Authentication failed. Please log in again.' };
       }
       
       if (response.status === 500) {
-        throw new Error('Server error. Please try again later.');
+        return { success: false, message: 'Server error. Please try again later.' };
       }
       
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        // Return the error response from backend
+        return responseData || { success: false, message: `Error: ${response.status}` };
       }
       
-      return await response.json();
+      return responseData;
     } catch (error) {
       console.error('API POST Error:', error);
       throw error;
