@@ -89,7 +89,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
       setCategories([
         { category: 'Pickles', emoji: '🥒' },
         { category: 'Spices', emoji: '🌶' },
-        { category: 'Podi Varieties Varieties', emoji: '🍃' },
+        { category: 'Podi Varieties', emoji: '🍃' },
         { category: 'Seafood', emoji: '🐟' }
       ]);
     }
