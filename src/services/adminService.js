@@ -1,7 +1,7 @@
 // Admin Service - Real-time backend API integration
 import { api } from './api.js';
 
-const API_BASE_URL = 'https://pickle-store-backend.onrender.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://pickle-store-backend.onrender.com';
 
 class AdminService {
   // Products API
