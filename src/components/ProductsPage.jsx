@@ -181,7 +181,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
       let matches = false;
       switch (selectedCategory) {
         case 'Pickles':
-          matches = true;  // Show ALL products for Pickles category
+         matches = product.category === 'Vegetarian' || product.category === 'Non-Vegetarian';  // Show ALL products for Pickles category
           break;
         case 'Seafood':
           matches = product.category === 'Seafood';
