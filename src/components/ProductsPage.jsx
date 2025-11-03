@@ -187,7 +187,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
           matches = product.category === 'Seafood';
           break;
         case 'Podi Varieties':
-          matches = product.category === "Podi Varieties" || product.category === 'Podi Varieties';
+          matches = product.category === "Podi Varieties";
           break;
         case 'Spices':
           matches = product.category === 'Spices';
