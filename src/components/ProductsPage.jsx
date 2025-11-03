@@ -170,19 +170,23 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
         productObject: product
       });
       
-      // For products with new structure (has productCategory field)
+      // Special case for Pickles - uses dietary category instead of productCategory
+      if (selectedCategory === 'Pickles') {
+        const matches = product.category === 'Vegetarian' || product.category === 'Non-Vegetarian';
+        console.log(`Product ${product.name}: Pickles filter - dietary category="${product.category}" matches: ${matches}`);
+        return matches;
+      }
+      
+      // For other categories, use productCategory field
       if (product.productCategory) {
         const matches = product.productCategory === selectedCategory;
         console.log(`Product ${product.name}: productCategory="${product.productCategory}" matches selectedCategory="${selectedCategory}": ${matches}`);
         return matches;
       }
       
-      // For old products without productCategory, map based on original logic
+      // Fallback for products without productCategory
       let matches = false;
       switch (selectedCategory) {
-        case 'Pickles':
-         matches = product.category === 'Vegetarian' || product.category === 'Non-Vegetarian';  // Show ALL products for Pickles category
-          break;
         case 'Seafood':
           matches = product.category === 'Seafood';
           break;
@@ -197,7 +201,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
           matches = product.category === selectedCategory;
       }
       
-      console.log(`Product ${product.name}: old structure matches selectedCategory="${selectedCategory}": ${matches} (category="${product.category}")`);
+      console.log(`Product ${product.name}: fallback matches selectedCategory="${selectedCategory}": ${matches} (category="${product.category}")`);
       return matches;
     })();
     
