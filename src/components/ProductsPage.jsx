@@ -89,7 +89,7 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
       setCategories([
         { category: 'Pickles', emoji: '🥒' },
         { category: 'Spices', emoji: '🌶' },
-        { category: 'Podi', emoji: '🍃' },
+        { category: 'Podi Varieties Varieties', emoji: '🍃' },
         { category: 'Seafood', emoji: '🐟' }
       ]);
     }
@@ -186,8 +186,8 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
         case 'Seafood':
           matches = product.category === 'Seafood';
           break;
-        case 'Podi':
-          matches = product.category === "Podi's" || product.category === 'Podi';
+        case 'Podi Varieties':
+          matches = product.category === "Podi Varieties" || product.category === 'Podi Varieties';
           break;
         case 'Spices':
           matches = product.category === 'Spices';
