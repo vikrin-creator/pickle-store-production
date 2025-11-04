@@ -192,44 +192,43 @@ const CustomerAuth = ({ onClose, onSuccess }) => {
         <div className="absolute inset-0 z-10 bg-gradient-to-b from-orange-50/50 via-orange-50 to-orange-50 rounded-xl"></div>
         
         <div className="relative z-20 flex flex-col bg-white bg-opacity-90 rounded-xl shadow-2xl backdrop-blur-fallback min-h-[500px] max-h-[90vh] overflow-y-auto">
-          {/* Header with Logo */}
-          <header className="px-6 py-4 flex-shrink-0">
-            <div className="flex items-center justify-between text-amber-900">
-              <div className="flex items-center gap-3">
-                <img 
-                  src="/assets/logo.png" 
-                  alt="Janiitra Pickles" 
-                  className="w-14 h-14 sm:w-16 sm:h-16 object-contain"
-                  onError={(e) => {
-                    // Fallback to a spice/pickle icon if logo fails
-                    e.target.style.display = 'none';
-                    e.target.nextSibling.style.display = 'block';
-                  }}
-                />
-                <svg 
-                  className="h-14 w-14 sm:h-16 sm:w-16 text-orange-500 hidden" 
-                  fill="none" 
-                  viewBox="0 0 48 48" 
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M13.8261 17.4264C16.7203 18.1174 20.2244 18.5217 24 18.5217C27.7756 18.5217 31.2797 18.1174 34.1739 17.4264C36.9144 16.7722 39.9967 15.2331 41.3563 14.1648L24.8486 40.6391C24.4571 41.267 23.5429 41.267 23.1514 40.6391L6.64374 14.1648C8.00331 15.2331 11.0856 16.7722 13.8261 17.4264Z" fill="currentColor"></path>
-                </svg>
-                {/* <h1 className="text-lg sm:text-xl font-bold tracking-tight">Janiitra Pickles</h1> */}
-              </div>
-              {/* Close Button */}
-              <button
-                onClick={onClose}
-                className="text-gray-500 hover:text-gray-700 transition-colors z-20"
-              >
-                <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
+          {/* Header with Close Button */}
+          <header className="px-4 sm:px-6 py-3 flex-shrink-0 flex justify-end">
+            {/* Close Button */}
+            <button
+              onClick={onClose}
+              className="text-gray-500 hover:text-gray-700 transition-colors z-20"
+            >
+              <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
           </header>
 
+          {/* Logo Section - Left Aligned */}
+          <div className="px-4 sm:px-6 pb-4 flex justify-start">
+            <img 
+              src="/assets/logo.png" 
+              alt="Janiitra Pickles" 
+              className="w-24 h-10 sm:w-32 sm:h-12 md:w-36 md:h-14 object-contain"
+              onError={(e) => {
+                // Fallback to a spice/pickle icon if logo fails
+                e.target.style.display = 'none';
+                e.target.nextSibling.style.display = 'flex';
+              }}
+            />
+            <svg 
+              className="h-12 w-12 sm:h-14 sm:w-14 text-orange-500 hidden justify-center items-center" 
+              fill="none" 
+              viewBox="0 0 48 48" 
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M13.8261 17.4264C16.7203 18.1174 20.2244 18.5217 24 18.5217C27.7756 18.5217 31.2797 18.1174 34.1739 17.4264C36.9144 16.7722 39.9967 15.2331 41.3563 14.1648L24.8486 40.6391C24.4571 41.267 23.5429 41.267 23.1514 40.6391L6.64374 14.1648C8.00331 15.2331 11.0856 16.7722 13.8261 17.4264Z" fill="currentColor"></path>
+            </svg>
+          </div>
+
           {/* Main Auth Form */}
-          <main className="flex-1 py-4 px-6">
+          <main className="flex-1 py-2 px-4 sm:px-6">
             <div className="w-full">
               {/* OTP Verification Screen */}
               {showOTPVerification ? (

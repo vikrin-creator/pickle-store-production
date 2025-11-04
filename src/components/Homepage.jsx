@@ -63,6 +63,12 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist }) => {
     loadHomepageData();
     loadCategories();
     loadTestimonials();
+    
+    // Check if profile should be open from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('profile') === 'true' && authService.isAuthenticated()) {
+      setShowProfile(true);
+    }
   }, []);
 
   // Load categories from database
@@ -169,10 +175,20 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist }) => {
     console.log('Current showProfile state:', showProfile);
     setShowProfile(true);
     console.log('Profile state set to true');
+    
+    // Update URL to include profile state
+    const url = new URL(window.location);
+    url.searchParams.set('profile', 'true');
+    window.history.pushState({}, '', url);
   };
 
   const handleProfileClose = () => {
     setShowProfile(false);
+    
+    // Remove profile parameter from URL
+    const url = new URL(window.location);
+    url.searchParams.delete('profile');
+    window.history.pushState({}, '', url);
   };
 
   const handleShowLogin = () => {

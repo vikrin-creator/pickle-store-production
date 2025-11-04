@@ -274,7 +274,7 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
 
       <div className="max-w-7xl mx-auto px-4 sm:px-8 pt-16 md:pt-20 pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-          {/* Product Image and Reviews */}
+          {/* Product Image - Desktop: Reviews below image, Mobile: Reviews after cart buttons */}
           <div className="space-y-6">
             {/* Product Image */}
             <div className="aspect-square rounded-2xl overflow-hidden bg-white shadow-lg">
@@ -285,12 +285,14 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
               />
             </div>
             
-            {/* Reviews Section */}
-            <ReviewSection 
-              productId={product._id || product.id}
-              productName={product.name}
-              onWriteReview={handleWriteReview}
-            />
+            {/* Reviews Section - Only visible on Desktop */}
+            <div className="hidden lg:block">
+              <ReviewSection 
+                productId={product._id || product.id}
+                productName={product.name}
+                onWriteReview={handleWriteReview}
+              />
+            </div>
           </div>
 
           {/* Product Info */}
@@ -452,6 +454,15 @@ const ProductDetail = ({ product, onBack, onAddToCart, onNavigateToWishlist, onB
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Reviews Section - Only visible on Mobile/Tablet (below product details) */}
+        <div className="lg:hidden mt-8">
+          <ReviewSection 
+            productId={product._id || product.id}
+            productName={product.name}
+            onWriteReview={handleWriteReview}
+          />
         </div>
       </div>
       

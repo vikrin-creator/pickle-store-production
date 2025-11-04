@@ -335,27 +335,33 @@ function App() {
 
   const navigateToContact = () => {
     setCurrentPage('contact');
+    window.scrollTo(0, 0);
   };
 
   const navigateToPrivacy = () => {
     setCurrentPage('privacy');
+    window.scrollTo(0, 0);
   };
 
   const navigateToTerms = () => {
     setCurrentPage('terms');
+    window.scrollTo(0, 0);
   };
 
   const navigateToShipping = () => {
     setCurrentPage('shipping');
+    window.scrollTo(0, 0);
   };
 
   const navigateToStories = () => {
     setCurrentPage('stories');
+    window.scrollTo(0, 0);
   };
 
   const navigateToOrderConfirmation = (order) => {
     setCurrentOrder(order);
     setCurrentPage('orderConfirmation');
+    window.scrollTo(0, 0);
   };
 
   // Make navigation functions globally available

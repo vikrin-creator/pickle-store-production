@@ -202,6 +202,31 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     loadAllAdminData();
   }, [activeTab]);
 
+  // Close mobile menu on window resize to desktop size
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024 && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [mobileMenuOpen]);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
+
   // Load shipping zones when shipping tab is active
   useEffect(() => {
     if (activeTab === 'shipping') {
@@ -965,7 +990,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   };
 
   const handleLogout = () => {
-    if (onLogout) {
+    const confirmed = window.confirm('Are you sure you want to logout?');
+    if (confirmed && onLogout) {
       onLogout();
     }
   };
@@ -1336,68 +1362,151 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
-      {/* Mobile Menu Overlay */}
-      {mobileMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
-          onClick={() => setMobileMenuOpen(false)}
-        ></div>
-      )}
-
-      {/* Top Header - Fixed */}
-      <header className="bg-gradient-to-r from-green-700 to-green-600 shadow-md border-b border-green-800 px-4 lg:px-8 py-2 z-50 fixed top-0 left-0 right-0">
-        <div className="flex justify-between items-center">
-          {/* Left side - Logo and Mobile menu */}
-          <div className="flex items-center space-x-4">
-            <button 
-              className="lg:hidden p-2 rounded-lg hover:bg-green-600"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            >
-              <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans relative overflow-x-hidden">
+      <style>{`
+        /* Responsive breakpoints and touch optimizations */
+        @media (max-width: 320px) {
+          .text-responsive { font-size: 0.75rem; }
+        }
+        
+        /* Smooth scrolling for all devices */
+        * {
+          -webkit-overflow-scrolling: touch;
+        }
+        
+        /* Custom scrollbar for webkit browsers */
+        .scrollbar-thin::-webkit-scrollbar {
+          width: 6px;
+        }
+        .scrollbar-thin::-webkit-scrollbar-track {
+          background: #166534;
+        }
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+          background: #15803d;
+          border-radius: 3px;
+        }
+        
+        /* Touch-friendly minimum sizes */
+        .touch-manipulation {
+          min-height: 44px;
+          min-width: 44px;
+        }
+        
+        /* Prevent text selection on buttons */
+        button {
+          -webkit-tap-highlight-color: transparent;
+          user-select: none;
+        }
+        
+        /* Responsive container */
+        @media (max-width: 640px) {
+          .max-w-screen { max-width: 100vw; }
+        }
+      `}</style>
+      
+      {/* Top Header - Fixed - Responsive for all devices */}
+      <header className="bg-gradient-to-r from-green-700 to-green-600 shadow-md border-b border-green-800 px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-2.5 z-[60] fixed top-0 left-0 right-0">
+        <div className="flex justify-between items-center max-w-[100vw]">
+          {/* Left side - Logo and Mobile Menu Button */}
+          <div className="flex items-center space-x-2 sm:space-x-3 relative">
+            {/* Hamburger menu button - visible on mobile and tablet */}
+            <div className="lg:hidden relative">
+              <button
+                className="p-1.5 sm:p-2 rounded-lg hover:bg-green-600 active:bg-green-700 transition-colors touch-manipulation"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                aria-label="Toggle menu"
+              >
+                <svg className="w-5 h-5 sm:w-6 sm:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
+              
+              {/* Mobile Dropdown Menu - Responsive */}
+              {mobileMenuOpen && (
+                <>
+                  {/* Backdrop overlay */}
+                  <div 
+                    className="fixed inset-0 bg-black/30 z-[65]"
+                    onClick={() => setMobileMenuOpen(false)}
+                  ></div>
+                  
+                  {/* Dropdown menu */}
+                  <div className="fixed top-12 sm:top-14 left-2 sm:left-3 w-[calc(100vw-1rem)] sm:w-72 md:w-80 bg-gradient-to-b from-green-700 to-green-800 shadow-2xl rounded-lg overflow-hidden z-[70] max-h-[calc(100vh-4rem)] overflow-y-auto">
+                    <nav className="py-1">
+                      {[
+                        { id: 'dashboard', label: 'Dashboard', icon: '📊' },
+                        { id: 'products', label: 'Products', icon: '🛍️' },
+                        { id: 'orders', label: 'Orders', icon: '📦' },
+                        { id: 'customers', label: 'Users', icon: '👥' },
+                        { id: 'payments', label: 'Payments', icon: '💳' },
+                        { id: 'shipping', label: 'Shipping', icon: '🚚' },
+                        { id: 'categories', label: 'Categories', icon: '🗂️' },
+                        { id: 'customerFavourite', label: 'Customer Favourite', icon: '❤️' },
+                        { id: 'offers', label: 'Offer Banner', icon: '🎁' },
+                        { id: 'reviews', label: 'Reviews', icon: '⭐' },
+                        { id: 'faq', label: 'FAQ', icon: '❓' },
+                        { id: 'testimonials', label: 'Testimonials', icon: '💬' }
+                      ].map(tab => (
+                        <button
+                          key={tab.id}
+                          onClick={() => {
+                            setActiveTab(tab.id);
+                            setMobileMenuOpen(false);
+                          }}
+                          className={`w-full flex items-center px-3 sm:px-4 py-2.5 sm:py-3 transition-all duration-200 touch-manipulation ${
+                            activeTab === tab.id
+                              ? 'bg-white/20 border-l-4 border-orange-400'
+                              : 'hover:bg-white/10 active:bg-white/15'
+                          }`}
+                        >
+                          <span className="text-base sm:text-lg mr-2 sm:mr-3 flex-shrink-0">{tab.icon}</span>
+                          <span className="text-white font-medium text-xs sm:text-sm">{tab.label}</span>
+                        </button>
+                      ))}
+                    </nav>
+                  </div>
+                </>
+              )}
+            </div>
             <img
               src="/assets/logo.png"
               alt="Janiitra - Authentic Indian Pickles Logo"
-              className="h-5 w-24 sm:h-6 sm:w-32 md:h-7 md:w-40 object-contain"
+              className="h-4 w-16 xs:h-5 xs:w-20 sm:h-6 sm:w-24 md:h-7 md:w-32 lg:w-36 object-contain"
             />
           </div>
 
-          {/* Right side - Actions and Navigation */}
-          <div className="flex items-center space-x-2 lg:space-x-4">
+          {/* Right side - Actions and Navigation - Responsive */}
+          <div className="flex items-center space-x-1 sm:space-x-2 lg:space-x-4">
             {activeTab === 'products' && (
               <button
                 onClick={() => setShowAddForm(true)}
-                className="hidden sm:flex px-3 lg:px-4 py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 transition-all duration-200 shadow-md hover:shadow-lg items-center gap-2 text-sm lg:text-base"
+                className="hidden xs:flex px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-lg hover:from-orange-600 hover:to-orange-700 active:from-orange-700 active:to-orange-800 transition-all duration-200 shadow-md hover:shadow-lg items-center gap-1 sm:gap-2 text-xs sm:text-sm lg:text-base touch-manipulation"
               >
-                <span>➕</span>
-                <span className="hidden md:inline">Add Product</span>
+                <span className="text-sm sm:text-base">➕</span>
+                <span className="hidden sm:inline">Add Product</span>
+                <span className="xs:inline sm:hidden">Add</span>
               </button>
             )}
             
             <button
               onClick={handleLogout}
-              className="px-2 lg:px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 flex items-center gap-1 lg:gap-2 shadow-md text-sm lg:text-base"
+              className="px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-lg transition-colors duration-200 flex items-center gap-1 lg:gap-2 shadow-md text-xs sm:text-sm lg:text-base touch-manipulation"
             >
-              <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M16 17V14H9V10H16V7L21 12L16 17M14 2A2 2 0 0 1 16 4V6H14V4H5V20H14V18H16V20A2 2 0 0 1 14 22H5A2 2 0 0 1 3 20V4A2 2 0 0 1 5 2H14Z" />
               </svg>
-              <span className="hidden sm:inline">Logout</span>
+              <span className="hidden xs:inline">Logout</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Middle Section with Sidebar and Content */}
-      <div className="flex flex-1 pt-14">
-        {/* Category Section (Sidebar Navigation) - Fixed Position */}
-        <div className={`w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed top-14 bottom-0 z-40 transition-transform duration-300 flex flex-col ${
-          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}>
-        <div className="p-4 flex-1 overflow-y-auto">          
-          <nav className="space-y-2">
+      {/* Middle Section with Sidebar and Content - Fully Responsive */}
+      <div className="flex flex-1 pt-12 sm:pt-14">
+        {/* Category Section (Sidebar Navigation) - Only visible on desktop */}
+        <aside className="hidden lg:flex w-56 xl:w-64 bg-gradient-to-b from-green-700 to-green-800 shadow-xl fixed top-12 sm:top-14 bottom-0 left-0 z-50 flex-col">
+        <div className="p-3 xl:p-4 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-green-600 scrollbar-track-green-800">          
+          <nav className="space-y-1.5 xl:space-y-2">
             {[
               { id: 'dashboard', label: 'Dashboard', icon: '📊' },
               { id: 'products', label: 'Products', icon: '🛍️' },
@@ -1416,20 +1525,19 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 key={tab.id}
                 onClick={() => {
                   setActiveTab(tab.id);
-                  setMobileMenuOpen(false);
                 }}
-                className={`w-full flex items-center px-3 py-2 rounded-xl transition-all duration-200 ${
+                className={`w-full flex items-center px-2.5 xl:px-3 py-2 xl:py-2.5 rounded-xl transition-all duration-200 ${
                   activeTab === tab.id
                     ? 'bg-white/20 shadow-lg border-l-4 border-orange-400 transform scale-105'
                     : 'hover:bg-white/10 hover:transform hover:scale-102'
                 }`}
               >
-                <div className={`w-8 h-8 ${activeTab === tab.id ? 'bg-orange-400' : 'bg-white/20'} rounded-lg flex items-center justify-center mr-3 shadow-sm`}>
-                  <span className="text-sm">{tab.icon}</span>
+                <div className={`w-7 h-7 xl:w-8 xl:h-8 ${activeTab === tab.id ? 'bg-orange-400' : 'bg-white/20'} rounded-lg flex items-center justify-center mr-2 xl:mr-3 shadow-sm flex-shrink-0`}>
+                  <span className="text-xs xl:text-sm">{tab.icon}</span>
                 </div>
-                <span className="text-white font-medium text-sm">{tab.label}</span>
+                <span className="text-white font-medium text-xs xl:text-sm truncate">{tab.label}</span>
                 {activeTab === tab.id && (
-                  <div className="ml-auto">
+                  <div className="ml-auto flex-shrink-0">
                     <div className="w-2 h-2 bg-orange-400 rounded-full animate-pulse"></div>
                   </div>
                 )}
@@ -1439,37 +1547,37 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         </div>
         
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-white/10 bg-green-800/50">
+        <div className="p-3 xl:p-4 border-t border-white/10 bg-green-800/50">
         </div>
-        </div>
+        </aside>
 
-        {/* Main Content Area */}
-        <main className="flex-1 p-4 lg:p-8 overflow-auto bg-gray-50 lg:ml-64">
+        {/* Main Content Area - Fully Responsive */}
+        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 overflow-auto bg-gray-50 lg:ml-56 xl:ml-64 min-h-screen w-full">
           {/* Tab Content */}
         
         {/* Dashboard Tab */}
         {activeTab === 'dashboard' && (
-          <div className="space-y-8">
-            {/* Modern Stats Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="space-y-4 sm:space-y-6 lg:space-y-8">
+            {/* Modern Stats Cards - Fully Responsive */}
+            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6 mb-4 sm:mb-6 lg:mb-8">
               {/* Total Products Card */}
-              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-200">
+              <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation">
                 <div className="flex items-center justify-between">
                   <div className="text-white">
-                    <p className="text-blue-100 text-sm font-medium">Total Products</p>
-                    <p className="text-3xl font-bold">{products.length}</p>
+                    <p className="text-blue-100 text-xs sm:text-sm font-medium">Total Products</p>
+                    <p className="text-2xl sm:text-3xl font-bold">{products.length}</p>
                     <p className="text-blue-100 text-xs mt-1">
                       Increased by {Math.floor(Math.random() * 20)}%
                     </p>
                   </div>
-                  <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                    <span className="text-2xl">�</span>
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-white/20 rounded-lg sm:rounded-xl flex items-center justify-center flex-shrink-0">
+                    <span className="text-xl sm:text-2xl">🛍️</span>
                   </div>
                 </div>
               </div>
 
               {/* Total Users Card */}
-              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl p-6 shadow-xl transform hover:scale-105 transition-all duration-200">
+              <div className="bg-gradient-to-br from-green-500 to-green-600 rounded-xl sm:rounded-2xl p-4 sm:p-5 lg:p-6 shadow-xl transform hover:scale-105 active:scale-95 transition-all duration-200 touch-manipulation">
                 <div className="flex items-center justify-between">
                   <div className="text-white">
                     <p className="text-green-100 text-sm font-medium">Total Users</p>
@@ -1800,15 +1908,43 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
         {/* Add/Edit Product Form Modal */}
         {showAddForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-              <div className="p-6">
-                <h2 className="text-2xl font-bold mb-4">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
+            <div className="bg-white rounded-lg w-full max-w-2xl my-4 sm:my-8 shadow-2xl">
+              {/* Header with Cancel Button */}
+              <div className="bg-gradient-to-r from-green-700 to-green-600 px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg flex items-center justify-between">
+                <h2 className="text-xl sm:text-2xl font-bold text-white">
                   {editingProduct ? 'Edit Product' : 'Add New Product'}
                 </h2>
+                <button
+                  onClick={() => {
+                    setShowAddForm(false);
+                    setEditingProduct(null);
+                    setFormData({
+                      name: '',
+                      description: '',
+                      category: '',
+                      price: '',
+                      region: '',
+                      image: '',
+                      weights: []
+                    });
+                    setSelectedImageFile(null);
+                    setImagePreview(null);
+                  }}
+                  className="text-white hover:text-red-200 transition-colors p-1 sm:p-2 hover:bg-white/10 rounded-lg"
+                  title="Cancel"
+                >
+                  <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              {/* Form Content */}
+              <div className="p-4 sm:p-6 max-h-[calc(90vh-80px)] overflow-y-auto">
                 
                 {/* Form */}
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-1">Name</label>
                     <input
@@ -1974,17 +2110,17 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 </div>
                 
                 {/* Form Actions */}
-                <div className="flex gap-3 mt-6">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6 sticky bottom-0 bg-white pt-4 border-t">
                   <button
                     onClick={handleSaveProduct}
                     disabled={!formData.name || !formData.description}
-                    className="flex-1 px-4 py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="flex-1 px-4 py-2.5 sm:py-2 bg-[#ecab13] text-white rounded-lg hover:bg-[#d49c12] active:bg-[#c58b10] transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm sm:text-base"
                   >
                     {editingProduct ? 'Update Product' : 'Add Product'}
                   </button>
                   <button
                     onClick={handleCancelEdit}
-                    className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
+                    className="flex-1 px-4 py-2.5 sm:py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 active:bg-gray-700 transition-colors font-medium text-sm sm:text-base"
                   >
                     Cancel
                   </button>
@@ -3459,11 +3595,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Category Form Modal */}
       {showCategoryForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
+          <div className="bg-white rounded-lg max-w-md w-full my-4 sm:my-8 shadow-2xl">
+            <div className="bg-gradient-to-r from-green-700 to-green-600 px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg border-b border-green-800">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-lg sm:text-xl font-bold text-white">
                   {editingCategory ? 'Edit Category' : 'Add New Category'}
                 </h3>
                 <button
@@ -3482,16 +3618,17 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     setSelectedCategoryImageFile(null);
                     setCategoryImagePreview('');
                   }}
-                  className="text-gray-400 hover:text-gray-600"
+                  className="text-white hover:text-red-200 transition-colors p-1 sm:p-2 hover:bg-white/10 rounded-lg"
+                  title="Cancel"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
             </div>
             
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-3 sm:space-y-4 max-h-[calc(90vh-120px)] overflow-y-auto">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category Title</label>
                 <input
