@@ -1911,8 +1911,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
             <div className="bg-white rounded-lg w-full max-w-2xl my-4 sm:my-8 shadow-2xl">
               {/* Header with Cancel Button */}
-              <div className="bg-gradient-to-r from-green-700 to-green-600 px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg flex items-center justify-between">
-                <h2 className="text-xl sm:text-2xl font-bold text-white">
+              <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg flex items-center justify-between">
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
                   {editingProduct ? 'Edit Product' : 'Add New Product'}
                 </h2>
                 <button
@@ -1931,7 +1931,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     setSelectedImageFile(null);
                     setImagePreview(null);
                   }}
-                  className="text-white hover:text-red-200 transition-colors p-1 sm:p-2 hover:bg-white/10 rounded-lg"
+                  className="text-gray-600 hover:text-red-600 transition-colors p-1 sm:p-2 hover:bg-gray-100 rounded-lg"
                   title="Cancel"
                 >
                   <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3034,9 +3034,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Review Form Modal */}
       {showReviewForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
+          <div className="bg-white rounded-lg max-w-md w-full my-4 shadow-2xl">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">
                   {editingReview ? 'Edit Review' : 'Add New Review'}
@@ -3133,11 +3133,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Offer Banner Form Modal */}
       {showOfferForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
+          <div className="bg-white rounded-lg max-w-2xl w-full my-4 shadow-2xl">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Edit Offer Banner</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">Edit Offer Banner</h3>
                 <button
                   onClick={() => setShowOfferForm(false)}
                   className="text-gray-400 hover:text-gray-600"
@@ -3330,11 +3330,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* FAQ Form Modal */}
       {showFaqForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
+          <div className="bg-white rounded-lg max-w-2xl w-full my-4 shadow-2xl">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                   {editingFaq ? 'Edit FAQ' : 'Add New FAQ'}
                 </h3>
                 <button
@@ -3417,11 +3417,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Customer Favourite Edit Modal */}
       {editingFavourite && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
+          <div className="bg-white rounded-lg max-w-2xl w-full my-4 shadow-2xl">
+            <div className="p-4 sm:p-6 border-b border-gray-200">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                   ❤️ Edit Customer Favourite
                 </h3>
                 <button
@@ -3597,9 +3597,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       {showCategoryForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
           <div className="bg-white rounded-lg max-w-md w-full my-4 sm:my-8 shadow-2xl">
-            <div className="bg-gradient-to-r from-green-700 to-green-600 px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg border-b border-green-800">
+            <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg sm:text-xl font-bold text-white">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-800">
                   {editingCategory ? 'Edit Category' : 'Add New Category'}
                 </h3>
                 <button
@@ -3618,7 +3618,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     setSelectedCategoryImageFile(null);
                     setCategoryImagePreview('');
                   }}
-                  className="text-white hover:text-red-200 transition-colors p-1 sm:p-2 hover:bg-white/10 rounded-lg"
+                  className="text-gray-600 hover:text-red-600 transition-colors p-1 sm:p-2 hover:bg-gray-100 rounded-lg"
                   title="Cancel"
                 >
                   <svg className="w-6 h-6 sm:w-7 sm:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3776,11 +3776,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Order View Modal */}
       {showOrderViewModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 mt-14">
-          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[80vh] overflow-y-auto mt-14">
-            <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
+          <div className="bg-white rounded-lg max-w-2xl w-full my-4 shadow-2xl">
+            <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-20 bg-white z-10">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Order Details</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">Order Details</h3>
                 <button
                   onClick={closeOrderModals}
                   className="text-gray-400 hover:text-gray-600"
@@ -3873,11 +3873,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Order Update Modal */}
       {showOrderUpdateModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 mt-14">
-          <div className="bg-white rounded-lg max-w-lg w-full max-h-[80vh] overflow-y-auto mt-14">
-            <div className="p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
+          <div className="bg-white rounded-lg max-w-lg w-full my-4 shadow-2xl">
+            <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-20 bg-white z-10">
               <div className="flex justify-between items-center">
-                <h3 className="text-lg font-semibold text-gray-900">Update Order Status</h3>
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900">Update Order Status</h3>
                 <button
                   onClick={closeOrderModals}
                   className="text-gray-400 hover:text-gray-600"
@@ -4110,10 +4110,10 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Testimonial Form Modal */}
       {showTestimonialForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md my-4 shadow-2xl">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">
+              <h3 className="text-base sm:text-lg font-semibold">
                 {editingTestimonial ? 'Edit Testimonial' : 'Add New Testimonial'}
               </h3>
               <button
@@ -4292,9 +4292,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Shipping Zone Form Modal */}
       {showShippingZoneForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-90vh overflow-y-auto">
-            <h3 className="text-lg font-semibold mb-4">Add New Shipping Zone</h3>
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md my-4 shadow-2xl">
+            <h3 className="text-base sm:text-lg font-semibold mb-4">Add New Shipping Zone</h3>
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Zone Name</label>
