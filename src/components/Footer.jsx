@@ -74,9 +74,10 @@ const Footer = () => {
             href="https://www.vikrin.com/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-[#221c10]/70 hover:text-[#ecab13] transition-colors duration-200 text-sm underline"
+            className="text-[#221c10] transition-colors duration-200 text-sm group"
           >
-            Built and Developed By Vikrin
+            <span>Designed and Developed By </span>
+            <span className="font-semibold underline group-hover:text-[#ecab13]">Vikrin</span>
           </a>
         </div>
       </div>
