@@ -67,7 +67,7 @@ const StoriesPage = ({ onBack }) => {
       id: 6,
       title: "Health & Wellness",
       subtitle: "The Nutritional Legacy",
-      image: "https://images.unsplash.com/photo-1599810232-ffd5db63a4d1?w=800&h=600&fit=crop",
+      image: "assets/Health.png",
       excerpt: "Ancient wisdom meets modern science. Our pickles are powerhouses of probiotics, with spices offering medicinal benefits recognized by Ayurveda.",
       category: "Wellness"
     }
