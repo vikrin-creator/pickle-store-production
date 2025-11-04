@@ -3965,7 +3965,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Testimonials Tab */}
       {activeTab === 'testimonials' && (
-        <div className="lg:ml-64 p-3 sm:p-4 space-y-4 min-h-screen">
+        <div className="space-y-4 sm:space-y-6">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
               <h2 className="text-xl sm:text-2xl font-bold text-gray-800">💬 Customer Testimonials</h2>
