@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import Footer from './Footer';
 
-const StoriesPage = ({ onBack }) => {
+const StoriesPage = ({ onBack, onNavigateToProducts }) => {
   useEffect(() => {
     // Define navigation functions
     window.navigateToHome = () => {
@@ -96,7 +96,7 @@ const StoriesPage = ({ onBack }) => {
                 Home
               </button>
               <button 
-                onClick={() => window.navigateToProducts && window.navigateToProducts()}
+                onClick={() => onNavigateToProducts ? onNavigateToProducts() : (window.navigateToProducts && window.navigateToProducts())}
                 className="text-sm font-medium text-white hover:text-[#ecab13] transition-colors"
               >
                 Shop
@@ -166,13 +166,11 @@ const StoriesPage = ({ onBack }) => {
 
               {/* Content */}
               <div className="p-8 md:p-12 flex flex-col justify-center">
-                <h3 className="text-sm font-semibold text-[#ecab13] uppercase tracking-wide mb-2">
-                  Featured Story
-                </h3>
-                <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+                <h2 className="text-4xl md:text-5xl font-bold text-[#2d6700] mb-3 leading-tight">
                   {stories[0].title}
                 </h2>
-                <p className="text-lg text-[#2d6700] font-medium mb-4">
+                <div className="w-16 h-1 bg-[#ecab13] mb-4"></div>
+                <p className="text-xl md:text-2xl text-[#ecab13] font-normal mb-6">
                   {stories[0].subtitle}
                 </p>
                 <p className="text-gray-600 leading-relaxed mb-6">
@@ -236,13 +234,13 @@ const StoriesPage = ({ onBack }) => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <button
-              onClick={() => window.navigateToProducts && window.navigateToProducts()}
+              onClick={() => onNavigateToProducts ? onNavigateToProducts() : (window.navigateToProducts && window.navigateToProducts())}
               className="bg-white text-[#2d6700] px-8 py-4 rounded-lg font-bold text-lg hover:bg-gray-100 transition-colors shadow-lg"
             >
               Shop Collection
             </button>
             <button
-              onClick={() => window.navigateToHome && window.navigateToHome()}
+              onClick={onBack}
               className="border-2 border-white text-white px-8 py-4 rounded-lg font-bold text-lg hover:bg-white/10 transition-colors"
             >
               Learn More

@@ -298,12 +298,14 @@ function App() {
   const navigateToHome = () => {
     setCurrentPage('home');
     setCategoryFilter('all');
+    window.scrollTo(0, 0);
   };
 
   const navigateToProducts = (category = 'all') => {
     setCurrentPage('products');
     setCategoryFilter(category);
     setProductsPageKey(prev => prev + 1);
+    window.scrollTo(0, 0);
   };
 
   const navigateToCart = () => {
@@ -536,7 +538,7 @@ function App() {
       case 'contact':
         return <ContactPage onNavigateHome={handleBackToHome} onNavigateToProducts={() => navigateToProducts()} />;
       case 'stories':
-        return <StoriesPage onBack={handleBackToHome} />;
+        return <StoriesPage onBack={handleBackToHome} onNavigateToProducts={() => navigateToProducts()} />;
       case 'privacy':
         return <PrivacyPolicyPage onBack={handleBackToHome} />;
       case 'terms':
@@ -550,6 +552,7 @@ function App() {
             cartCount={cartCount} 
             onNavigateToCart={handleNavigateToCart}
             onNavigateToWishlist={navigateToWishlist}
+            onNavigateToProducts={() => navigateToProducts()}
             isAuthenticated={isCustomerAuthenticated}
             user={currentUser}
             onLogout={handleCustomerLogout}

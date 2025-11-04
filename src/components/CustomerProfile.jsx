@@ -4,7 +4,7 @@ import orderService from '../services/orderService';
 import userService from '../services/userService';
 import { api } from '../services/api';
 
-const CustomerProfile = ({ onNavigateHome, onClose }) => {
+const CustomerProfile = ({ onNavigateHome, onClose, onNavigateToProducts }) => {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState('profile');
   const [loading, setLoading] = useState(true);
@@ -650,7 +650,7 @@ const CustomerProfile = ({ onNavigateHome, onClose }) => {
                       {orderFilter === 'all' ? 'No orders found' : `No ${orderFilter} orders found`}
                     </p>
                     <button
-                      onClick={onNavigateHome}
+                      onClick={onNavigateToProducts || onNavigateHome}
                       className="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors"
                     >
                       Start Shopping

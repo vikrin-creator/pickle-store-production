@@ -9,7 +9,7 @@ import CustomerProfile from './CustomerProfile';
 import Footer from './Footer';
 import CompatibleImage from './CompatibleImage';
 
-const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist }) => {
+const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigateToProducts }) => {
   // Hero carousel images
   const heroImages = [
     '/assets/PickleBackgroundjars.png',
@@ -34,7 +34,9 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist }) => {
   // Helper for category navigation
   const handleCategoryNavigate = (category) => {
     console.log('Homepage: Navigating to category:', category);
-    if (window.navigateToProducts) {
+    if (onNavigateToProducts) {
+      onNavigateToProducts(category);
+    } else if (window.navigateToProducts) {
       window.navigateToProducts(category);
     }
   };
@@ -881,6 +883,10 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist }) => {
           onNavigateHome={() => {
             setShowProfile(false);
             // Could add any additional navigation logic here
+          }}
+          onNavigateToProducts={() => {
+            setShowProfile(false);
+            onNavigateToProducts && onNavigateToProducts();
           }}
         />
       )}
