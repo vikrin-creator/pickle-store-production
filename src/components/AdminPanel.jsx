@@ -3998,11 +3998,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 items-start">
               {testimonials.map((testimonial) => (
                 <div
                   key={testimonial._id}
-                  className={`bg-white rounded-lg shadow-md p-4 sm:p-5 border-l-4 transition-all duration-200 hover:shadow-lg ${
+                  className={`bg-white rounded-lg shadow-md p-4 sm:p-5 border-l-4 transition-all duration-200 hover:shadow-lg self-start ${
                     testimonial.isFeatured ? 'border-yellow-400 bg-yellow-50' : 
                     testimonial.isActive ? 'border-green-400' : 'border-gray-300 opacity-75'
                   }`}
