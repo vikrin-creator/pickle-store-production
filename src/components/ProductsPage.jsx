@@ -12,14 +12,51 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
     diet: '',
     category: categoryFilter === 'all' ? '' : categoryFilter
   });
-  const [sortBy, setSortBy] = useState('Popularity');
+  const [sortBy, setSortBy] = useState('Price: Low to High');
   const [categories, setCategories] = useState([]);
+  const [wishlistItems, setWishlistItems] = useState([]);
 
   // Load products from API on component mount
   useEffect(() => {
     loadProducts();
     loadCategories();
+    loadWishlist();
   }, []);
+
+  // Load wishlist from localStorage
+  const loadWishlist = () => {
+    const savedWishlist = localStorage.getItem('wishlist');
+    if (savedWishlist) {
+      try {
+        setWishlistItems(JSON.parse(savedWishlist));
+      } catch (error) {
+        console.error('Error parsing wishlist:', error);
+        setWishlistItems([]);
+      }
+    }
+  };
+
+  // Check if product is in wishlist
+  const isInWishlist = (productId) => {
+    return wishlistItems.some(item => (item._id || item.id) === productId);
+  };
+
+  // Toggle wishlist
+  const toggleWishlist = (product) => {
+    const productId = product._id || product.id;
+    let updatedWishlist;
+
+    if (isInWishlist(productId)) {
+      // Remove from wishlist
+      updatedWishlist = wishlistItems.filter(item => (item._id || item.id) !== productId);
+    } else {
+      // Add to wishlist
+      updatedWishlist = [...wishlistItems, product];
+    }
+
+    localStorage.setItem('wishlist', JSON.stringify(updatedWishlist));
+    setWishlistItems(updatedWishlist);
+  };
 
   // Update filters when categoryFilter prop changes
   useEffect(() => {
@@ -209,21 +246,28 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   });
 
   // Sort filtered products
+  const getProductPriceForSort = (product) => {
+    // Use explicit product.price only. If price is missing, return Infinity so it sorts to the end.
+    if (product == null) return Infinity;
+    const p = product.price;
+    if (p !== undefined && p !== null && p !== '') {
+      const n = parseFloat(p);
+      return Number.isFinite(n) ? n : Infinity;
+    }
+    return Infinity;
+  };
+
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     switch (sortBy) {
       case 'Price: Low to High':
-        const priceA = a.price || a.weightOptions?.[0]?.price || 0;
-        const priceB = b.price || b.weightOptions?.[0]?.price || 0;
-        return priceA - priceB;
+        return getProductPriceForSort(a) - getProductPriceForSort(b);
       case 'Price: High to Low':
-        const priceHighA = a.price || a.weightOptions?.[0]?.price || 0;
-        const priceHighB = b.price || b.weightOptions?.[0]?.price || 0;
-        return priceHighB - priceHighA;
+        return getProductPriceForSort(b) - getProductPriceForSort(a);
       case 'Newest':
         return (b._id || b.id || 0) - (a._id || a.id || 0); // Assuming higher ID means newer
       case 'Popularity':
       default:
-        return 0; // Keep original order for popularity
+        return 0; // Keep original order for popularity or unknown sort
     }
   });
 
@@ -530,10 +574,8 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                   onChange={(e) => setSortBy(e.target.value)}
                   className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13] text-sm sm:text-base"
                 >
-                  <option value="Popularity">Popularity</option>
                   <option value="Price: Low to High">Price: Low to High</option>
                   <option value="Price: High to Low">Price: High to Low</option>
-                  <option value="Newest">Newest</option>
                 </select>
               </div>
             </div>
@@ -557,18 +599,27 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
                           e.target.src = "https://via.placeholder.com/300x200";
                         }}
                       />
-                      <div className="product-favorite absolute top-1 sm:top-2 right-1 sm:right-2 p-1 sm:p-2 bg-white/80 rounded-full cursor-pointer hover:bg-white transition-colors duration-200">
+                      <div 
+                        className="product-favorite absolute top-1 sm:top-2 right-1 sm:right-2 p-1 sm:p-2 bg-white/80 rounded-full cursor-pointer hover:bg-white transition-colors duration-200"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleWishlist(product);
+                        }}
+                      >
                         <svg
-                          className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600 hover:text-[#ecab13]"
-                          fill="none"
+                          className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-200 ${
+                            isInWishlist(product._id || product.id) 
+                              ? 'text-red-500 fill-red-500' 
+                              : 'text-gray-600 hover:text-red-500'
+                          }`}
+                          fill={isInWishlist(product._id || product.id) ? 'currentColor' : 'none'}
                           stroke="currentColor"
                           strokeLinecap="round"
                           strokeLinejoin="round"
                           strokeWidth="2"
                           viewBox="0 0 24 24"
                         >
-                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                          <circle cx="12" cy="12" r="3"></circle>
+                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                         </svg>
                       </div>
                     </div>

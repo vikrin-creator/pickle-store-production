@@ -28,6 +28,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   // Orders state
   const [orders, setOrders] = useState([]);
   const [orderLoading, setOrderLoading] = useState(false);
+  const [orderStatusFilter, setOrderStatusFilter] = useState('All Orders');
   
 
   
@@ -1021,14 +1022,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
       // Update order status via API
       const updatedOrder = await AdminService.updateOrderStatus(selectedOrder._id || selectedOrder.id, newStatus);
       
-      // Update local orders state
-      const updatedOrders = orders.map(order => 
-        (order._id || order.id) === (selectedOrder._id || selectedOrder.id) 
-          ? { ...order, status: newStatus }
-          : order
-      );
+      // Reload orders from server to ensure fresh data
+      await loadOrders();
       
-      setOrders(updatedOrders);
+      // Also reload transactions to update payment status
+      await loadTransactions();
+      
       alert(`Order status updated to ${newStatus} successfully!`);
       closeOrderModals();
     } catch (error) {
@@ -2148,7 +2147,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-2xl font-bold text-gray-800">📦 Order Management</h2>
               <div className="flex gap-2">
-                <select className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500">
+                <select 
+                  value={orderStatusFilter}
+                  onChange={(e) => setOrderStatusFilter(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                >
                   <option>All Orders</option>
                   <option>Pending</option>
                   <option>Processing</option>
@@ -2181,13 +2184,19 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           Loading orders...
                         </td>
                       </tr>
-                    ) : orders.length === 0 ? (
-                      <tr>
-                        <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
-                          No orders found
-                        </td>
-                      </tr>
-                    ) : orders.map((order) => (
+                    ) : (() => {
+                      // Filter orders based on selected status
+                      const filteredOrders = orderStatusFilter === 'All Orders' 
+                        ? orders 
+                        : orders.filter(order => order.status === orderStatusFilter);
+                      
+                      return filteredOrders.length === 0 ? (
+                        <tr>
+                          <td colSpan="7" className="px-6 py-4 text-center text-gray-500">
+                            {orderStatusFilter === 'All Orders' ? 'No orders found' : `No ${orderStatusFilter} orders found`}
+                          </td>
+                        </tr>
+                      ) : filteredOrders.map((order) => (
                       <tr key={order._id || order.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.orderNumber || order._id || 'N/A'}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customerInfo?.name || order.customer || 'N/A'}</td>
@@ -2224,7 +2233,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           </button>
                         </td>
                       </tr>
-                    ))}
+                    ));
+                    })()}
                   </tbody>
                 </table>
               </div>

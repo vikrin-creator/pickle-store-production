@@ -153,20 +153,32 @@ class AdminService {
       // Call new endpoint that returns ALL orders (pending, failed, confirmed)
       const orders = await api.get('/api/orders/admin/transactions');
       
-      return orders.map(order => ({
-        _id: order._id,
-        transactionId: `TXN${order.orderNumber?.slice(-3) || Math.random().toString(36).substr(2, 3)}`,
-        orderId: order._id,
-        customerName: order.customerInfo?.name || 'Anonymous',
-        customer: order.customerInfo?.name || 'Anonymous',
-        amount: order.total || 0,
-        method: order.paymentMethod === 'cod' ? 'COD' : 'Online',
-        status: order.status === 'confirmed' ? 'Success' : 
-                order.status === 'pending' ? 'Pending' : 
-                order.status === 'failed' ? 'Failed' : 'Unknown',
-        date: new Date(order.createdAt).toLocaleString(),
-        createdAt: order.createdAt
-      }));
+      return orders.map(order => {
+        // Map order status to transaction status
+        let transactionStatus = 'Unknown';
+        const orderStatus = (order.status || '').toLowerCase();
+        
+        if (orderStatus === 'pending') {
+          transactionStatus = 'Pending';
+        } else if (orderStatus === 'confirmed' || orderStatus === 'processing' || orderStatus === 'shipped' || orderStatus === 'delivered') {
+          transactionStatus = 'Success';
+        } else if (orderStatus === 'failed' || orderStatus === 'cancelled') {
+          transactionStatus = 'Failed';
+        }
+        
+        return {
+          _id: order._id,
+          transactionId: `TXN${order.orderNumber?.slice(-3) || Math.random().toString(36).substr(2, 3)}`,
+          orderId: order._id,
+          customerName: order.customerInfo?.name || 'Anonymous',
+          customer: order.customerInfo?.name || 'Anonymous',
+          amount: order.total || 0,
+          method: order.paymentMethod === 'cod' ? 'COD' : 'Online',
+          status: transactionStatus,
+          date: new Date(order.createdAt).toLocaleString(),
+          createdAt: order.createdAt
+        };
+      });
     } catch (error) {
       console.error('Error fetching transactions:', error);
       return [];
