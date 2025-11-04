@@ -29,6 +29,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [orders, setOrders] = useState([]);
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderStatusFilter, setOrderStatusFilter] = useState('All Orders');
+  const [paymentDateFilter, setPaymentDateFilter] = useState('all'); // all, today, week, month
   
 
   
@@ -2289,8 +2290,18 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
             {/* Transaction List */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="p-6 border-b border-gray-200">
+              <div className="p-6 border-b border-gray-200 flex justify-between items-center">
                 <h3 className="text-lg font-semibold">Recent Transactions</h3>
+                <select 
+                  value={paymentDateFilter}
+                  onChange={(e) => setPaymentDateFilter(e.target.value)}
+                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
+                >
+                  <option value="all">All Time</option>
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                </select>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -2305,7 +2316,36 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200">
-                    {transactions.map((txn) => (
+                    {(() => {
+                      // Filter transactions by date
+                      const now = new Date();
+                      const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                      const startOfWeek = new Date(now);
+                      startOfWeek.setDate(now.getDate() - now.getDay());
+                      startOfWeek.setHours(0, 0, 0, 0);
+                      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                      
+                      const filteredTransactions = transactions.filter(txn => {
+                        if (paymentDateFilter === 'all') return true;
+                        
+                        const txnDate = new Date(txn.createdAt);
+                        
+                        if (paymentDateFilter === 'today') {
+                          return txnDate >= startOfToday;
+                        } else if (paymentDateFilter === 'week') {
+                          return txnDate >= startOfWeek;
+                        } else if (paymentDateFilter === 'month') {
+                          return txnDate >= startOfMonth;
+                        }
+                        return true;
+                      });
+                      
+                      // Sort by date - latest first (already sorted from backend but ensure it)
+                      const sortedTransactions = [...filteredTransactions].sort((a, b) => 
+                        new Date(b.createdAt) - new Date(a.createdAt)
+                      );
+                      
+                      return sortedTransactions.map((txn) => (
                       <tr key={txn._id || txn.id}>
                         <td className="px-6 py-4 text-sm font-medium text-gray-900">{txn._id || txn.transactionId || 'N/A'}</td>
                         <td className="px-6 py-4 text-sm text-gray-500">{txn.customerName || txn.customer || 'N/A'}</td>
@@ -2324,7 +2364,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           {txn.createdAt ? new Date(txn.createdAt).toLocaleDateString() : txn.date || 'N/A'}
                         </td>
                       </tr>
-                    ))}
+                    ));
+                    })()}
                   </tbody>
                 </table>
               </div>
