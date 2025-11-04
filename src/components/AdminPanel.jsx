@@ -1019,8 +1019,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
     setUpdatingOrderStatus(true);
     try {
-      // Update order status via API
-      const updatedOrder = await AdminService.updateOrderStatus(selectedOrder._id || selectedOrder.id, newStatus);
+      // Update order status via API (send lowercase to match backend)
+      const updatedOrder = await AdminService.updateOrderStatus(
+        selectedOrder._id || selectedOrder.id, 
+        newStatus.toLowerCase()
+      );
       
       // Reload orders from server to ensure fresh data
       await loadOrders();
@@ -2185,10 +2188,14 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                         </td>
                       </tr>
                     ) : (() => {
-                      // Filter orders based on selected status
+                      // Filter orders based on selected status (case-insensitive)
                       const filteredOrders = orderStatusFilter === 'All Orders' 
                         ? orders 
-                        : orders.filter(order => order.status === orderStatusFilter);
+                        : orders.filter(order => {
+                            const orderStatus = (order.status || '').toLowerCase();
+                            const filterStatus = (orderStatusFilter || '').toLowerCase();
+                            return orderStatus === filterStatus;
+                          });
                       
                       return filteredOrders.length === 0 ? (
                         <tr>
@@ -2206,13 +2213,13 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{order.total || order.totalAmount || order.amount || 0}</td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            order.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
-                            order.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
-                            order.status === 'Shipped' ? 'bg-purple-100 text-purple-800' :
-                            order.status === 'Delivered' ? 'bg-green-100 text-green-800' :
+                            (order.status || '').toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            (order.status || '').toLowerCase() === 'processing' ? 'bg-blue-100 text-blue-800' :
+                            (order.status || '').toLowerCase() === 'shipped' ? 'bg-purple-100 text-purple-800' :
+                            (order.status || '').toLowerCase() === 'delivered' ? 'bg-green-100 text-green-800' :
                             'bg-red-100 text-red-800'
                           }`}>
-                            {order.status}
+                            {order.status && order.status.charAt(0).toUpperCase() + order.status.slice(1).toLowerCase()}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -2233,7 +2240,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           </button>
                         </td>
                       </tr>
-                    ));
+                      ));
                     })()}
                   </tbody>
                 </table>
