@@ -26,7 +26,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
     setLoading(true);
     
     try {
-      const response = await api.post('/contact', formData);
+      const response = await api.post('/api/contact', formData);
       
       if (response.data.success) {
         setSubmitted(true);
