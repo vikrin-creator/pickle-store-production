@@ -2217,7 +2217,12 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                             return orderId.length > 10 ? orderId.substring(0, 10) + '...' : orderId;
                           })()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customerInfo?.name || order.customer || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500" title={order.customerInfo?.name || order.customer || 'N/A'}>
+                          {(() => {
+                            const customerName = order.customerInfo?.name || order.customer || 'N/A';
+                            return customerName.length > 10 ? customerName.substring(0, 10) + '...' : customerName;
+                          })()}
+                        </td>
                         <td className="px-4 py-4 text-sm text-gray-500 max-w-[150px]">
                           <div className="truncate" title={order.items?.map(item => `${item.name} x${item.quantity}`).join(', ') || 'N/A'}>
                             {(() => {
@@ -4114,8 +4119,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   <div className="mt-1 p-3 bg-gray-50 rounded-md">
                     <p className="text-sm text-gray-900">{selectedOrder.customerInfo.address.street}</p>
                     <p className="text-sm text-gray-600">
-                      {selectedOrder.customerInfo.address.city}, {selectedOrder.customerInfo.address.state} {selectedOrder.customerInfo.address.zipCode}
+                      {selectedOrder.customerInfo.address.city}, {selectedOrder.customerInfo.address.state}
                     </p>
+                    <p className="text-sm text-gray-600">Pincode: {selectedOrder.customerInfo.address.zipCode || selectedOrder.customerInfo.address.pincode || 'N/A'}</p>
                     <p className="text-sm text-gray-600">Phone: {selectedOrder.customerInfo.phone || 'N/A'}</p>
                   </div>
                 </div>

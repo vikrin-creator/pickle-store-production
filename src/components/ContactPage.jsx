@@ -26,23 +26,23 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
     setLoading(true);
     
     try {
-      // In a real implementation, you'd send this to your backend
-      console.log('Contact form submitted:', formData);
+      const response = await api.post('/contact', formData);
       
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setSubmitted(true);
-      setFormData({
-        name: '',
-        email: '',
-        phone: '',
-        subject: '',
-        message: ''
-      });
+      if (response.data.success) {
+        setSubmitted(true);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          subject: '',
+          message: ''
+        });
+      } else {
+        alert(response.data.message || 'Error sending message. Please try again.');
+      }
     } catch (error) {
       console.error('Error submitting contact form:', error);
-      alert('Error sending message. Please try again.');
+      alert(error.response?.data?.message || 'Error sending message. Please try again later or contact us directly at janiitra.official@gmail.com');
     } finally {
       setLoading(false);
     }
