@@ -28,7 +28,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
     try {
       const response = await api.post('/api/contact', formData);
       
-      if (response.data.success) {
+      if (response.success) {
         setSubmitted(true);
         setFormData({
           name: '',
@@ -38,11 +38,11 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
           message: ''
         });
       } else {
-        alert(response.data.message || 'Error sending message. Please try again.');
+        alert(response.message || 'Error sending message. Please try again.');
       }
     } catch (error) {
       console.error('Error submitting contact form:', error);
-      alert(error.response?.data?.message || 'Error sending message. Please try again later or contact us directly at janiitra.official@gmail.com');
+      alert(error.message || 'Error sending message. Please try again later or contact us directly at janiitra.official@gmail.com');
     } finally {
       setLoading(false);
     }
