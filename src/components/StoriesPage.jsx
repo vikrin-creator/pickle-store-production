@@ -150,20 +150,6 @@ const StoriesPage = ({ onBack, onNavigateToProducts }) => {
         <div className="mb-12">
           <div className="bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300">
             <div className="grid md:grid-cols-2 gap-0">
-              {/* Image */}
-              <div className="relative h-80 md:h-96">
-                <img 
-                  src={stories[0].image}
-                  alt={stories[0].title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute top-4 left-4">
-                  <span className="bg-[#ecab13] text-white px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
-                    {stories[0].category}
-                  </span>
-                </div>
-              </div>
-
               {/* Content */}
               <div className="p-8 md:p-12 flex flex-col justify-center">
                 <h2 className="text-4xl md:text-5xl font-bold text-[#2d6700] mb-3 leading-tight">
@@ -178,10 +164,24 @@ const StoriesPage = ({ onBack, onNavigateToProducts }) => {
                 </p>
                 <button
                   onClick={() => window.navigateToProducts && window.navigateToProducts()}
-                  className="self-start bg-[#2d6700] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#1f4800] transition-colors duration-300"
+                  className="bg-[#2d6700] text-white px-8 py-3 rounded-lg font-semibold hover:bg-[#1f4a00] transition-colors duration-300 self-start"
                 >
                   Explore Our Pickles
                 </button>
+              </div>
+
+              {/* Image */}
+              <div className="relative h-80 md:h-96">
+                <img 
+                  src={stories[0].image}
+                  alt={stories[0].title}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute top-4 left-4">
+                  <span className="bg-[#ecab13] text-white px-4 py-1 rounded-full text-xs font-semibold uppercase tracking-wide">
+                    {stories[0].category}
+                  </span>
+                </div>
               </div>
             </div>
           </div>
