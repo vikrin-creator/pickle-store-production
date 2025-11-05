@@ -29,7 +29,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [orders, setOrders] = useState([]);
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderStatusFilter, setOrderStatusFilter] = useState('All Orders');
-  const [paymentDateFilter, setPaymentDateFilter] = useState('all'); // all, today, week, month
+  const [paymentDateFilter, setPaymentDateFilter] = useState('all'); // all, today, week, month, custom
+  const [customDateRange, setCustomDateRange] = useState({
+    startDate: '',
+    endDate: ''
+  });
   
 
   
@@ -1911,10 +1915,10 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
         {/* Add/Edit Product Form Modal */}
         {showAddForm && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
-            <div className="bg-white rounded-lg w-full max-w-2xl my-4 sm:my-8 shadow-2xl">
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] pt-16 sm:pt-20">
+            <div className="bg-white rounded-lg w-full max-w-2xl max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col shadow-2xl mx-2 sm:mx-4 my-4">
               {/* Header with Cancel Button */}
-              <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg flex items-center justify-between">
+              <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg flex items-center justify-between flex-shrink-0">
                 <h2 className="text-xl sm:text-2xl font-bold text-gray-800">
                   {editingProduct ? 'Edit Product' : 'Add New Product'}
                 </h2>
@@ -1944,7 +1948,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
               
               {/* Form Content */}
-              <div className="p-4 sm:p-6 max-h-[calc(90vh-80px)] overflow-y-auto">
+              <div className="p-4 sm:p-6 overflow-y-auto flex-1">
                 
                 {/* Form */}
                 <div className="space-y-3 sm:space-y-4">
@@ -2208,10 +2212,17 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       <tr key={order._id || order.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.orderNumber || order._id || 'N/A'}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customerInfo?.name || order.customer || 'N/A'}</td>
-                        <td className="px-6 py-4 text-sm text-gray-500 max-w-xs truncate">
-                          {order.items?.map(item => `${item.name} x${item.quantity}`).join(', ') || 'N/A'}
+                        <td className="px-4 py-4 text-sm text-gray-500 max-w-[150px]">
+                          <div className="truncate" title={order.items?.map(item => `${item.name} x${item.quantity}`).join(', ') || 'N/A'}>
+                            {(() => {
+                              const itemsText = order.items?.map(item => `${item.name} x${item.quantity}`).join(', ') || 'N/A';
+                              return itemsText.length > 20 ? itemsText.substring(0, 20) + '...' : itemsText;
+                            })()}
+                          </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{order.total || order.totalAmount || order.amount || 0}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                          ₹{(order.total || order.totalAmount || order.amount || 0).toFixed(2)}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             (order.status || '').toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
@@ -2290,18 +2301,55 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
             {/* Transaction List */}
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-                <h3 className="text-lg font-semibold">Recent Transactions</h3>
-                <select 
-                  value={paymentDateFilter}
-                  onChange={(e) => setPaymentDateFilter(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500"
-                >
-                  <option value="all">All Time</option>
-                  <option value="today">Today</option>
-                  <option value="week">This Week</option>
-                  <option value="month">This Month</option>
-                </select>
+              <div className="p-6 border-b border-gray-200">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <h3 className="text-lg font-semibold">Recent Transactions</h3>
+                  
+                  <div className="flex flex-col md:flex-row items-start md:items-center gap-4 w-full md:w-auto">
+                    {/* Date Filter Dropdown */}
+                    <select 
+                      value={paymentDateFilter}
+                      onChange={(e) => {
+                        setPaymentDateFilter(e.target.value);
+                        if (e.target.value !== 'custom') {
+                          setCustomDateRange({ startDate: '', endDate: '' });
+                        }
+                      }}
+                      className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 w-full md:w-auto"
+                    >
+                      <option value="all">All Time</option>
+                      <option value="today">Today</option>
+                      <option value="week">This Week</option>
+                      <option value="month">This Month</option>
+                      <option value="custom">Custom Date Range</option>
+                    </select>
+
+                    {/* Custom Date Range Pickers */}
+                    {paymentDateFilter === 'custom' && (
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">From:</label>
+                          <input
+                            type="date"
+                            value={customDateRange.startDate}
+                            onChange={(e) => setCustomDateRange(prev => ({ ...prev, startDate: e.target.value }))}
+                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm"
+                          />
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <label className="text-sm font-medium text-gray-700 whitespace-nowrap">To:</label>
+                          <input
+                            type="date"
+                            value={customDateRange.endDate}
+                            onChange={(e) => setCustomDateRange(prev => ({ ...prev, endDate: e.target.value }))}
+                            min={customDateRange.startDate}
+                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 text-sm"
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
@@ -2336,6 +2384,25 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                           return txnDate >= startOfWeek;
                         } else if (paymentDateFilter === 'month') {
                           return txnDate >= startOfMonth;
+                        } else if (paymentDateFilter === 'custom') {
+                          // Handle custom date range
+                          if (!customDateRange.startDate && !customDateRange.endDate) return true;
+                          
+                          if (customDateRange.startDate && customDateRange.endDate) {
+                            const startDate = new Date(customDateRange.startDate);
+                            startDate.setHours(0, 0, 0, 0);
+                            const endDate = new Date(customDateRange.endDate);
+                            endDate.setHours(23, 59, 59, 999);
+                            return txnDate >= startDate && txnDate <= endDate;
+                          } else if (customDateRange.startDate) {
+                            const startDate = new Date(customDateRange.startDate);
+                            startDate.setHours(0, 0, 0, 0);
+                            return txnDate >= startDate;
+                          } else if (customDateRange.endDate) {
+                            const endDate = new Date(customDateRange.endDate);
+                            endDate.setHours(23, 59, 59, 999);
+                            return txnDate <= endDate;
+                          }
                         }
                         return true;
                       });
@@ -3235,9 +3302,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Review Form Modal */}
       {showReviewForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
-          <div className="bg-white rounded-lg max-w-md w-full my-4 shadow-2xl">
-            <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] pt-16 sm:pt-20">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col shadow-2xl mx-2 sm:mx-4 my-4">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg font-semibold text-gray-900">
                   {editingReview ? 'Edit Review' : 'Add New Review'}
@@ -3257,7 +3324,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
             </div>
             
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
                 <input
@@ -3334,9 +3401,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Offer Banner Form Modal */}
       {showOfferForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
-          <div className="bg-white rounded-lg max-w-2xl w-full my-4 shadow-2xl">
-            <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] pt-16 sm:pt-20">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col shadow-2xl mx-2 sm:mx-4 my-4">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900">Edit Offer Banner</h3>
                 <button
@@ -3348,7 +3415,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
             </div>
             
-            <form onSubmit={handleOfferSubmit} className="p-6 space-y-4">
+            <form onSubmit={handleOfferSubmit} className="p-6 space-y-4 overflow-y-auto flex-1">
               {/* Banner Text */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -3531,9 +3598,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* FAQ Form Modal */}
       {showFaqForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
-          <div className="bg-white rounded-lg max-w-2xl w-full my-4 shadow-2xl">
-            <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] pt-16 sm:pt-20">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col shadow-2xl mx-2 sm:mx-4 my-4">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                   {editingFaq ? 'Edit FAQ' : 'Add New FAQ'}
@@ -3553,7 +3620,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
             </div>
             
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Question</label>
                 <input
@@ -3618,9 +3685,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Customer Favourite Edit Modal */}
       {editingFavourite && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
-          <div className="bg-white rounded-lg max-w-2xl w-full my-4 shadow-2xl">
-            <div className="p-4 sm:p-6 border-b border-gray-200">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] pt-16 sm:pt-20">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col shadow-2xl mx-2 sm:mx-4 my-4">
+            <div className="p-4 sm:p-6 border-b border-gray-200 flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900">
                   ❤️ Edit Customer Favourite
@@ -3640,7 +3707,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
             </div>
             
-            <div className="p-6 space-y-6">
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
               {/* Custom Image Upload */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -3796,9 +3863,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Category Form Modal */}
       {showCategoryForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
-          <div className="bg-white rounded-lg max-w-md w-full my-4 sm:my-8 shadow-2xl">
-            <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] pt-16 sm:pt-20">
+          <div className="bg-white rounded-lg max-w-md w-full max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col shadow-2xl mx-2 sm:mx-4 my-4">
+            <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-3 sm:py-4 rounded-t-lg flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h3 className="text-lg sm:text-xl font-bold text-gray-800">
                   {editingCategory ? 'Edit Category' : 'Add New Category'}
@@ -3829,7 +3896,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
             </div>
             
-            <div className="p-4 sm:p-6 space-y-3 sm:space-y-4 max-h-[calc(90vh-120px)] overflow-y-auto">
+            <div className="p-4 sm:p-6 space-y-3 sm:space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Category Title</label>
                 <input
@@ -3977,9 +4044,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Order View Modal */}
       {showOrderViewModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
-          <div className="bg-white rounded-lg max-w-2xl w-full my-4 shadow-2xl">
-            <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-20 bg-white z-10">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] pt-16 sm:pt-20">
+          <div className="bg-white rounded-lg max-w-2xl w-full max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col shadow-2xl mx-2 sm:mx-4 my-4">
+            <div className="p-4 sm:p-6 border-b border-gray-200 bg-white flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900">Order Details</h3>
                 <button
@@ -3993,7 +4060,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
             </div>
             
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
               {/* Order Info */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
@@ -4074,9 +4141,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Order Update Modal */}
       {showOrderUpdateModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
-          <div className="bg-white rounded-lg max-w-lg w-full my-4 shadow-2xl">
-            <div className="p-4 sm:p-6 border-b border-gray-200 sticky top-20 bg-white z-10">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] pt-16 sm:pt-20">
+          <div className="bg-white rounded-lg max-w-lg w-full max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col shadow-2xl mx-2 sm:mx-4 my-4">
+            <div className="p-4 sm:p-6 border-b border-gray-200 bg-white flex-shrink-0">
               <div className="flex justify-between items-center">
                 <h3 className="text-base sm:text-lg font-semibold text-gray-900">Update Order Status</h3>
                 <button
@@ -4090,7 +4157,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               </div>
             </div>
             
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-4 overflow-y-auto flex-1">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Order ID</label>
                 <p className="text-sm text-gray-900 bg-gray-50 p-2 rounded-md">
@@ -4166,8 +4233,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Testimonial Form Modal */}
       {showTestimonialForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
-          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md my-4 shadow-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] pt-16 sm:pt-20">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col shadow-2xl mx-2 sm:mx-4 my-4 overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-base sm:text-lg font-semibold">
                 {editingTestimonial ? 'Edit Testimonial' : 'Add New Testimonial'}
@@ -4348,8 +4415,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
       {/* Shipping Zone Form Modal */}
       {showShippingZoneForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center z-[70] p-2 sm:p-4 overflow-y-auto pt-20">
-          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md my-4 shadow-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] pt-16 sm:pt-20">
+          <div className="bg-white rounded-lg p-4 sm:p-6 w-full max-w-md max-h-[calc(100vh-5rem)] sm:max-h-[calc(100vh-6rem)] flex flex-col shadow-2xl mx-2 sm:mx-4 my-4 overflow-y-auto">
             <h3 className="text-base sm:text-lg font-semibold mb-4">Add New Shipping Zone</h3>
             <div className="space-y-4">
               <div>
