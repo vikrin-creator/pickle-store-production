@@ -26,9 +26,11 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
     setLoading(true);
     
     try {
+      console.log('Submitting contact form with data:', formData);
       const response = await api.post('/api/contact', formData);
+      console.log('Contact form response:', response);
       
-      if (response.success) {
+      if (response && response.success) {
         setSubmitted(true);
         setFormData({
           name: '',
@@ -38,7 +40,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
           message: ''
         });
       } else {
-        alert(response.message || 'Error sending message. Please try again.');
+        alert(response?.message || 'Error sending message. Please try again.');
       }
     } catch (error) {
       console.error('Error submitting contact form:', error);
