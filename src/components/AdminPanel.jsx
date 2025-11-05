@@ -2162,6 +2162,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 >
                   <option>All Orders</option>
                   <option>Pending</option>
+                  <option>Confirmed</option>
                   <option>Processing</option>
                   <option>Shipped</option>
                   <option>Delivered</option>
@@ -2210,13 +2211,18 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                         </tr>
                       ) : filteredOrders.map((order) => (
                       <tr key={order._id || order.id} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{order.orderNumber || order._id || 'N/A'}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" title={order.orderNumber || order._id || 'N/A'}>
+                          {(() => {
+                            const orderId = order.orderNumber || order._id || 'N/A';
+                            return orderId.length > 10 ? orderId.substring(0, 10) + '...' : orderId;
+                          })()}
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{order.customerInfo?.name || order.customer || 'N/A'}</td>
                         <td className="px-4 py-4 text-sm text-gray-500 max-w-[150px]">
                           <div className="truncate" title={order.items?.map(item => `${item.name} x${item.quantity}`).join(', ') || 'N/A'}>
                             {(() => {
                               const itemsText = order.items?.map(item => `${item.name} x${item.quantity}`).join(', ') || 'N/A';
-                              return itemsText.length > 20 ? itemsText.substring(0, 20) + '...' : itemsText;
+                              return itemsText.length > 15 ? itemsText.substring(0, 15) + '...' : itemsText;
                             })()}
                           </div>
                         </td>
@@ -2226,6 +2232,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                         <td className="px-6 py-4 whitespace-nowrap">
                           <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                             (order.status || '').toLowerCase() === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                            (order.status || '').toLowerCase() === 'confirmed' ? 'bg-green-100 text-green-800' :
                             (order.status || '').toLowerCase() === 'processing' ? 'bg-blue-100 text-blue-800' :
                             (order.status || '').toLowerCase() === 'shipped' ? 'bg-purple-100 text-purple-800' :
                             (order.status || '').toLowerCase() === 'delivered' ? 'bg-green-100 text-green-800' :
@@ -4071,6 +4078,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                   <label className="block text-sm font-medium text-gray-700">Status</label>
                   <span className={`mt-1 inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                     selectedOrder.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                    selectedOrder.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
                     selectedOrder.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
                     selectedOrder.status === 'Shipped' ? 'bg-purple-100 text-purple-800' :
                     selectedOrder.status === 'Delivered' ? 'bg-green-100 text-green-800' :
@@ -4176,6 +4184,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 <label className="block text-sm font-medium text-gray-700 mb-2">Current Status</label>
                 <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                   selectedOrder.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' :
+                  selectedOrder.status === 'Confirmed' ? 'bg-green-100 text-green-800' :
                   selectedOrder.status === 'Processing' ? 'bg-blue-100 text-blue-800' :
                   selectedOrder.status === 'Shipped' ? 'bg-purple-100 text-purple-800' :
                   selectedOrder.status === 'Delivered' ? 'bg-green-100 text-green-800' :
@@ -4188,7 +4197,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Update Status To</label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'].map((status) => (
+                  {['Pending', 'Confirmed', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned'].map((status) => (
                     <button
                       key={status}
                       onClick={() => handleOrderStatusUpdate(status)}
