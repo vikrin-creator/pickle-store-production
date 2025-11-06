@@ -67,17 +67,27 @@ const Footer = () => {
       </div>
 
       {/* Copyright */}
-      <div className="mt-4 sm:mt-6 pb-8 sm:pb-10 text-xs sm:text-sm text-[#221c10]/60">
-        <div>@2025 Janiitra Pickles. All rights reserved.</div>
-        <div className="mt-2">
+      <div className="mt-4 sm:mt-6 pb-8 sm:pb-10 text-xs sm:text-sm text-[#221c10]/60 text-center">
+        <div>
+          © 2025 <button 
+            onClick={() => {
+              if (window.navigateToHome) {
+                window.navigateToHome();
+              } else {
+                window.location.href = '/';
+              }
+            }}
+            className="font-bold text-[#221c10] hover:text-[#ecab13] transition-colors duration-200 cursor-pointer underline-offset-2 hover:underline"
+          >
+            Janiitra Pickles
+          </button>. All rights reserved. | Designed & Developed by{' '}
           <a 
             href="https://www.vikrin.com/" 
             target="_blank" 
             rel="noopener noreferrer"
-            className="text-[#221c10] transition-colors duration-200 text-sm group"
+            className="text-[#221c10] hover:text-[#ecab13] transition-colors duration-200 font-semibold underline"
           >
-            <span>Designed and Developed By </span>
-            <span className="font-semibold underline group-hover:text-[#ecab13]">Vikrin</span>
+            Vikrin
           </a>
         </div>
       </div>
