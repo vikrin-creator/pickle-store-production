@@ -8,6 +8,7 @@ import CustomerAuth from './CustomerAuth';
 import CustomerProfile from './CustomerProfile';
 import Footer from './Footer';
 import CompatibleImage from './CompatibleImage';
+import CartHover from './CartHoverSidebarNew';
 
 const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigateToProducts }) => {
   // Hero carousel images
@@ -47,6 +48,7 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
   const [user, setUser] = useState(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showCartHover, setShowCartHover] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [homepageData, setHomepageData] = useState({
     featured: { products: [] },
@@ -455,20 +457,29 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
             </svg>
           </button>
 
-          {/* Cart Button */}
-          <button 
-            onClick={onNavigateToCart}
-            className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-110 group"
-          >
-            <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
-              <path d="M222.14,58.87A8,8,0,0,0,216,56H54.68L49.79,29.14A16,16,0,0,0,34.05,16H16a8,8,0,0,0,0,16h18L59.56,172.29a24,24,0,0,0,5.33,11.27,28,28,0,1,0,44.4,8.44h45.42A27.75,27.75,0,0,0,152,204a28,28,0,1,0,28-28H83.17a8,8,0,0,1-7.87-6.57L72.13,152h116a24,24,0,0,0,23.61-19.71l12.16-66.86A8,8,0,0,0,222.14,58.87ZM96,204a12,12,0,1,1-12-12A12,12,0,0,1,96,204Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,192,204Zm4-74.57A8,8,0,0,1,188.1,136H69.22L57.59,72H206.41Z"></path>
-            </svg>
-            {cartCount > 0 && (
-              <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#ecab13] text-xs font-bold text-white animate-bounce">
-                {cartCount}
-              </span>
-            )}
-          </button>
+          {/* Cart Button with Hover Sidebar */}
+          <div className="relative">
+            <button 
+              onClick={onNavigateToCart}
+              onMouseEnter={() => setShowCartHover(true)}
+              className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-110 group"
+            >
+              <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
+                <path d="M222.14,58.87A8,8,0,0,0,216,56H54.68L49.79,29.14A16,16,0,0,0,34.05,16H16a8,8,0,0,0,0,16h18L59.56,172.29a24,24,0,0,0,5.33,11.27,28,28,0,1,0,44.4,8.44h45.42A27.75,27.75,0,0,0,152,204a28,28,0,1,0,28-28H83.17a8,8,0,0,1-7.87-6.57L72.13,152h116a24,24,0,0,0,23.61-19.71l12.16-66.86A8,8,0,0,0,222.14,58.87ZM96,204a12,12,0,1,1-12-12A12,12,0,0,1,96,204Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,192,204Zm4-74.57A8,8,0,0,1,188.1,136H69.22L57.59,72H206.41Z"></path>
+              </svg>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-[#ecab13] text-xs font-bold text-white animate-bounce">
+                  {cartCount}
+                </span>
+              )}
+            </button>
+
+            {/* Full Screen Cart Sidebar */}
+            <CartHover 
+              isVisible={showCartHover}
+              onClose={() => setShowCartHover(false)}
+            />
+          </div>
         </div>
       </header>
 
