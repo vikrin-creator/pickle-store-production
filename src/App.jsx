@@ -552,7 +552,7 @@ function App() {
             cartCount={cartCount} 
             onNavigateToCart={handleNavigateToCart}
             onNavigateToWishlist={navigateToWishlist}
-            onNavigateToProducts={() => navigateToProducts()}
+            onNavigateToProducts={(category) => navigateToProducts(category)}
             isAuthenticated={isCustomerAuthenticated}
             user={currentUser}
             onLogout={handleCustomerLogout}
