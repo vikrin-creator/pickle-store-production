@@ -17,6 +17,19 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
   const [categories, setCategories] = useState([]);
   const [wishlistItems, setWishlistItems] = useState([]);
   const [showCartHover, setShowCartHover] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Load products from API on component mount
   useEffect(() => {
@@ -62,11 +75,14 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
 
   // Update filters when categoryFilter prop changes
   useEffect(() => {
+    console.log('ProductsPage: CategoryFilter changed to:', categoryFilter);
+    console.log('ProductsPage: Available categories:', categories.map(cat => ({ title: cat.title, category: cat.category })));
+    
     setSelectedFilters(prev => ({
       ...prev,
       category: categoryFilter === 'all' ? '' : categoryFilter
     }));
-  }, [categoryFilter]);
+  }, [categoryFilter, categories]);
 
   // Define navigation functions
   useEffect(() => {
@@ -366,10 +382,20 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
           </button>
 
           {/* Cart Button with Hover Sidebar */}
-          <div className="relative">
+          <div className="relative" onMouseLeave={() => {
+            // Only close on mouse leave for desktop devices
+            if (!isMobile) {
+              setShowCartHover(false);
+            }
+          }}>
             <button 
               onClick={onNavigateToCart}
-              onMouseEnter={() => setShowCartHover(true)}
+              onMouseEnter={() => {
+                // Only show hover on desktop devices
+                if (!isMobile) {
+                  setShowCartHover(true);
+                }
+              }}
               className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-colors duration-200 hover:bg-[#ecab13]/20"
             >
               <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg">
@@ -382,11 +408,13 @@ const ProductsPage = ({ onProductClick, cartCount, onNavigateToCart, onAddToCart
               )}
             </button>
 
-            {/* Full Screen Cart Sidebar */}
-            <CartHover 
-              isVisible={showCartHover}
-              onClose={() => setShowCartHover(false)}
-            />
+            {/* Full Screen Cart Sidebar - Desktop Only */}
+            {!isMobile && (
+              <CartHover 
+                isVisible={showCartHover}
+                onClose={() => setShowCartHover(false)}
+              />
+            )}
           </div>
         </div>
       </header>

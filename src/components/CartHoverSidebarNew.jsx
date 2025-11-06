@@ -38,21 +38,53 @@ const CartHover = ({ isVisible, onClose, cartItems = [] }) => {
 
   return (
     <>
-      {/* Modern Cart Sidebar */}
+      {/* Mobile Backdrop - click to close */}
+      {isVisible && (
+        <div 
+          className="fixed inset-0 bg-black/20 z-[65] md:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Responsive Cart Sidebar */}
       <div 
-        className={`fixed top-20 right-0 w-80 bg-white shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out rounded-l-2xl border border-gray-100 overflow-hidden ${
+        className={`fixed top-16 md:top-20 right-0 w-full sm:w-96 md:w-80 bg-white shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out md:rounded-l-2xl border border-gray-100 overflow-hidden ${
           isVisible ? 'translate-x-0' : 'translate-x-full'
         }`}
-        style={{ height: 'calc(100vh - 6rem)' }}
+        style={{ height: 'calc(100vh - 4rem)' }}
+        onMouseLeave={() => {
+          // Only close on mouse leave for desktop devices
+          if (window.innerWidth > 768) {
+            onClose();
+          }
+        }}
       >
         {/* Close Button */}
-        <div className="absolute top-3 right-3 z-10">
+        <div className="absolute top-4 right-4 z-20">
           <button
-            onClick={onClose}
-            className="text-white hover:text-gray-200 hover:bg-white/20 rounded-full p-2 transition-all duration-200 backdrop-blur-sm"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Close button clicked via onClick');
+              onClose();
+            }}
+            onTouchEnd={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              console.log('Close button touched via onTouchEnd');
+              onClose();
+            }}
+            className="bg-red-500/80 text-white hover:bg-red-600 active:bg-red-700 rounded-full p-3 transition-all duration-200 shadow-lg border border-red-400"
+            style={{ 
+              minHeight: '44px', 
+              minWidth: '44px',
+              touchAction: 'manipulation',
+              userSelect: 'none',
+              WebkitUserSelect: 'none'
+            }}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>

@@ -27,7 +27,7 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
       setCurrentImageIndex((prevIndex) => 
         (prevIndex + 1) % heroImages.length
       );
-    }, 4000); // Change image every 4 seconds
+      }, 4000); // Change image every 4 seconds
 
     return () => clearInterval(interval);
   }, [heroImages.length]);
@@ -35,6 +35,8 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
   // Helper for category navigation
   const handleCategoryNavigate = (category) => {
     console.log('Homepage: Navigating to category:', category);
+    console.log('Homepage: All categories data:', categories);
+    console.log('Homepage: Category being passed:', category);
     if (onNavigateToProducts) {
       onNavigateToProducts(category);
     } else if (window.navigateToProducts) {
@@ -49,6 +51,19 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
   const [showCartHover, setShowCartHover] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Mobile detection
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const [showProfile, setShowProfile] = useState(false);
   const [homepageData, setHomepageData] = useState({
     featured: { products: [] },
@@ -458,10 +473,20 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
           </button>
 
           {/* Cart Button with Hover Sidebar */}
-          <div className="relative">
+          <div className="relative" onMouseLeave={() => {
+            // Only close on mouse leave for desktop devices
+            if (!isMobile) {
+              setShowCartHover(false);
+            }
+          }}>
             <button 
-              onClick={onNavigateToCart}
-              onMouseEnter={() => setShowCartHover(true)}
+              onClick={onNavigateToCart} // Always navigate to cart on click
+              onMouseEnter={() => {
+                // Only show hover on desktop devices
+                if (!isMobile) {
+                  setShowCartHover(true);
+                }
+              }}
               className="relative w-10 h-10 flex items-center justify-center rounded-full bg-white/20 text-white transition-all duration-300 hover:bg-[#ecab13]/20 hover:scale-110 group"
             >
               <svg fill="currentColor" height="20px" viewBox="0 0 256 256" width="20px" xmlns="http://www.w3.org/2000/svg" className="group-hover:scale-110 transition-transform duration-300">
@@ -474,11 +499,13 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
               )}
             </button>
 
-            {/* Full Screen Cart Sidebar */}
-            <CartHover 
-              isVisible={showCartHover}
-              onClose={() => setShowCartHover(false)}
-            />
+            {/* Full Screen Cart Sidebar - Desktop Only */}
+            {!isMobile && (
+              <CartHover 
+                isVisible={showCartHover}
+                onClose={() => setShowCartHover(false)}
+              />
+            )}
           </div>
         </div>
       </header>
@@ -547,7 +574,7 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
           </p>
           
           {/* Display categories as featured content */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 sm:gap-8 max-w-7xl mx-auto">
             {categories
               .filter(item => item.isActive !== false && item.image) // Only show active categories with images
               .sort((a, b) => (a.order || 0) - (b.order || 0))
