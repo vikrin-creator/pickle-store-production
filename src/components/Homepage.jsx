@@ -14,8 +14,8 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
   // Hero carousel images
   const heroImages = [
     '/assets/PickleBackgroundjars.png',
-    '/Curosol1.jpg', // You can replace these with different images    
-    '/Coffe.jpg'  // For now using same image, add more later
+    '/assets/Curosol1.jpg',
+    '/assets/Coffe.jpg'
   ];
 
   // Hero carousel state
@@ -546,16 +546,9 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
           </div>
 
           {/* Hero Content */}
-          <div className="relative z-10 animate-slide-up max-w-6xl mx-auto -mt-8 sm:-mt-12 lg:-mt-16">
-            <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold uppercase tracking-wide mb-4 text-white animate-fade-in-delay-1">
-              AUTHENTIC INDIAN PICKLES
-            </h1>
-            <p className="mt-4 text-sm sm:text-base md:text-lg max-w-2xl lg:max-w-4xl mx-auto leading-relaxed animate-fade-in-delay-2 px-4">
-              Handcrafted with love, bursting with traditional flavours that dance
-              on your tongue.
-            </p>
+          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10 animate-slide-up">
             <button 
-              className="font-body mt-6 sm:mt-8 bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-semibold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1 hover:bg-[#d49811]"
+              className="font-body bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-semibold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1 hover:bg-[#d49811]"
               onClick={() => window.navigateToProducts && window.navigateToProducts()}
               aria-label="Shop authentic Indian pickles now"
             >
