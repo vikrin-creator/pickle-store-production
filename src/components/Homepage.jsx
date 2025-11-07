@@ -14,8 +14,8 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
   // Hero carousel images
   const heroImages = [
     '/assets/PickleBackgroundjars.png',
-    '/assets/PickleBackgroundjars.png', // You can replace these with different images
-    '/assets/PickleBackgroundjars.png'  // For now using same image, add more later
+    '/Curosol1.jpg', // You can replace these with different images    
+    '/Coffe.jpg'  // For now using same image, add more later
   ];
 
   // Hero carousel state
