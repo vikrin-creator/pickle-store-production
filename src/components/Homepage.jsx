@@ -13,7 +13,7 @@ import CartHover from './CartHoverSidebarNew';
 const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigateToProducts }) => {
   // Hero carousel images
   const heroImages = [
-    '/assets/PickleBackgroundjars.png',
+    '/assets/JANIITRA_BANNER_1st.jpg',
     '/assets/Curosol1.jpg',
     '/assets/Coffe.jpg'
   ];
@@ -513,7 +513,7 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
       <main role="main" className="pt-24 md:pt-28">
         {/* Hero Section with Carousel */}
         <section 
-          className="relative flex items-center justify-center min-h-[50vh] sm:min-h-[60vh] lg:min-h-[70vh] bg-cover bg-center text-center text-[#e8e1e1] px-3 sm:px-6 py-12 sm:py-16 lg:py-20 animate-fade-in overflow-hidden"
+          className="relative flex items-center justify-center min-h-[60vh] sm:min-h-[70vh] lg:min-h-[80vh] bg-cover bg-center text-center text-[#e8e1e1] px-3 sm:px-6 py-12 sm:py-16 lg:py-20 animate-fade-in overflow-hidden"
           aria-label="Hero section showcasing authentic Indian pickles"
         >
           {/* Background Images Carousel */}
@@ -546,7 +546,7 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
           </div>
 
           {/* Hero Content */}
-          <div className="absolute bottom-16 left-1/2 transform -translate-x-1/2 z-10 animate-slide-up">
+          <div className="absolute top-[65%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 animate-slide-up">
             <button 
               className="font-body bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-semibold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1 hover:bg-[#d49811]"
               onClick={() => window.navigateToProducts && window.navigateToProducts()}
