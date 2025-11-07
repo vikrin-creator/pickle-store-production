@@ -546,9 +546,9 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
           </div>
 
           {/* Hero Content */}
-          <div className="absolute top-[65%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 animate-slide-up">
+          <div className="absolute top-[65%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
             <button 
-              className="font-body bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-semibold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg animate-fade-in-delay-3 transform hover:rotate-1 hover:bg-[#d49811]"
+              className="font-body bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-semibold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg hover:bg-[#d49811]"
               onClick={() => window.navigateToProducts && window.navigateToProducts()}
               aria-label="Shop authentic Indian pickles now"
             >
