@@ -11,11 +11,17 @@ import CompatibleImage from './CompatibleImage';
 import CartHover from './CartHoverSidebarNew';
 
 const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigateToProducts }) => {
-  // Hero carousel images
-  const heroImages = [
+  // Hero carousel images - desktop and mobile versions
+  const heroImagesDesktop = [
     '/assets/JANIITRA_BANNER_1st.jpg',
-    '/assets/Curosol1.jpg',
-    '/assets/Coffe.jpg'
+    '/assets/Mirchi_Desktop.jpg',
+    '/assets/Coffe_desktop.jpg'
+  ];
+
+  const heroImagesMobile = [
+    '/assets/Janiitra_mobile.jpg',
+    '/assets/Mirchi_mobile.jpg',
+    '/assets/Coffe_Mobile.jpg'
   ];
 
   // Hero carousel state
@@ -25,12 +31,12 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => 
-        (prevIndex + 1) % heroImages.length
+        (prevIndex + 1) % heroImagesDesktop.length
       );
       }, 4000); // Change image every 4 seconds
 
     return () => clearInterval(interval);
-  }, [heroImages.length]);
+  }, []);
 
   // Helper for category navigation
   const handleCategoryNavigate = (category) => {
@@ -513,13 +519,26 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
       <main role="main" className="pt-24 md:pt-28">
         {/* Hero Section with Carousel */}
         <section 
-          className="relative flex items-center justify-center min-h-[60vh] sm:min-h-[70vh] lg:min-h-[80vh] bg-cover bg-center text-center text-[#e8e1e1] px-3 sm:px-6 py-12 sm:py-16 lg:py-20 animate-fade-in overflow-hidden"
+          className="relative flex items-center justify-center min-h-[60vh] sm:min-h-[70vh] lg:min-h-[80vh] text-center text-[#e8e1e1] px-3 sm:px-6 py-12 sm:py-16 lg:py-20 animate-fade-in overflow-hidden"
           aria-label="Hero section showcasing authentic Indian pickles"
         >
-          {/* Background Images Carousel */}
-          {heroImages.map((image, index) => (
+          {/* Background Images Carousel - Mobile */}
+          {isMobile && heroImagesMobile.map((image, index) => (
             <div
-              key={index}
+              key={`mobile-${index}`}
+              className={`absolute inset-0 bg-contain bg-center bg-no-repeat transition-opacity duration-1000 ${
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('${image}')`
+              }}
+            />
+          ))}
+
+          {/* Background Images Carousel - Desktop */}
+          {!isMobile && heroImagesDesktop.map((image, index) => (
+            <div
+              key={`desktop-${index}`}
               className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
                 index === currentImageIndex ? 'opacity-100' : 'opacity-0'
               }`}
@@ -531,7 +550,7 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
 
           {/* Carousel Indicators */}
           <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-            {heroImages.map((_, index) => (
+            {heroImagesDesktop.map((_, index) => (
               <button
                 key={index}
                 onClick={() => setCurrentImageIndex(index)}
