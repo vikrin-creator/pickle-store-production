@@ -21,7 +21,7 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
   const heroImagesMobile = [
     '/assets/Janiitra_mobile.jpg',
     '/assets/Mirchi_mobile.jpg',
-    '/assets/Coffe_Mobile.jpg'
+    '/assets/Coffe_mobile.jpg'
   ];
 
   // Hero carousel state
@@ -519,18 +519,23 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
       <main role="main" className="pt-24 md:pt-28">
         {/* Hero Section with Carousel */}
         <section 
-          className="relative flex items-center justify-center min-h-[60vh] sm:min-h-[70vh] lg:min-h-[80vh] text-center text-[#e8e1e1] px-3 sm:px-6 py-12 sm:py-16 lg:py-20 animate-fade-in overflow-hidden"
+          className={`relative flex items-center justify-center text-center text-[#e8e1e1] px-3 sm:px-6 py-12 sm:py-16 lg:py-20 animate-fade-in overflow-hidden ${
+            isMobile ? 'min-h-[600px] max-h-[60vh]' : 'min-h-[60vh] sm:min-h-[70vh] lg:min-h-[80vh]'
+          }`}
           aria-label="Hero section showcasing authentic Indian pickles"
         >
           {/* Background Images Carousel - Mobile */}
           {isMobile && heroImagesMobile.map((image, index) => (
             <div
               key={`mobile-${index}`}
-              className={`absolute inset-0 bg-contain bg-center bg-no-repeat transition-opacity duration-1000 ${
+              className={`absolute inset-0 transition-opacity duration-1000 ${
                 index === currentImageIndex ? 'opacity-100' : 'opacity-0'
               }`}
               style={{
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('${image}')`
+                backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('${image}')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
               }}
             />
           ))}
