@@ -306,10 +306,13 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
             Stories
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </button>
-          <a href="#about" className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group">
+          <button 
+            onClick={() => window.navigateToAbout && window.navigateToAbout()}
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
+          >
             About
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
-          </a>
+          </button>
           <button 
             onClick={() => window.navigateToContact && window.navigateToContact()}
             className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
@@ -402,13 +405,15 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
                 >
                   Stories
                 </button>
-                <a 
-                  href="#about" 
-                  className="block px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
-                  onClick={() => setShowMobileMenu(false)}
+                <button 
+                  onClick={() => {
+                    window.navigateToAbout && window.navigateToAbout();
+                    setShowMobileMenu(false);
+                  }}
+                  className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
                 >
                   About
-                </a>
+                </button>
                 <button 
                   onClick={() => {
                     window.navigateToContact && window.navigateToContact();

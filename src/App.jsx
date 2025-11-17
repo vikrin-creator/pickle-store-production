@@ -17,6 +17,7 @@ import PrivacyPolicyPage from './components/PrivacyPolicyPage'
 import TermsConditionsPage from './components/TermsConditionsPage'
 import ShippingReturnPage from './components/ShippingReturnPage'
 import StoriesPage from './components/StoriesPage'
+import AboutPage from './components/AboutPage'
 import authService from './services/authService'
 import { api } from './services/api'
 import './App.css'
@@ -101,6 +102,8 @@ function App() {
         setCurrentPage('stories');
       } else if (path === '/contact' || searchParams.get('page') === 'contact') {
         setCurrentPage('contact');
+      } else if (path === '/about' || searchParams.get('page') === 'about') {
+        setCurrentPage('about');
       } else if (path === '/privacy' || searchParams.get('page') === 'privacy') {
         setCurrentPage('privacy');
       } else if (path === '/terms' || searchParams.get('page') === 'terms') {
@@ -165,6 +168,10 @@ function App() {
           break;
         case 'contact':
           currentURL.searchParams.set('page', 'contact');
+          currentURL.searchParams.delete('category');
+          break;
+        case 'about':
+          currentURL.searchParams.set('page', 'about');
           currentURL.searchParams.delete('category');
           break;
         case 'privacy':
@@ -340,6 +347,11 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  const navigateToAbout = () => {
+    setCurrentPage('about');
+    window.scrollTo(0, 0);
+  };
+
   const navigateToPrivacy = () => {
     setCurrentPage('privacy');
     window.scrollTo(0, 0);
@@ -377,6 +389,7 @@ function App() {
     window.navigateToProductDetail = navigateToProductDetail;
     window.navigateToOrderConfirmation = navigateToOrderConfirmation;
     window.navigateToContact = navigateToContact;
+    window.navigateToAbout = navigateToAbout;
     window.navigateToPrivacy = navigateToPrivacy;
     window.navigateToTerms = navigateToTerms;
     window.navigateToShipping = navigateToShipping;
@@ -392,6 +405,7 @@ function App() {
       delete window.navigateToProductDetail;
       delete window.navigateToOrderConfirmation;
       delete window.navigateToContact;
+      delete window.navigateToAbout;
       delete window.navigateToPrivacy;
       delete window.navigateToTerms;
       delete window.navigateToShipping;
@@ -539,6 +553,8 @@ function App() {
         return <ContactPage onNavigateHome={handleBackToHome} onNavigateToProducts={() => navigateToProducts()} />;
       case 'stories':
         return <StoriesPage onBack={handleBackToHome} onNavigateToProducts={() => navigateToProducts()} />;
+      case 'about':
+        return <AboutPage onBack={handleBackToHome} />;
       case 'privacy':
         return <PrivacyPolicyPage onBack={handleBackToHome} />;
       case 'terms':

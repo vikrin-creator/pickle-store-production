@@ -179,14 +179,7 @@ const Cart = ({ onBack, onNavigateToCheckout }) => {
             Stories
           </button>
           <button 
-            onClick={() => {
-              const aboutSection = document.getElementById('about');
-              if (aboutSection) {
-                aboutSection.scrollIntoView({ behavior: 'smooth' });
-              } else {
-                window.navigateToHome && window.navigateToHome();
-              }
-            }}
+            onClick={() => window.navigateToAbout && window.navigateToAbout()}
             className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
           >
             About
