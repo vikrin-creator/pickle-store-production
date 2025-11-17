@@ -1,7 +1,9 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Footer from './Footer';
 
 const StoriesPage = ({ onBack, onNavigateToProducts }) => {
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
+  
   useEffect(() => {
     // Define navigation functions
     window.navigateToHome = () => {
@@ -76,53 +78,100 @@ const StoriesPage = ({ onBack, onNavigateToProducts }) => {
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-[#2d6700] bg-opacity-90 border-b border-[#ecab13]/20 shadow-sm backdrop-blur-fallback">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex items-center justify-between">
-            {/* Logo */}
-            <img 
-              src="/assets/logo.png"
-              alt="Janiitra Logo"
-              className="h-8 w-auto cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={() => window.navigateToHome && window.navigateToHome()}
-            />
+      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
+        {/* Logo */}
+        <div className="flex items-center">
+          <img 
+            src="/assets/logo.png"
+            alt="Janiitra Logo"
+            className="h-6 w-36 sm:h-8 sm:w-48 object-contain cursor-pointer hover:scale-105 transition-transform duration-300"
+            onClick={() => window.navigateToHome && window.navigateToHome()}
+          />
+        </div>
 
-            {/* Navigation */}
-            <nav className="hidden md:flex items-center gap-8">
-              <button 
-                onClick={() => window.navigateToHome && window.navigateToHome()}
-                className="text-sm font-medium text-white hover:text-[#ecab13] transition-colors"
-              >
-                Home
-              </button>
-              <button 
-                onClick={() => onNavigateToProducts ? onNavigateToProducts() : (window.navigateToProducts && window.navigateToProducts())}
-                className="text-sm font-medium text-white hover:text-[#ecab13] transition-colors"
-              >
-                Shop
-              </button>
-              <span className="text-sm font-semibold text-[#ecab13]">Stories</span>
-              <button 
-                onClick={() => window.navigateToContact && window.navigateToContact()}
-                className="text-sm font-medium text-white hover:text-[#ecab13] transition-colors"
-              >
-                Contact
-              </button>
-            </nav>
+        {/* Desktop Navigation */}
+        <nav className="hidden lg:flex items-center gap-4 xl:gap-8 absolute left-1/2 -translate-x-1/2">
+          <button 
+            onClick={() => window.navigateToHome && window.navigateToHome()}
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
+          >
+            Home
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
+          </button>
+          <button 
+            onClick={() => onNavigateToProducts ? onNavigateToProducts() : (window.navigateToProducts && window.navigateToProducts())}
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
+          >
+            Shop
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
+          </button>
+          <span className="text-sm xl:text-base font-medium text-[#ecab13] relative">
+            Stories
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#ecab13]"></span>
+          </span>
+          <button 
+            onClick={() => window.navigateToAbout && window.navigateToAbout()}
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
+          >
+            About
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
+          </button>
+          <button 
+            onClick={() => window.navigateToContact && window.navigateToContact()}
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
+          >
+            Contact
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
+          </button>
+        </nav>
 
-            {/* Back Button */}
-            <button
-              onClick={() => window.navigateToHome && window.navigateToHome()}
-              className="flex items-center gap-2 text-white hover:text-[#ecab13] transition-colors"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              <span className="text-sm font-medium">Back</span>
-            </button>
-          </div>
+        {/* Mobile Menu Button */}
+        <div className="lg:hidden flex items-center gap-3 ml-auto relative">
+          <button 
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="text-white hover:text-[#ecab13] transition-colors duration-300"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showMobileMenu ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+            </svg>
+          </button>
         </div>
       </header>
+
+      {/* Mobile Menu Dropdown */}
+      {showMobileMenu && (
+        <div className="lg:hidden fixed top-16 right-4 z-40 bg-white border border-gray-200 shadow-lg rounded-lg mt-2 w-48">
+          <nav className="py-2">
+            <button 
+              onClick={() => { window.navigateToHome && window.navigateToHome(); setShowMobileMenu(false); }}
+              className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+            >
+              Home
+            </button>
+            <button 
+              onClick={() => { onNavigateToProducts ? onNavigateToProducts() : (window.navigateToProducts && window.navigateToProducts()); setShowMobileMenu(false); }}
+              className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+            >
+              Shop
+            </button>
+            <span className="block px-4 py-3 text-[#2d6700] font-medium bg-gray-50">
+              Stories
+            </span>
+            <button 
+              onClick={() => { window.navigateToAbout && window.navigateToAbout(); setShowMobileMenu(false); }}
+              className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+            >
+              About
+            </button>
+            <button 
+              onClick={() => { window.navigateToContact && window.navigateToContact(); setShowMobileMenu(false); }}
+              className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200"
+            >
+              Contact
+            </button>
+          </nav>
+        </div>
+      )}
 
       {/* Magazine Header */}
       <div 

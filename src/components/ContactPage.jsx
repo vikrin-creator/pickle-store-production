@@ -12,6 +12,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
   });
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -53,7 +54,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
   return (
     <div className="min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
+      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
         {/* Logo */}
         <div className="flex items-center">
           <img 
@@ -64,46 +65,90 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
           />
         </div>
 
-        {/* Navigation */}
-        <nav className="hidden md:flex items-center gap-8">
+        {/* Navigation - Hidden on mobile, shown on larger screens */}
+        <nav className="hidden lg:flex items-center gap-4 xl:gap-8">
           <button 
             onClick={() => window.navigateToHome && window.navigateToHome()}
-            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
           >
             Home
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </button>
           <button 
             onClick={() => window.navigateToProducts && window.navigateToProducts()}
-            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
           >
             Shop
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </button>
           <button 
             onClick={() => window.navigateToStories && window.navigateToStories()}
-            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
           >
             Stories
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </button>
           <button 
             onClick={() => window.navigateToAbout && window.navigateToAbout()}
-            className="text-base font-medium transition-colors duration-200 text-white hover:text-[#ecab13]"
+            className="text-sm xl:text-base font-medium transition-all duration-300 text-white hover:text-[#ecab13] hover:scale-110 relative group"
           >
             About
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#ecab13] transition-all duration-300 group-hover:w-full"></span>
           </button>
-          <span className="text-base font-medium text-[#ecab13] border-b-2 border-[#ecab13]">Contact</span>
+          <span className="text-sm xl:text-base font-medium text-[#ecab13] relative">
+            Contact
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-[#ecab13]"></span>
+          </span>
         </nav>
 
-        {/* Back Button */}
-        <button
-          onClick={() => window.navigateToHome && window.navigateToHome()}
-          className="flex items-center gap-2 text-white hover:text-[#ecab13] transition-colors duration-200"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Home
-        </button>
+        {/* Mobile Actions - Menu Button */}
+        <div className="lg:hidden flex items-center gap-3 ml-auto relative">
+          {/* Mobile Menu Button */}
+          <button 
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+            className="text-white hover:text-[#ecab13] transition-colors duration-300"
+          >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showMobileMenu ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+            </svg>
+          </button>
+        </div>
       </header>
+
+      {/* Mobile Menu Dropdown */}
+      {showMobileMenu && (
+        <div className="lg:hidden fixed top-16 right-4 z-40 bg-white border border-gray-200 shadow-lg rounded-lg mt-2 w-48">
+          <nav className="py-2">
+            <button 
+              onClick={() => { window.navigateToHome && window.navigateToHome(); setShowMobileMenu(false); }}
+              className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+            >
+              Home
+            </button>
+            <button 
+              onClick={() => { window.navigateToProducts && window.navigateToProducts(); setShowMobileMenu(false); }}
+              className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+            >
+              Shop
+            </button>
+            <button 
+              onClick={() => { window.navigateToStories && window.navigateToStories(); setShowMobileMenu(false); }}
+              className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+            >
+              Stories
+            </button>
+            <button 
+              onClick={() => { window.navigateToAbout && window.navigateToAbout(); setShowMobileMenu(false); }}
+              className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-[#2d6700] transition-colors duration-200 border-b border-gray-100"
+            >
+              About
+            </button>
+            <span className="block px-4 py-3 text-[#2d6700] font-medium bg-gray-50">
+              Contact
+            </span>
+          </nav>
+        </div>
+      )}
 
       <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-16 md:pt-20 pb-12">
         {/* Page Header */}

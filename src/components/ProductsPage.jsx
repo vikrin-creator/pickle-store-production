@@ -415,19 +415,19 @@ onClick={() => window.navigateToAbout && window.navigateToAbout()}
 
       {/* Search Bar */}
       {showSearch && (
-        <div className="bg-white border-b border-gray-200 px-4 sm:px-10 py-4">
+        <div className="bg-white border-b border-gray-200 px-3 sm:px-6 py-1.5 sm:py-2 mt-[72px] sm:mt-16 md:mt-20">
           <div className="max-w-md mx-auto">
             <div className="relative">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search for pickles... (e.g., mango, chili, lime)"
-                className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13] focus:border-[#ecab13]"
+                placeholder="Search pickles..."
+                className="w-full pl-9 pr-8 py-1.5 sm:py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#ecab13] focus:border-[#ecab13]"
                 autoFocus
               />
               <svg 
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"
+                className="absolute left-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400"
                 fill="none" 
                 stroke="currentColor" 
                 viewBox="0 0 24 24"
@@ -437,7 +437,7 @@ onClick={() => window.navigateToAbout && window.navigateToAbout()}
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 hover:text-gray-600"
+                  className="absolute right-2.5 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hover:text-gray-600"
                 >
                   <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -446,7 +446,7 @@ onClick={() => window.navigateToAbout && window.navigateToAbout()}
               )}
             </div>
             {searchQuery && (
-              <p className="mt-2 text-sm text-gray-600">
+              <p className="mt-1 sm:mt-2 text-xs sm:text-sm text-gray-600">
                 Searching for: <span className="font-semibold">"{searchQuery}"</span>
               </p>
             )}
