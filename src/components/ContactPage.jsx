@@ -374,7 +374,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
       {/* Company Details */}
       <div className="bg-[#f8f7f6] border-t border-[#ecab13]/20 py-4 text-center">
         <p className="text-sm text-[#221c10]/80">
-          © 2025 Janiitra Foods Pvt. Ltd. | CIN: U47213TS2025PTC194771
+          © 2025 Janiitra Pvt. Ltd. | CIN: U47213TS2025PTC194771
         </p>
       </div>
 

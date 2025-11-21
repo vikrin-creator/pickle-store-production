@@ -79,7 +79,7 @@ const Footer = () => {
             }}
             className="font-bold text-[#221c10] hover:text-[#ecab13] transition-colors duration-200 cursor-pointer underline-offset-2 hover:underline"
           >
-            Janiitra Pickles
+            Janiitra
           </button>. All rights reserved. | Designed & Developed by{' '}
           <a 
             href="https://www.vikrin.com/" 

@@ -48,7 +48,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
     country: 'India',
     
     // Payment Information
-    paymentMethod: 'cod', // 'cod' or 'online'
+    paymentMethod: 'online', // Default to online since COD is hidden
     
     // Special Instructions
     specialInstructions: ''
@@ -817,7 +817,8 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                 <div className="mb-6">
                   <label className="block text-sm font-medium text-gray-700 mb-3">Select Payment Method</label>
                   <div className="space-y-3">
-                    <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                    {/* COD Hidden - Can be enabled later */}
+                    <label className="flex items-center p-3 border-2 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors" style={{ display: 'none' }}>
                       <input
                         type="radio"
                         name="paymentMethod"
@@ -876,21 +877,7 @@ const Checkout = ({ onBack, onOrderComplete }) => {
                   </div>
                 )}
                 
-                {/* COD Information - Only show when COD is selected */}
-                {formData.paymentMethod === 'cod' && (
-                  <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-                    <div className="flex items-center">
-                      <span className="text-green-500 text-xl mr-2">✅</span>
-                      <div>
-                        <h4 className="text-sm font-medium text-green-800">Cash on Delivery Selected</h4>
-                        <p className="text-xs text-green-600 mt-1">
-                          Pay ₹{total.toFixed(2)} in cash when your order is delivered. 
-                          Please keep exact change ready for a smooth delivery experience.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                
               </div>
 
               {/* Special Instructions */}
