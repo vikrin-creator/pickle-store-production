@@ -54,9 +54,9 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
   return (
     <div className="min-h-screen bg-[#f8f7f6] font-sans text-[#221c10]">
       {/* Header */}
-      <header className="fixed left-0 right-0 z-40 flex items-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
+      <header className="fixed left-0 right-0 z-40 flex items-center lg:justify-center justify-between border-b border-[#ecab13]/20 bg-[#2d6700] bg-opacity-90 px-4 sm:px-10 py-4 backdrop-blur-fallback">
         {/* Logo */}
-        <div className="flex items-center">
+        <div className="flex items-center lg:absolute lg:left-4 lg:sm:left-10">
           <img 
             src="/assets/logo.png"
             alt="Janiitra Logo"
@@ -102,7 +102,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
         </nav>
 
         {/* Mobile Actions - Menu Button */}
-        <div className="lg:hidden flex items-center gap-3 ml-auto relative">
+        <div className="lg:hidden flex items-center gap-3 lg:absolute lg:right-4 lg:sm:right-10">
           {/* Mobile Menu Button */}
           <button 
             onClick={() => setShowMobileMenu(!showMobileMenu)}
@@ -374,7 +374,7 @@ const ContactPage = ({ onNavigateHome, onNavigateToProducts }) => {
       {/* Company Details */}
       <div className="bg-[#f8f7f6] border-t border-[#ecab13]/20 py-4 text-center">
         <p className="text-sm text-[#221c10]/80">
-          © 2025 Janiitra Pvt. Ltd. | CIN: U47213TS2025PTC194771
+          © 2025 Janiitra Enterprises Pvt. Ltd. | CIN: U47213TS2025PTC194771
         </p>
       </div>
 
