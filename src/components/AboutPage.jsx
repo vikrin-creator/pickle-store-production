@@ -142,19 +142,19 @@ const AboutPage = ({ onBack }) => {
           </div>
 
           {/* Mission Card */}
-          <div className="grid md:grid-cols-2 gap-12 items-center">
-            <div className="bg-gradient-to-br from-[#2d6700]/10 to-[#ecab13]/15 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-[#2d6700]/20 shadow-lg">
+          <div className="grid md:grid-cols-2 gap-12 items-stretch">
+            <div className="bg-gradient-to-br from-[#2d6700]/10 to-[#ecab13]/15 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-[#2d6700]/20 shadow-lg flex flex-col">
               <h3 className="text-3xl font-bold text-[#2d6700] mb-6">Our Mission</h3>
-              <p className="text-xl text-gray-700 leading-relaxed">
+              <p className="text-xl text-gray-700 leading-relaxed flex-grow">
                 We started Janiitra with one sacred mission: to resurrect the lost flavors of 
                 traditional Indian kitchens using our <span className="text-[#ecab13] font-semibold">Grand Maa's time-honored recipes</span>.
               </p>
             </div>
-            <div className="bg-white/90 backdrop-blur-sm rounded-3xl p-8 md:p-10 shadow-xl border border-gray-200">
-              <h3 className="text-3xl font-bold text-[#2d6700] mb-6">The Problem</h3>
-              <p className="text-xl text-gray-700 leading-relaxed">
-                In today's fast-paced world, food has lost its <span className="text-[#ecab13] font-semibold">authenticity</span>. 
-                Mass production has replaced love, chemicals have replaced nature, and convenience has replaced tradition.
+            <div className="bg-gradient-to-br from-[#2d6700]/10 to-[#ecab13]/15 backdrop-blur-sm rounded-3xl p-8 md:p-10 border border-[#2d6700]/20 shadow-lg flex flex-col">
+              <h3 className="text-3xl font-bold text-[#2d6700] mb-6">Our Vision</h3>
+              <p className="text-xl text-gray-700 leading-relaxed flex-grow">
+                Our vision is to uphold the delicious, age-old tradition of pickling for future generations.
+                Delightfully serving every customer with the authentic taste and satisfying crunch of homemade perfection.
               </p>
             </div>
           </div>

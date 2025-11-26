@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import authService from '../services/authService';
 import HomepageService from '../services/homepageService';
 import CategoryService from '../services/categoryService';
@@ -80,6 +80,7 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
   const [testimonials, setTestimonials] = useState([]);
   const [testimonialsLoading, setTestimonialsLoading] = useState(true);
   const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
+  const testimonialScrollRef = useRef(null);
 
   // Check authentication status on component mount
   useEffect(() => {
@@ -135,6 +136,35 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
       }, 5000);
 
       return () => clearInterval(interval);
+    }
+  }, [testimonials.length]);
+
+  // Auto-scroll testimonials horizontally
+  useEffect(() => {
+    if (testimonialScrollRef.current && testimonials.length > 0) {
+      const scrollContainer = testimonialScrollRef.current;
+      let scrollInterval;
+      
+      const startAutoScroll = () => {
+        scrollInterval = setInterval(() => {
+          const cardWidth = 384 + 24; // card width (96 * 4) + gap (6 * 4)
+          const maxScroll = scrollContainer.scrollWidth - scrollContainer.clientWidth;
+          
+          if (scrollContainer.scrollLeft >= maxScroll - 10) {
+            // Reset to beginning with smooth transition
+            scrollContainer.scrollTo({ left: 0, behavior: 'smooth' });
+          } else {
+            // Scroll to next card
+            scrollContainer.scrollBy({ left: cardWidth, behavior: 'smooth' });
+          }
+        }, 3000); // Scroll every 3 seconds
+      };
+      
+      startAutoScroll();
+      
+      return () => {
+        if (scrollInterval) clearInterval(scrollInterval);
+      };
     }
   }, [testimonials.length]);
 
@@ -754,10 +784,10 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
           )}
         </section>
 
-        {/* Customer Testimonials Section - Force Deploy */}
-        <section className="py-12 px-3 sm:px-6 bg-gradient-to-br from-[#ecab13]/5 to-[#ecab13]/10 animate-fade-in-up">
-          <div className="max-w-5xl mx-auto">
-            {/* Section Header - Updated */}
+        {/* Customer Testimonials Section - Card Based with Auto-Scroll */}
+        <section className="py-12 px-3 sm:px-6 bg-gradient-to-br from-[#ecab13]/5 to-[#ecab13]/10 animate-fade-in-up overflow-hidden">
+          <div className="max-w-7xl mx-auto">
+            {/* Section Header */}
             <div className="text-center mb-12">
               <h2 className="font-display text-2xl md:text-3xl font-bold text-gray-800 mb-4 lowercase">
                 what our customers say
@@ -775,88 +805,89 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
               </div>
             )}
 
-            {/* Testimonials Carousel */}
+            {/* Testimonials Cards - Horizontal Scroll */}
             {!testimonialsLoading && testimonials.length > 0 && (
               <div className="relative">
-                {/* Navigation Arrows */}
-                <button 
-                  onClick={() => {
-                    if (testimonials && testimonials.length > 1) {
-                      setCurrentTestimonialIndex(prev => prev === 0 ? testimonials.length - 1 : prev - 1);
-                    }
+                <div 
+                  ref={testimonialScrollRef}
+                  className="flex gap-6 overflow-x-auto pb-4 scroll-smooth snap-x snap-mandatory hide-scrollbar"
+                  style={{
+                    scrollBehavior: 'smooth',
+                    WebkitOverflowScrolling: 'touch',
                   }}
-                  className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10 text-gray-400 hover:text-gray-700 transition-colors duration-200"
-                  disabled={!testimonials || testimonials.length <= 1}
                 >
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
+                  {testimonials.map((testimonial, index) => (
+                    <div 
+                      key={testimonial._id || index}
+                      className={`flex-shrink-0 w-80 md:w-96 bg-white rounded-2xl p-6 shadow-lg border-l-4 snap-start transition-all duration-300 hover:shadow-xl hover:scale-105 ${
+                        testimonial.isFeatured ? 'border-yellow-400 bg-yellow-50' : 'border-green-500'
+                      }`}
+                    >
+                      {/* Header with Avatar and Name */}
+                      <div className="flex items-center gap-4 mb-4">
+                        {/* Avatar */}
+                        <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold text-lg">
+                          {testimonial.customerName.charAt(0).toUpperCase()}
+                        </div>
+                        
+                        {/* Name and Location */}
+                        <div className="flex-1">
+                          <h3 className="text-lg font-bold text-gray-800">
+                            {testimonial.customerName}
+                          </h3>
+                          <p className="text-sm text-gray-500">
+                            {testimonial.customerLocation}
+                          </p>
+                        </div>
 
-                <button 
-                  onClick={() => {
-                    if (testimonials && testimonials.length > 1) {
-                      setCurrentTestimonialIndex(prev => prev === testimonials.length - 1 ? 0 : prev + 1);
-                    }
-                  }}
-                  className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10 text-gray-400 hover:text-gray-700 transition-colors duration-200"
-                  disabled={!testimonials || testimonials.length <= 1}
-                >
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
+                        {/* Verified Badge */}
+                        {testimonial.verifiedBuyer && (
+                          <div className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full font-semibold">
+                            ✓ Verified
+                          </div>
+                        )}
 
-                {/* Direct Testimonial Display */}
-                <div className="max-w-3xl mx-auto px-8 text-center">
-                  {testimonials && testimonials.length > 0 && testimonials[currentTestimonialIndex] && (
-                    <>
-                      {/* Customer Name - Red Color */}
-                      <h3 className="text-xl md:text-2xl font-bold text-red-500 mb-2">
-                        {testimonials[currentTestimonialIndex].customerName}
-                      </h3>
-                      
-                      {/* Decorative line under name */}
-                      <div className="flex items-center justify-center mb-4">
-                        <div className="h-px bg-gradient-to-r from-transparent via-red-300 to-transparent w-24"></div>
-                        <div className="mx-2 text-red-300">•</div>
-                        <div className="h-px bg-gradient-to-r from-transparent via-red-300 to-transparent w-24"></div>
+                        {/* Featured Badge */}
+                        {testimonial.isFeatured && (
+                          <div className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full font-semibold">
+                            Featured
+                          </div>
+                        )}
                       </div>
-                      
-                      {/* Location and Date */}
-                      <p className="text-gray-600 text-sm mb-6">
-                        {testimonials[currentTestimonialIndex].customerLocation} | {new Date(testimonials[currentTestimonialIndex].createdAt).toLocaleDateString('en-GB', { 
-                          day: '2-digit', 
-                          month: 'long', 
-                          year: 'numeric' 
-                        })}
-                      </p>
+
+                      {/* Rating */}
+                      <div className="flex items-center gap-1 mb-3">
+                        {[...Array(5)].map((_, i) => (
+                          <svg
+                            key={i}
+                            className={`w-5 h-5 ${i < testimonial.rating ? 'text-yellow-400 fill-current' : 'text-gray-300'}`}
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z" />
+                          </svg>
+                        ))}
+                        <span className="text-sm text-gray-600 ml-2">({testimonial.rating}/5)</span>
+                      </div>
 
                       {/* Testimonial Text */}
-                      <blockquote className="text-base md:text-lg text-gray-700 leading-relaxed font-normal italic max-w-2xl mx-auto">
-                        '{testimonials[currentTestimonialIndex].testimonialText}'
+                      <blockquote className="text-gray-700 italic leading-relaxed mb-4 line-clamp-4">
+                        "{testimonial.testimonialText}"
                       </blockquote>
-                    </>
-                  )}
+
+                      {/* Product Tag */}
+                      {testimonial.productMentioned && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-orange-600">🥒</span>
+                          <span className="text-blue-600 font-medium">{testimonial.productMentioned}</span>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
 
-                {/* Simple Dots Navigation */}
-                <div className="flex justify-center mt-8 space-x-2">
-                  {testimonials.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        if (testimonials && testimonials.length > 0 && index < testimonials.length) {
-                          setCurrentTestimonialIndex(index);
-                        }
-                      }}
-                      className={`w-3 h-3 rounded-full transition-all duration-200 ${
-                        index === currentTestimonialIndex 
-                          ? 'bg-gray-700' 
-                          : 'bg-gray-300 hover:bg-gray-400'
-                      }`}
-                    />
-                  ))}
+                {/* Scroll Hint */}
+                <div className="text-center mt-4 text-sm text-gray-500">
+                  ← Scroll to see more reviews →
                 </div>
               </div>
             )}
@@ -867,15 +898,6 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
                 <div className="text-6xl mb-4">🗣️</div>
                 <h3 className="text-xl font-semibold text-gray-700 mb-2">No testimonials yet</h3>
                 <p className="text-gray-500">Be the first to share your experience with our authentic pickles!</p>
-              </div>
-            )}
-
-            {/* View More Button */}
-            {!testimonialsLoading && testimonials.length > 6 && (
-              <div className="text-center mt-8">
-                <button className="font-body bg-[#ecab13] text-[#221c10] px-6 py-3 font-semibold rounded-xl transition-all duration-300 hover:scale-105 hover:shadow-lg transform hover:rotate-1 hover:bg-[#d49811]">
-                  View All Reviews
-                </button>
               </div>
             )}
           </div>

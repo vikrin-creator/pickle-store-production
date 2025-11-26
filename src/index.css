@@ -515,3 +515,21 @@ body:not(.has-offer-banner) main[class*="pt-28"] {
     -webkit-transform: translate3d(0, 0, 0) !important;
   }
 }
+
+/* Hide scrollbar for testimonials carousel */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Line clamp utility */
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
