@@ -1392,13 +1392,16 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   // Hero Images Functions
   const loadHeroImages = async () => {
     try {
+      console.log('🖼️ Loading hero images...');
       setHeroImagesLoading(true);
       const data = await HeroImageService.getAllHeroImages();
-      console.log('Loaded hero images from API:', data.length);
+      console.log('✅ Loaded hero images from API:', data?.length || 0, data);
       setHeroImages(data || []);
     } catch (error) {
-      console.error('Error loading hero images:', error);
+      console.error('❌ Error loading hero images:', error);
       setHeroImages([]);
+      // Show user-friendly error
+      alert(`Failed to load hero images: ${error.message}`);
     } finally {
       setHeroImagesLoading(false);
     }
