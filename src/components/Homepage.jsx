@@ -3,6 +3,7 @@ import authService from '../services/authService';
 import HomepageService from '../services/homepageService';
 import CategoryService from '../services/categoryService';
 import TestimonialService from '../services/testimonialService';
+import HeroImageService from '../services/heroImageService';
 import newsletterService from '../services/newsletterService';
 import CustomerAuth from './CustomerAuth';
 import CustomerProfile from './CustomerProfile';
@@ -11,32 +12,81 @@ import CompatibleImage from './CompatibleImage';
 import CartHover from './CartHoverSidebarNew';
 
 const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigateToProducts }) => {
-  // Hero carousel images - desktop and mobile versions
-  const heroImagesDesktop = [
+  // Hero carousel state
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [heroImages, setHeroImages] = useState([]);
+  const [heroImagesLoading, setHeroImagesLoading] = useState(true);
+
+  // Fallback static images in case API fails
+  const fallbackHeroImagesDesktop = [
     '/assets/JANIITRA_BANNER_1st.jpg',
     '/assets/Mirchi_Desktop.jpg',
     '/assets/Coffe_desktop.jpg'
   ];
 
-  const heroImagesMobile = [
+  const fallbackHeroImagesMobile = [
     '/assets/Janiitra_mobile.jpg',
     '/assets/Mirchi_mobile.jpg',
     '/assets/Coffe_mobile.jpg'
   ];
 
-  // Hero carousel state
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  // Load hero images from API
+  const loadHeroImages = async () => {
+    try {
+      setHeroImagesLoading(true);
+      const images = await HeroImageService.getActiveHeroImages();
+      console.log('Loaded hero images:', images);
+      if (images && images.length > 0) {
+        // Sort by order
+        const sortedImages = images.sort((a, b) => (a.order || 0) - (b.order || 0));
+        setHeroImages(sortedImages);
+      } else {
+        // Use fallback images if no API images
+        setHeroImages([]);
+      }
+    } catch (error) {
+      console.error('Error loading hero images:', error);
+      // Use fallback images on error
+      setHeroImages([]);
+    } finally {
+      setHeroImagesLoading(false);
+    }
+  };
+
+  // Load hero images on component mount
+  useEffect(() => {
+    loadHeroImages();
+  }, []);
+
+  // Get the current hero images array (API or fallback)
+  const getCurrentHeroImages = () => {
+    if (heroImages.length > 0) {
+      return heroImages;
+    }
+    // Return fallback data structure similar to API (no titles/subtitles for fallback)
+    return fallbackHeroImagesDesktop.map((image, index) => ({
+      _id: `fallback-${index}`,
+      image: image,
+      title: '',
+      subtitle: '',
+      buttonText: 'Shop Now',
+      buttonLink: '/products',
+      isActive: true,
+      order: index + 1
+    }));
+  };
 
   // Auto-rotate hero images
   useEffect(() => {
+    const currentImages = getCurrentHeroImages();
     const interval = setInterval(() => {
       setCurrentImageIndex((prevIndex) => 
-        (prevIndex + 1) % heroImagesDesktop.length
+        (prevIndex + 1) % currentImages.length
       );
       }, 4000); // Change image every 4 seconds
 
     return () => clearInterval(interval);
-  }, []);
+  }, [heroImages]);
 
   // Helper for category navigation
   const handleCategoryNavigate = (category) => {
@@ -559,61 +609,87 @@ const Homepage = ({ cartCount, onNavigateToCart, onNavigateToWishlist, onNavigat
           }`}
           aria-label="Hero section showcasing authentic Indian pickles"
         >
-          {/* Background Images Carousel - Mobile */}
-          {isMobile && heroImagesMobile.map((image, index) => (
-            <div
-              key={`mobile-${index}`}
-              className={`absolute inset-0 transition-opacity duration-1000 ${
-                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('${image}')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
-            />
-          ))}
-
-          {/* Background Images Carousel - Desktop */}
-          {!isMobile && heroImagesDesktop.map((image, index) => (
-            <div
-              key={`desktop-${index}`}
-              className={`absolute inset-0 bg-cover bg-center transition-opacity duration-1000 ${
-                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{
-                backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('${image}')`
-              }}
-            />
-          ))}
+          {heroImagesLoading ? (
+            /* Loading State */
+            <div className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200 animate-pulse">
+              <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-black/50"></div>
+            </div>
+          ) : (
+            /* Hero Images Carousel */
+            getCurrentHeroImages().map((heroImage, index) => {
+              // Use mobile image if available and on mobile device, otherwise use desktop image
+              const imageUrl = isMobile && heroImage.mobileImage ? heroImage.mobileImage : heroImage.image;
+              
+              return (
+                <div
+                  key={heroImage._id || `hero-${index}`}
+                  className={`absolute inset-0 transition-opacity duration-1000 ${
+                    index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                  }`}
+                  style={{
+                    backgroundImage: `linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.5)), url('${imageUrl}')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundRepeat: 'no-repeat'
+                  }}
+                />
+              );
+            })
+          )}
 
           {/* Carousel Indicators */}
-          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
-            {heroImagesDesktop.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentImageIndex(index)}
-                className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                  index === currentImageIndex 
-                    ? 'bg-[#ecab13] scale-125' 
-                    : 'bg-white/50 hover:bg-white/75'
-                }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
-            ))}
-          </div>
+          {!heroImagesLoading && (
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+              {getCurrentHeroImages().map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentImageIndex(index)}
+                  className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                    index === currentImageIndex 
+                      ? 'bg-[#ecab13] scale-125' 
+                      : 'bg-white/50 hover:bg-white/75'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
 
-          {/* Hero Content */}
-          <div className="absolute top-[65%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
-            <button 
-              className="font-body bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-semibold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg hover:bg-[#d49811]"
-              onClick={() => window.navigateToProducts && window.navigateToProducts()}
-              aria-label="Shop authentic Indian pickles now"
-            >
-              Shop Now
-            </button>
-          </div>
+          {/* Hero Content - Show current hero image's content */}
+          {!heroImagesLoading && (
+            <div className="absolute top-[65%] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 text-center">
+              {(() => {
+                const currentHero = getCurrentHeroImages()[currentImageIndex];
+                return (
+                  <>
+                    {currentHero?.title && (
+                      <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-white mb-2 drop-shadow-lg">
+                        {currentHero.title}
+                      </h1>
+                    )}
+                    {currentHero?.subtitle && (
+                      <p className="text-lg sm:text-xl text-white/90 mb-6 drop-shadow-lg max-w-2xl">
+                        {currentHero.subtitle}
+                      </p>
+                    )}
+                    <button 
+                      className="font-body bg-[#ecab13] text-[#221c10] px-6 sm:px-8 py-2.5 sm:py-3 font-semibold text-base sm:text-lg rounded-xl transition-all duration-300 hover:scale-110 hover:shadow-lg hover:bg-[#d49811]"
+                      onClick={() => {
+                        if (currentHero?.buttonLink && currentHero.buttonLink !== '/products') {
+                          window.location.href = currentHero.buttonLink;
+                        } else {
+                          window.navigateToProducts && window.navigateToProducts();
+                        }
+                      }}
+                      aria-label={currentHero?.buttonText || "Shop authentic Indian pickles now"}
+                    >
+                      {currentHero?.buttonText || 'Shop Now'}
+                    </button>
+                  </>
+                );
+              })()}
+            </div>
+          )}
         </section>
 
         {/* Our Specialties Section */}
