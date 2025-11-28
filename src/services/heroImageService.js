@@ -5,7 +5,7 @@ class HeroImageService {
   static async getAllHeroImages() {
     try {
       const response = await api.get('/api/hero-images');
-      return response.data || [];
+      return response || [];
     } catch (error) {
       console.error('Error fetching hero images:', error);
       throw new Error('Failed to fetch hero images');
@@ -16,7 +16,7 @@ class HeroImageService {
   static async getActiveHeroImages() {
     try {
       const response = await api.get('/api/hero-images/active');
-      return response.data || [];
+      return response || [];
     } catch (error) {
       console.error('Error fetching active hero images:', error);
       throw new Error('Failed to fetch active hero images');
