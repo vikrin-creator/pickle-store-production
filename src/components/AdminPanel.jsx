@@ -4,6 +4,7 @@ import CategoryService from '../services/categoryService';
 import TestimonialService from '../services/testimonialService';
 import HomepageService from '../services/homepageService';
 import ShippingService from '../services/shippingService';
+import HeroImageService from '../services/heroImageService';
 
 
 const AdminPanel = ({ onBackToHome, onLogout }) => {
@@ -76,6 +77,23 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     animationSpeed: 30
   });
   const [showOfferForm, setShowOfferForm] = useState(false);
+  
+  // Hero images state
+  const [heroImages, setHeroImages] = useState([]);
+  const [heroImagesLoading, setHeroImagesLoading] = useState(false);
+  const [showHeroForm, setShowHeroForm] = useState(false);
+  const [editingHeroImage, setEditingHeroImage] = useState(null);
+  const [heroFormData, setHeroFormData] = useState({
+    title: '',
+    subtitle: '',
+    buttonText: 'Shop Now',
+    buttonLink: '/products',
+    image: '',
+    isActive: true,
+    order: 1
+  });
+  const [selectedHeroImageFile, setSelectedHeroImageFile] = useState(null);
+  const [heroImagePreview, setHeroImagePreview] = useState('');
   
   // Product filtering state
   const [productFilter, setProductFilter] = useState('all'); // 'all', 'cod-enabled', 'cod-disabled'
@@ -341,6 +359,9 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           break;
         case 'customerFavourite':
           await loadCustomerFavourites();
+          break;
+        case 'heroImages':
+          await loadHeroImages();
           break;
         case 'offers':
           loadOfferSettings();
@@ -1368,6 +1389,121 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
     }
   };
 
+  // Hero Images Functions
+  const loadHeroImages = async () => {
+    try {
+      setHeroImagesLoading(true);
+      const data = await HeroImageService.getAllHeroImages();
+      console.log('Loaded hero images from API:', data.length);
+      setHeroImages(data || []);
+    } catch (error) {
+      console.error('Error loading hero images:', error);
+      setHeroImages([]);
+    } finally {
+      setHeroImagesLoading(false);
+    }
+  };
+
+  const handleHeroImageSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const heroImageData = {
+        title: heroFormData.title,
+        subtitle: heroFormData.subtitle,
+        buttonText: heroFormData.buttonText,
+        buttonLink: heroFormData.buttonLink,
+        isActive: heroFormData.isActive,
+        order: heroFormData.order
+      };
+
+      // Add imageUrl if no file is selected
+      if (!selectedHeroImageFile && heroFormData.image) {
+        heroImageData.imageUrl = heroFormData.image;
+      }
+
+      let result;
+      if (editingHeroImage) {
+        // Update existing hero image
+        result = await HeroImageService.updateHeroImage(
+          editingHeroImage._id, 
+          heroImageData, 
+          selectedHeroImageFile
+        );
+        const updatedImages = heroImages.map(img =>
+          img._id === editingHeroImage._id ? result : img
+        );
+        setHeroImages(updatedImages);
+        alert('Hero image updated successfully!');
+      } else {
+        // Add new hero image
+        result = await HeroImageService.createHeroImage(heroImageData, selectedHeroImageFile);
+        setHeroImages([...heroImages, result]);
+        alert('Hero image added successfully!');
+      }
+
+      resetHeroImageForm();
+    } catch (error) {
+      console.error('Error saving hero image:', error);
+      alert(`Error saving hero image: ${error.message}`);
+    }
+  };
+
+  const resetHeroImageForm = () => {
+    setHeroFormData({
+      title: '',
+      subtitle: '',
+      buttonText: 'Shop Now',
+      buttonLink: '/products',
+      image: '',
+      isActive: true,
+      order: 1
+    });
+    setSelectedHeroImageFile(null);
+    setHeroImagePreview('');
+    setEditingHeroImage(null);
+    setShowHeroForm(false);
+  };
+
+  const handleHeroImageFileSelect = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setSelectedHeroImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setHeroImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const deleteHeroImage = async (imageId) => {
+    if (window.confirm('Are you sure you want to delete this hero image?')) {
+      try {
+        await HeroImageService.deleteHeroImage(imageId);
+        const updatedImages = heroImages.filter(img => img._id !== imageId);
+        setHeroImages(updatedImages);
+        alert('Hero image deleted successfully!');
+      } catch (error) {
+        console.error('Error deleting hero image:', error);
+        alert(`Error deleting hero image: ${error.message}`);
+      }
+    }
+  };
+
+  const toggleHeroImageStatus = async (imageId) => {
+    try {
+      const updatedImage = await HeroImageService.toggleHeroImageStatus(imageId);
+      const updatedImages = heroImages.map(img =>
+        img._id === imageId ? updatedImage : img
+      );
+      setHeroImages(updatedImages);
+      alert('Hero image status updated successfully!');
+    } catch (error) {
+      console.error('Error updating hero image status:', error);
+      alert(`Error updating hero image status: ${error.message}`);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans relative overflow-x-hidden">
       <style>{`
@@ -1449,6 +1585,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                         { id: 'shipping', label: 'Shipping', icon: '🚚' },
                         { id: 'categories', label: 'Categories', icon: '🗂️' },
                         { id: 'customerFavourite', label: 'Customer Favourite', icon: '❤️' },
+                        { id: 'heroImages', label: 'Hero Images', icon: '🖼️' },
                         { id: 'offers', label: 'Offer Banner', icon: '🎁' },
                         { id: 'reviews', label: 'Reviews', icon: '⭐' },
                         { id: 'faq', label: 'FAQ', icon: '❓' },
@@ -1523,6 +1660,7 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
               { id: 'shipping', label: 'Shipping', icon: '🚚' },
               { id: 'categories', label: 'Categories', icon: '🗂️' },
               { id: 'customerFavourite', label: 'Customer Favourite', icon: '❤️' },
+              { id: 'heroImages', label: 'Hero Images', icon: '🖼️' },
               { id: 'offers', label: 'Offer Banner', icon: '🎁' },
               { id: 'reviews', label: 'Reviews', icon: '⭐' },
               { id: 'faq', label: 'FAQ', icon: '❓' },
@@ -3309,6 +3447,114 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
           </div>
         )}
 
+        {/* Hero Images Section */}
+        {activeTab === 'heroImages' && (
+          <div className="p-4 sm:p-6 lg:p-8">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+              <div>
+                <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Hero Images</h2>
+                <p className="text-gray-600 text-sm">Manage hero carousel images on the homepage</p>
+              </div>
+              <button
+                onClick={() => {
+                  resetHeroImageForm();
+                  setShowHeroForm(true);
+                }}
+                className="w-full sm:w-auto bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+              >
+                <span>➕</span>
+                Add Hero Image
+              </button>
+            </div>
+
+            {heroImagesLoading ? (
+              <div className="flex justify-center items-center py-20">
+                <div className="text-gray-500">Loading hero images...</div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+                {heroImages.map((heroImage) => (
+                  <div 
+                    key={heroImage._id} 
+                    className={`bg-white rounded-lg shadow-lg border-2 ${
+                      heroImage.isActive ? 'border-green-200' : 'border-gray-200'
+                    } overflow-hidden`}
+                  >
+                    <div className="aspect-video bg-gray-100">
+                      <img 
+                        src={heroImage.image} 
+                        alt={heroImage.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-semibold text-lg line-clamp-1">{heroImage.title}</h3>
+                        <div className="flex items-center gap-2">
+                          {heroImage.isActive && (
+                            <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Active</span>
+                          )}
+                          <span className="text-xs text-gray-500">#{heroImage.order}</span>
+                        </div>
+                      </div>
+                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{heroImage.subtitle}</p>
+                      <div className="flex items-center gap-2 text-xs text-gray-500 mb-4">
+                        <span>Button: {heroImage.buttonText}</span>
+                        <span>→ {heroImage.buttonLink}</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        <button
+                          onClick={() => {
+                            setEditingHeroImage(heroImage);
+                            setHeroFormData({
+                              title: heroImage.title,
+                              subtitle: heroImage.subtitle,
+                              buttonText: heroImage.buttonText,
+                              buttonLink: heroImage.buttonLink,
+                              image: heroImage.image,
+                              isActive: heroImage.isActive,
+                              order: heroImage.order
+                            });
+                            setHeroImagePreview(heroImage.image);
+                            setShowHeroForm(true);
+                          }}
+                          className="text-blue-600 hover:text-blue-800 text-sm"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => toggleHeroImageStatus(heroImage._id)}
+                          className={`text-sm ${
+                            heroImage.isActive 
+                              ? 'text-red-600 hover:text-red-800' 
+                              : 'text-green-600 hover:text-green-800'
+                          }`}
+                        >
+                          {heroImage.isActive ? 'Deactivate' : 'Activate'}
+                        </button>
+                        <button
+                          onClick={() => deleteHeroImage(heroImage._id)}
+                          className="text-red-600 hover:text-red-800 text-sm"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                {heroImages.length === 0 && (
+                  <div className="col-span-full text-center py-12">
+                    <div className="text-6xl mb-4">🖼️</div>
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">No Hero Images</h3>
+                    <p className="text-gray-600">Add your first hero image to get started</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         </main>
       </div>
 
@@ -4545,6 +4791,149 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                 Create Zone
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Hero Image Form Modal */}
+      {showHeroForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[50] p-4">
+          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl">
+            <div className="p-6 border-b border-gray-200">
+              <div className="flex justify-between items-center">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  {editingHeroImage ? 'Edit Hero Image' : 'Add New Hero Image'}
+                </h3>
+                <button
+                  onClick={resetHeroImageForm}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            
+            <form onSubmit={handleHeroImageSubmit} className="p-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+                  <input
+                    type="text"
+                    value={heroFormData.title}
+                    onChange={(e) => setHeroFormData({ ...heroFormData, title: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Main heading text"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
+                  <input
+                    type="text"
+                    value={heroFormData.subtitle}
+                    onChange={(e) => setHeroFormData({ ...heroFormData, subtitle: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Subtitle or description"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
+                  <input
+                    type="text"
+                    value={heroFormData.buttonText}
+                    onChange={(e) => setHeroFormData({ ...heroFormData, buttonText: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Shop Now"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Button Link</label>
+                  <input
+                    type="text"
+                    value={heroFormData.buttonLink}
+                    onChange={(e) => setHeroFormData({ ...heroFormData, buttonLink: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="/products"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Hero Image</label>
+                <div className="space-y-3">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleHeroImageFileSelect}
+                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                  />
+                  <input
+                    type="url"
+                    value={heroFormData.image}
+                    onChange={(e) => setHeroFormData({ ...heroFormData, image: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Or enter image URL"
+                  />
+                  
+                  {(heroImagePreview || heroFormData.image) && (
+                    <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                      <img 
+                        src={heroImagePreview || heroFormData.image} 
+                        alt="Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Order</label>
+                  <input
+                    type="number"
+                    value={heroFormData.order}
+                    onChange={(e) => setHeroFormData({ ...heroFormData, order: parseInt(e.target.value) || 1 })}
+                    className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    min="1"
+                  />
+                </div>
+
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="heroActive"
+                    checked={heroFormData.isActive}
+                    onChange={(e) => setHeroFormData({ ...heroFormData, isActive: e.target.checked })}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <label htmlFor="heroActive" className="ml-2 text-sm text-gray-700">Active</label>
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={resetHeroImageForm}
+                  className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                >
+                  {editingHeroImage ? 'Update' : 'Add'} Hero Image
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
