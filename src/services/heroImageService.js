@@ -45,11 +45,7 @@ class HeroImageService {
         formData.append('mobileImage', mobileImageFile);
       }
 
-      const response = await api.post('/api/hero-images', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await api.postFormData('/api/hero-images', formData);
 
       return response;
     } catch (error) {
@@ -80,11 +76,7 @@ class HeroImageService {
         formData.append('mobileImage', mobileImageFile);
       }
 
-      const response = await api.put(`/api/hero-images/${heroImageId}`, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const response = await api.putFormData(`/api/hero-images/${heroImageId}`, formData);
 
       return response;
     } catch (error) {
