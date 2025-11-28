@@ -24,20 +24,25 @@ class HeroImageService {
   }
 
   // Create new hero image
-  static async createHeroImage(heroImageData, imageFile = null) {
+  static async createHeroImage(heroImageData, desktopImageFile = null, mobileImageFile = null) {
     try {
       const formData = new FormData();
       
-      // Add text fields
+      // Add data fields
       Object.keys(heroImageData).forEach(key => {
         if (heroImageData[key] !== null && heroImageData[key] !== undefined) {
           formData.append(key, heroImageData[key]);
         }
       });
 
-      // Add image file if provided
-      if (imageFile) {
-        formData.append('image', imageFile);
+      // Add desktop image file if provided
+      if (desktopImageFile) {
+        formData.append('image', desktopImageFile);
+      }
+
+      // Add mobile image file if provided
+      if (mobileImageFile) {
+        formData.append('mobileImage', mobileImageFile);
       }
 
       const response = await api.post('/api/hero-images', formData, {
@@ -46,7 +51,7 @@ class HeroImageService {
         },
       });
 
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error creating hero image:', error);
       throw new Error(error.response?.data?.error || 'Failed to create hero image');
@@ -54,20 +59,25 @@ class HeroImageService {
   }
 
   // Update hero image
-  static async updateHeroImage(heroImageId, heroImageData, imageFile = null) {
+  static async updateHeroImage(heroImageId, heroImageData, desktopImageFile = null, mobileImageFile = null) {
     try {
       const formData = new FormData();
       
-      // Add text fields
+      // Add data fields
       Object.keys(heroImageData).forEach(key => {
         if (heroImageData[key] !== null && heroImageData[key] !== undefined) {
           formData.append(key, heroImageData[key]);
         }
       });
 
-      // Add image file if provided
-      if (imageFile) {
-        formData.append('image', imageFile);
+      // Add desktop image file if provided
+      if (desktopImageFile) {
+        formData.append('image', desktopImageFile);
+      }
+
+      // Add mobile image file if provided
+      if (mobileImageFile) {
+        formData.append('mobileImage', mobileImageFile);
       }
 
       const response = await api.put(`/api/hero-images/${heroImageId}`, formData, {
@@ -76,7 +86,7 @@ class HeroImageService {
         },
       });
 
-      return response.data;
+      return response;
     } catch (error) {
       console.error('Error updating hero image:', error);
       throw new Error(error.response?.data?.error || 'Failed to update hero image');

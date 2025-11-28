@@ -84,16 +84,14 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const [showHeroForm, setShowHeroForm] = useState(false);
   const [editingHeroImage, setEditingHeroImage] = useState(null);
   const [heroFormData, setHeroFormData] = useState({
-    title: '',
-    subtitle: '',
-    buttonText: 'Shop Now',
-    buttonLink: '/products',
     image: '',
-    isActive: true,
-    order: 1
+    mobileImage: '',
+    isActive: true
   });
   const [selectedHeroImageFile, setSelectedHeroImageFile] = useState(null);
   const [heroImagePreview, setHeroImagePreview] = useState('');
+  const [selectedMobileImageFile, setSelectedMobileImageFile] = useState(null);
+  const [mobileImagePreview, setMobileImagePreview] = useState('');
   
   // Product filtering state
   const [productFilter, setProductFilter] = useState('all'); // 'all', 'cod-enabled', 'cod-disabled'
@@ -1410,19 +1408,15 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
   const handleHeroImageSubmit = async (e) => {
     e.preventDefault();
     try {
-      const heroImageData = {
-        title: heroFormData.title,
-        subtitle: heroFormData.subtitle,
-        buttonText: heroFormData.buttonText,
-        buttonLink: heroFormData.buttonLink,
-        isActive: heroFormData.isActive,
-        order: heroFormData.order
-      };
-
-      // Add imageUrl if no file is selected
-      if (!selectedHeroImageFile && heroFormData.image) {
-        heroImageData.imageUrl = heroFormData.image;
+      // Require at least one image
+      if (!selectedHeroImageFile && !selectedMobileImageFile && !heroFormData.image && !heroFormData.mobileImage) {
+        alert('Please upload at least one image (desktop or mobile)');
+        return;
       }
+
+      const heroImageData = {
+        isActive: heroFormData.isActive
+      };
 
       let result;
       if (editingHeroImage) {
@@ -1430,7 +1424,8 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         result = await HeroImageService.updateHeroImage(
           editingHeroImage._id, 
           heroImageData, 
-          selectedHeroImageFile
+          selectedHeroImageFile,
+          selectedMobileImageFile
         );
         const updatedImages = heroImages.map(img =>
           img._id === editingHeroImage._id ? result : img
@@ -1439,7 +1434,11 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
         alert('Hero image updated successfully!');
       } else {
         // Add new hero image
-        result = await HeroImageService.createHeroImage(heroImageData, selectedHeroImageFile);
+        result = await HeroImageService.createHeroImage(
+          heroImageData, 
+          selectedHeroImageFile,
+          selectedMobileImageFile
+        );
         setHeroImages([...heroImages, result]);
         alert('Hero image added successfully!');
       }
@@ -1453,30 +1452,16 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
 
   const resetHeroImageForm = () => {
     setHeroFormData({
-      title: '',
-      subtitle: '',
-      buttonText: 'Shop Now',
-      buttonLink: '/products',
       image: '',
-      isActive: true,
-      order: 1
+      mobileImage: '',
+      isActive: true
     });
     setSelectedHeroImageFile(null);
     setHeroImagePreview('');
+    setSelectedMobileImageFile(null);
+    setMobileImagePreview('');
     setEditingHeroImage(null);
     setShowHeroForm(false);
-  };
-
-  const handleHeroImageFileSelect = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setSelectedHeroImageFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setHeroImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    }
   };
 
   const deleteHeroImage = async (imageId) => {
@@ -3491,34 +3476,32 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
                       />
                     </div>
                     <div className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-lg line-clamp-1">{heroImage.title}</h3>
+                      <div className="flex justify-between items-center mb-3">
+                        <h3 className="font-semibold text-lg">Hero Image</h3>
                         <div className="flex items-center gap-2">
                           {heroImage.isActive && (
                             <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Active</span>
                           )}
-                          <span className="text-xs text-gray-500">#{heroImage.order}</span>
                         </div>
                       </div>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{heroImage.subtitle}</p>
-                      <div className="flex items-center gap-2 text-xs text-gray-500 mb-4">
-                        <span>Button: {heroImage.buttonText}</span>
-                        <span>→ {heroImage.buttonLink}</span>
-                      </div>
+                      
+                      {/* Show if mobile image exists */}
+                      {heroImage.mobileImage && (
+                        <div className="text-xs text-blue-600 mb-3 flex items-center gap-1">
+                          📱 <span>Mobile version available</span>
+                        </div>
+                      )}
                       <div className="flex flex-wrap gap-2">
                         <button
                           onClick={() => {
                             setEditingHeroImage(heroImage);
                             setHeroFormData({
-                              title: heroImage.title,
-                              subtitle: heroImage.subtitle,
-                              buttonText: heroImage.buttonText,
-                              buttonLink: heroImage.buttonLink,
-                              image: heroImage.image,
-                              isActive: heroImage.isActive,
-                              order: heroImage.order
+                              image: heroImage.image || '',
+                              mobileImage: heroImage.mobileImage || '',
+                              isActive: heroImage.isActive
                             });
-                            setHeroImagePreview(heroImage.image);
+                            setHeroImagePreview(heroImage.image || '');
+                            setMobileImagePreview(heroImage.mobileImage || '');
                             setShowHeroForm(true);
                           }}
                           className="text-blue-600 hover:text-blue-800 text-sm"
@@ -4819,96 +4802,75 @@ const AdminPanel = ({ onBackToHome, onLogout }) => {
             </div>
             
             <form onSubmit={handleHeroImageSubmit} className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Desktop Image Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                  <input
-                    type="text"
-                    value={heroFormData.title}
-                    onChange={(e) => setHeroFormData({ ...heroFormData, title: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Main heading text"
-                    required
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Desktop Image</label>
+                  <div className="space-y-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setSelectedHeroImageFile(file);
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setHeroImagePreview(reader.result);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                    />
+                    
+                    {(heroImagePreview || heroFormData.image) && (
+                      <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300">
+                        <img 
+                          src={heroImagePreview || heroFormData.image} 
+                          alt="Desktop Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
 
+                {/* Mobile Image Upload */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Subtitle</label>
-                  <input
-                    type="text"
-                    value={heroFormData.subtitle}
-                    onChange={(e) => setHeroFormData({ ...heroFormData, subtitle: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Subtitle or description"
-                  />
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Mobile Image</label>
+                  <div className="space-y-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) {
+                          setSelectedMobileImageFile(file);
+                          const reader = new FileReader();
+                          reader.onloadend = () => {
+                            setMobileImagePreview(reader.result);
+                          };
+                          reader.readAsDataURL(file);
+                        }
+                      }}
+                      className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"
+                    />
+                    
+                    {(mobileImagePreview || heroFormData.mobileImage) && (
+                      <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden border-2 border-dashed border-gray-300">
+                        <img 
+                          src={mobileImagePreview || heroFormData.mobileImage} 
+                          alt="Mobile Preview"
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
-                  <input
-                    type="text"
-                    value={heroFormData.buttonText}
-                    onChange={(e) => setHeroFormData({ ...heroFormData, buttonText: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Shop Now"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Button Link</label>
-                  <input
-                    type="text"
-                    value={heroFormData.buttonLink}
-                    onChange={(e) => setHeroFormData({ ...heroFormData, buttonLink: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="/products"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Hero Image</label>
-                <div className="space-y-3">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleHeroImageFileSelect}
-                    className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                  />
-                  <input
-                    type="url"
-                    value={heroFormData.image}
-                    onChange={(e) => setHeroFormData({ ...heroFormData, image: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    placeholder="Or enter image URL"
-                  />
-                  
-                  {(heroImagePreview || heroFormData.image) && (
-                    <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
-                      <img 
-                        src={heroImagePreview || heroFormData.image} 
-                        alt="Preview"
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Order</label>
-                  <input
-                    type="number"
-                    value={heroFormData.order}
-                    onChange={(e) => setHeroFormData({ ...heroFormData, order: parseInt(e.target.value) || 1 })}
-                    className="w-20 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    min="1"
-                  />
-                </div>
-
+              <div className="flex items-center justify-center">
                 <div className="flex items-center">
                   <input
                     type="checkbox"
